@@ -9,7 +9,6 @@ const Matches = {
       if (storedData) {
         const tournamentData = JSON.parse(storedData);
         updateMatchDisplay(tournamentData);
-        sessionStorage.removeItem("tournamentData");
       } else {
         alert("No tournament data found in session storage.");
         window.location.hash = "#/tournament";
@@ -27,6 +26,8 @@ function updateMatchDisplay(tournament) {
     const player2 = match.player2.name;
     const score1 = match.player1_score;
     const score2 = match.player2_score;
+    sessionStorage.setItem("player1", player1)
+    sessionStorage.setItem("player2", player2)
 
     const matchNumber = match.match_number;
     if (matchNumber <= 4) {

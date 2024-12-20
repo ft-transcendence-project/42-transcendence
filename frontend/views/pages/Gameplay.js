@@ -4,6 +4,15 @@ const Gameplay = {
 	},
 
 	after_render: async () => {
+        const player1 = sessionStorage.getItem("player1");
+        if (player1) {
+            document.getElementById("player1").textContent = player1;
+        }
+        const player2 = sessionStorage.getItem("player2");
+        if (player2) {
+            document.getElementById("player2").textContent = player2;
+        }
+
 		console.log("SettingId in Gameplay:", window.localStorage.getItem('settingId'));
 
 		const gameCanvas = document.getElementById('gameCanvas');
