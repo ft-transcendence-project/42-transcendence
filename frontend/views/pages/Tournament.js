@@ -8,6 +8,9 @@ const Tournament = {
   after_render: async () => {
     updateContent();
 
+    sessionStorage.removeItem("tournamentData");
+    sessionStorage.removeItem("currentMatch");
+
     document
       .getElementById("tournament-form")
       .addEventListener("submit", async (event) => {
