@@ -2,101 +2,53 @@ const Tournament = artifacts.require("Tournament");
 
 contract("Tournament", (accounts) => {
     let tournament;
+    const owner = accounts[0];
+    const nonOwner = accounts[1];
 
     beforeEach(async () => {
-        tournament = await Tournament.new();
+        tournament = await Tournament.new({ from: owner });
     });
 
-    // トーナメントの開始に関してisActiveになって始まるか
-    it("should start the tournament", async () => {
-        await tournament.startTournament({ from: accounts[0] });
-        const isActive = await tournament.isActive();
-        assert.equal(isActive, true, "Tournament should be active");
-    });
-
-    // 下記のスコアで記録できるかどうか、assertで値が一致するかどうかをテストしている。
+    // 試合結果を記録できるかどうかのテスト
     it("should record a match", async () => {
-        await tournament.startTournament({ from: accounts[0] });
-
-        const matchNumber = 0;
         const winnerId = 1;
         const winnerScore = 10;
         const loserId = 2;
         const loserScore = 8;
 
         await tournament.recordMatch(
-            matchNumber,
             winnerId,
             winnerScore,
             loserId,
             loserScore,
-            { from: accounts[0] }
+            { from: owner }
         );
 
-        const match = await tournament.getMatch(0);
-        assert.equal(match.matchNumber, matchNumber, "Match number should be recorded correctly");
+        const match = await tournament.getMatch(1);
         assert.equal(match.winnerId, winnerId, "Winner ID should be recorded correctly");
         assert.equal(match.winnerScore, winnerScore, "Winner score should be recorded correctly");
         assert.equal(match.loserId, loserId, "Loser ID should be recorded correctly");
         assert.equal(match.loserScore, loserScore, "Loser score should be recorded correctly");
     });
 
-    // トーナメントがMAX_lengthに達したら終わるようになっているか->７回分値を追加して確認する。
-    // 試合終了後はisactive=falseになるようにしているので確認する。
-    // Matchの最大数の確認をして7回になっているかを確認する
-    it("should end tournament after max matches", async () => {
-        await tournament.startTournament({ from: accounts[0] });
-
-        for (let i = 0; i < 7; i++) {
-            await tournament.recordMatch(
-                i,
-                1,
-                10,
-                2,
-                8,
-                { from: accounts[0] }
-            );
-        }
-
-        const isActive = await tournament.isActive();
-        assert.equal(isActive, false, "Tournament should be inactive after max matches");
-
-        const matchCount = await tournament.getMatchCount();
-        assert.equal(matchCount.toNumber(), 7, "Should have recorded 7 matches");
-    });
-
-    // isactive=falseの時はrecordできないかどうかの確認
-    it("should not allow recording matches when tournament is not active", async () => {
+    // 所有者以外が試合結果を記録しようとした場合のテスト
+    it("should not allow non-owner to record a match", async () => {
         try {
-            await tournament.recordMatch(0, 1, 10, 2, 8, { from: accounts[0] });
-            assert.fail("Should have thrown an error");
+            await tournament.recordMatch(1, 10, 2, 8, { from: nonOwner });
+            assert.fail("Non-owner should not be able to record a match");
         } catch (error) {
-            console.log("Error message for inactive tournament:", error.message);
-            assert(error.message.includes("Tournament is not active"), "Wrong error message");
+            assert(error.message.includes("Caller is not the owner"), "Expected 'Caller is not the owner' error");
         }
     });
 
-    // もう一度７回分追加して今度はデータが新規で追加できないを確認する。
-    it("should not allow recording matches after max matches reached", async () => {
-        await tournament.startTournament({ from: accounts[0] });
-
-        // 7試合分のデータを記録
-        for (let i = 0; i < 7; i++) {
-            await tournament.recordMatch(i, 1, 10, 2, 8, { from: accounts[0] });
+    // 複数の試合結果を連続して記録できるかどうかのテスト
+    it("should record multiple matches", async () => {
+        for (let i = 1; i <= 5; i++) {
+            await tournament.recordMatch(i, 10 + i, i + 1, 8 + i, { from: owner });
+            const match = await tournament.getMatch(i);
+            assert.equal(match.winnerId, i, `Match ${i}: Winner ID should be recorded correctly`);
         }
-
-        try {
-            await tournament.recordMatch(7, 1, 10, 2, 8, { from: accounts[0] });
-            assert.fail("Should have thrown an error");
-        } catch (error) {
-            // エラーメッセージをログ出力
-            console.log("Actual error message:", error.message);
-            // Solidityのrequireメッセージは "VM Exception while processing transaction: revert" の後に付加される
-            assert(
-                error.message.includes("Maximum number of matches reached") ||
-                error.message.includes("Tournament is already complete"),
-                `Wrong error message. Got: ${error.message}`
-            );
-        }
+        const matchCount = await tournament.matchCount();
+        assert.equal(matchCount.toNumber(), 5, "Match count should be 5");
     });
 });

@@ -3,18 +3,22 @@
 import Navbar from "./views/components/Navbar.js";
 import Login from "./views/pages/Login.js";
 import SignUp from "./views/pages/SignUp.js";
+import SetupOtp from "./views/pages/SetUpOtp.js";
 import Home from "./views/pages/Home.js";
 import Gameplay from "./views/pages/Gameplay.js";
 import GameSetting from "./views/pages/GameSetting.js";
 import Tournament from "./views/pages/Tournament.js";
+import Matches from "./views/pages/Matches.js";
 
 const routes = {
   "/": Home,
   "/login": Login,
   "/signup": SignUp,
+  "/setup-otp": SetupOtp,
   "/gameplay": Gameplay,
   "/gamesetting": GameSetting,
   "/tournament": Tournament,
+  "/matches": Matches,
 };
 
 const router = async () => {

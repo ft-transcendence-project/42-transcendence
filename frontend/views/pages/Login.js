@@ -40,6 +40,7 @@ const Login = {
 
         if (response.ok) {
           console.log("Login success: ", data);
+          sessionStorage.setItem("token", data.token);
           window.location.hash = "#/";
         } else {
           const errors = Object.entries(data)
