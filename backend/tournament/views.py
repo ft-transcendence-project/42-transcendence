@@ -49,17 +49,20 @@ class TournamentRegisterView(APIView):
 
 class SaveScoreView(APIView):
     def post(self, request):
+        tournament_id = request.data.get('tournament_id')
         try:
-            # クライアントから送信されたデータから試合 ID を取得
-            match_id = request.data.get('id')
-            match = Match.objects.get(id=match_id)
-        except Match.DoesNotExist:
-            return Response({'error': 'Match not found'}, status=status.HTTP_404_NOT_FOUND)
+            tournament = Tournament.objects.get(id=tournament_id)
+        except Tournament.DoesNotExist:
+            return Response({'error': 'Tournament not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-        # 保存専用シリアライザーを使用
+        match_id = request.data.get('id')
+        try:
+            match = Match.objects.get(id=match_id, tournament=tournament)
+        except Match.DoesNotExist:
+            return Response({'error': 'Match not found.'}, status=status.HTTP_404_NOT_FOUND)
+
         serializer = MatchSaveSerializer(match, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            # 後にここでブロックチェーンへの保存処理を呼び出す
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

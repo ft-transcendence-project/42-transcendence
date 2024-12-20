@@ -30,6 +30,7 @@ class MatchDetailSerializer(serializers.ModelSerializer):
 
 # DBへの保存処理を行うシリアライザ
 class MatchSaveSerializer(serializers.ModelSerializer):
+    tournament_id = serializers.PrimaryKeyRelatedField(queryset=Tournament.objects.all(), source='tournament')
     player1_id = serializers.PrimaryKeyRelatedField(queryset=Player.objects.all(), source='player1')
     player2_id = serializers.PrimaryKeyRelatedField(queryset=Player.objects.all(), source='player2')
     winner_id = serializers.PrimaryKeyRelatedField(queryset=Player.objects.all(), source='winner')
@@ -38,6 +39,7 @@ class MatchSaveSerializer(serializers.ModelSerializer):
         model = Match
         fields = [
             "id",
+            "tournament_id",
             "match_number",
             "timestamp",
             "player1_id",
