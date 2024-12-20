@@ -8,7 +8,7 @@ class TournamentContract:
         self.ganache_url = ganache_url
         self.abi_path = abi_path
         self.address_path = address_path
-        self.mnemonic = mnemonic or os.getenv('GANACHE_MNEMONIC', 'myth like bonus scare over problem client lizard pioneer submit female collect')
+        self.mnemonic = mnemonic or os.getenv('MNEMONIC')
         self.account_index = account_index
         self.web3 = self.connect_to_ganache()
         self.account, self.private_key = self.derive_account()

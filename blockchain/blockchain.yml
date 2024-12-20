@@ -7,11 +7,13 @@ services:
       - "8545:8545"
     volumes:
       - ./ganache/ganache-data:/data
+    environment:
+      MNEMONIC: "${MNEMONIC}"
     command:
       - --host
       - "0.0.0.0"
       - --mnemonic
-      - "myth like bonus scare over problem client lizard pioneer submit female collect"
+      - "${MNEMONIC}"
 
 
   truffle:
