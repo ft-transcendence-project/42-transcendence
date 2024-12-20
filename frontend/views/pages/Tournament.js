@@ -15,7 +15,11 @@ const Tournament = {
         const users = [];
 
         for (let index = 0; index < 8; index++) {
-          users.push(document.getElementById(`player${index + 1}`).value);
+          if (document.getElementById(`player${index + 1}`).value) {
+            users.push(document.getElementById(`player${index + 1}`).value);
+          } else {
+            users.push(`player${index + 1}`);
+          }
         }
 
         try {
@@ -33,8 +37,8 @@ const Tournament = {
           const data = await response.json();
 
           if (response.ok) {
-            console.log(data)
-            sessionStorage.setItem('tournamentData', JSON.stringify(data));
+            console.log(data);
+            sessionStorage.setItem("tournamentData", JSON.stringify(data));
             window.location.hash = "#/matches";
           } else {
             const errors = Object.entries(data)
