@@ -17,6 +17,13 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
         self.state = "stop"
         self.tasks = {}
 
+    # これを追加しました。raza send_posするときに引数これを呼んでください.
+    def get_winner(self):
+        if SharedState.Score.left > SharedState.Score.right:
+            return "left"
+        else:
+            return "right"
+
     # PongLogic
     async def game_loop(self):
         turn_count = 0
@@ -32,13 +39,14 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
                     Utils.set_direction(SharedState.Ball)
                 # print("angle: ", self.ball.angle)
                 # print("direction: ", self.ball.direction["facing_up"], self.ball.direction["facing_down"], self.ball.direction["facing_right"], self.ball.direction["facing_left"])
+            
             await self.rendering()
             await self.update_pos()
             await self.check_game_state()
-        await self.send_pos()
+        await self.send_pos(self.get_winner())
 
     async def rendering(self):
-        await self.send_pos()
+        await self.send_pos(self.get_winner())
         await asyncio.sleep(0.005)
         if self.state == "stop":
             await asyncio.sleep(2)
@@ -182,7 +190,7 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
             },
         )
 
-    async def send_pos(self):
+    async def send_pos(self, winner=None):
         response_message = {
             "left_paddle_y": SharedState.Paddle.left_y,
             "right_paddle_y": SharedState.Paddle.right_y,
@@ -190,6 +198,8 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
             "ball_y": SharedState.Ball.y,
             "left_score": SharedState.Score.left,
             "right_score": SharedState.Score.right,
+            # これを追加しました。raza (どこかget_winnerを呼ぶのを忘れたとしてもここで追加できるようにしています。)
+            "winner": winner if SharedState.Score.left >= 15 or SharedState.Score.right >= 15 else None,
         }
         await self.channel_layer.group_send(
             "sendmessage",

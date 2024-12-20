@@ -50,14 +50,41 @@ const Gameplay = {
 			animationFrameId = requestAnimationFrame(update);
 		};
 
+		// 12/20 ここを修正しました。raza
+		
+		// window.ws.onmessage = (e) => {
+		// 	const coordinates = JSON.parse(e.data);
+		// 	score.left = coordinates.left_score;
+		// 	score.right = coordinates.right_score;
+		// 	paddle.left_y = coordinates.left_paddle_y;
+		// 	paddle.right_y = coordinates.right_paddle_y;
+		// 	ball.x = coordinates.ball_x;
+		// 	ball.y = coordinates.ball_y;
+		// };
 		window.ws.onmessage = (e) => {
-			const coordinates = JSON.parse(e.data);
-			score.left = coordinates.left_score;
-			score.right = coordinates.right_score;
-			paddle.left_y = coordinates.left_paddle_y;
-			paddle.right_y = coordinates.right_paddle_y;
-			ball.x = coordinates.ball_x;
-			ball.y = coordinates.ball_y;
+			const data = JSON.parse(e.data);
+			score.left = data.left_score;
+			score.right = data.right_score;
+			paddle.left_y = data.left_paddle_y;
+			paddle.right_y = data.right_paddle_y;
+			ball.x = data.ball_x;
+			ball.y = data.ball_y;
+			
+		
+			// winnerが決まっていればここでゲームを終了することをしています。ソケット,animationは閉じました。他にあれば教えて
+			if (data.winner) {
+				if (animationFrameId) {
+					cancelAnimationFrame(animationFrameId);
+					animationFrameId = null;
+				}
+				if (window.ws) {
+					window.ws.close();
+					window.ws = null;
+				}
+				// アイテムの指定,遷移
+				localStorage.setItem('gameWinner', data.winner);
+				window.location.hash = "#/winnerpage";
+			}
 		};
 
 		function sendMessage(message) {
