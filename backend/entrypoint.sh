@@ -8,7 +8,7 @@ python manage.py migrate --noinput
 # python manage.py collectstatic --noinput
 
 python manage.py flush --noinput
-python manage.py loaddata fixtures/users.json
+python manage.py loaddata fixtures/users.json fixtures/defaultGameSetting.json
 
 # 環境変数のENVIRONMENTの値がdevelopmentの時はrunserverを、productionの時はdaphneを実行
 if [ $ENVIRONMENT = "development" ]
