@@ -7,9 +7,14 @@ services:
       - "8545:8545"
     volumes:
       - ./ganache/ganache-data:/data
+    environment:
+      MNEMONIC: "${MNEMONIC}"
     command:
       - --host
       - "0.0.0.0"
+      - --mnemonic
+      - "${MNEMONIC}"
+
 
   truffle:
     build:
