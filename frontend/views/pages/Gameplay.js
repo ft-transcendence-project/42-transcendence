@@ -7,12 +7,10 @@ const Gameplay = {
         const player1 = sessionStorage.getItem("player1");
         if (player1) {
             document.getElementById("player1").textContent = player1;
-            sessionStorage.removeItem("player1");
         }
         const player2 = sessionStorage.getItem("player2");
         if (player2) {
             document.getElementById("player2").textContent = player2;
-            sessionStorage.removeItem("player2");
         }
 
 		console.log("SettingId in Gameplay:", window.localStorage.getItem('settingId'));
@@ -74,11 +72,44 @@ const Gameplay = {
 			animationFrameId = requestAnimationFrame(update);
 		};
 
+        function gameOver(data) {
+            let winner = data.winner;
+            if (winner === "left") {
+                winner = sessionStorage.getItem("player1");
+            } else if (winner === "right") {
+                winner = sessionStorage.getItem("player2");
+            }
+
+            try {
+                let tournamentData = JSON.parse(sessionStorage.getItem("tournamentData"));
+                const currentMatch = parseInt(sessionStorage.getItem("currentMatch")) - 1;
+
+                if (tournamentData && tournamentData.matches) {
+                    tournamentData.matches[currentMatch].player1_score = data.left_score;
+                    tournamentData.matches[currentMatch].player2_score = data.right_score;
+                    tournamentData.matches[currentMatch].winner = winner;
+                    sessionStorage.setItem("tournamentData", JSON.stringify(tournamentData));
+
+                    if (currentMatch < 4) {
+                        const nextMatch = currentMatch + 1;
+                        if (nextMatch < tournamentData.matches.length) {
+                            sessionStorage.setItem("player1", tournamentData.matches[nextMatch].player1.name);
+                            sessionStorage.setItem("player2", tournamentData.matches[nextMatch].player2.name);
+                        }
+                    }
+                }
+
+                alert(`Game Over! ${winner} wins!`);
+                document.getElementById('gameOverButtons').style.display = 'block';
+            } catch (error) {
+                console.error("Error updating tournament data:", error);
+            }
+        }
+
 		window.ws.onmessage = (e) => {
 			const data = JSON.parse(e.data);
             if (data.type === "game_over") {
-                const winner = data.winner;
-                alert(`Game Over! ${winner} player wins!`);
+                gameOver(data);
                 return;
             }
 			score.left = data.left_score;
