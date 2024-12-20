@@ -5,14 +5,7 @@ const Matches = {
 
   after_render: async () => {
     try {
-      let currentMatch;
-      if (sessionStorage.getItem("currentMatch")) {
-        currentMatch = parseInt(sessionStorage.getItem("currentMatch"));
-        currentMatch = currentMatch >= 4 ? 1 : currentMatch + 1;
-      } else {
-        currentMatch = 1;
-      }
-      sessionStorage.setItem("currentMatch", currentMatch);
+      let currentMatch = parseInt(sessionStorage.getItem("currentMatch"));
       console.log(currentMatch);
 
       const storedData = sessionStorage.getItem("tournamentData");

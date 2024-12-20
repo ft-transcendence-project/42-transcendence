@@ -9,7 +9,7 @@ const Tournament = {
     updateContent();
 
     sessionStorage.removeItem("tournamentData");
-    sessionStorage.removeItem("currentMatch");
+    sessionStorage.setItem("currentMatch", 1);
 
     document
       .getElementById("tournament-form")

@@ -83,6 +83,7 @@ const Gameplay = {
             try {
                 let tournamentData = JSON.parse(sessionStorage.getItem("tournamentData"));
                 const currentMatch = parseInt(sessionStorage.getItem("currentMatch")) - 1;
+                sessionStorage.setItem("currentMatch", currentMatch + 2);
 
                 if (tournamentData && tournamentData.matches) {
                     tournamentData.matches[currentMatch].player1_score = data.left_score;
