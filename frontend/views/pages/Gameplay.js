@@ -75,20 +75,25 @@ const Gameplay = {
 		};
 
 		window.ws.onmessage = (e) => {
-			const coordinates = JSON.parse(e.data);
-			score.left = coordinates.left_score;
-			score.right = coordinates.right_score;
-			paddle.left_y = coordinates.left_paddle_y;
-			paddle.right_y = coordinates.right_paddle_y;
-			ball.x = coordinates.ball_x;
-			ball.y = coordinates.ball_y;
-			ball.radius = coordinates.ball_radius;
-			obstacle.x = coordinates.obstacle_x;
-			obstacle.y = coordinates.obstacle_y;
-			obstacle.width = coordinates.obstacle_width;
-			obstacle.height = coordinates.obstacle_height;
-			blind.width = coordinates.blind_width;
-			blind.height = coordinates.blind_height;
+			const data = JSON.parse(e.data);
+            if (data.type === "game_over") {
+                const winner = data.winner;
+                alert(`Game Over! ${winner} player wins!`);
+                return;
+            }
+			score.left = data.left_score;
+			score.right = data.right_score;
+			paddle.left_y = data.left_paddle_y;
+			paddle.right_y = data.right_paddle_y;
+			ball.x = data.ball_x;
+			ball.y = data.ball_y;
+			ball.radius = data.ball_radius;
+			obstacle.x = data.obstacle_x;
+			obstacle.y = data.obstacle_y;
+			obstacle.width = data.obstacle_width;
+			obstacle.height = data.obstacle_height;
+			blind.width = data.blind_width;
+			blind.height = data.blind_height;
 		};
 
 		function sendMessage(message) {

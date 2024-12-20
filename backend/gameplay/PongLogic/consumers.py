@@ -164,9 +164,28 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
             ):
                 SharedState.Score.left += 1
                 self.state = "stop"
+                if SharedState.Score.left >= 15:
+                    await self.send_game_over("left")
             elif SharedState.Ball.x + SharedState.Ball.radius < 0:
                 SharedState.Score.right += 1
                 self.state = "stop"
+                if SharedState.Score.right >= 15:
+                    await self.send_game_over("right")
+
+    async def send_game_over(self, winner):
+        response_message = {
+            "type": "game_over",
+            "winner": winner,
+            "left_score": SharedState.Score.left,
+            "right_score": SharedState.Score.right
+        }
+        await self.channel_layer.group_send(
+            self.group_name,
+            {
+                "type": "send_message",
+                "content": response_message,
+            },
+        )
 
     async def connect(self):
         self.setting_id = self.scope["url_route"]["kwargs"]["settingid"]
