@@ -7,10 +7,12 @@ const Gameplay = {
         const player1 = sessionStorage.getItem("player1");
         if (player1) {
             document.getElementById("player1").textContent = player1;
+            sessionStorage.removeItem("player1");
         }
         const player2 = sessionStorage.getItem("player2");
         if (player2) {
             document.getElementById("player2").textContent = player2;
+            sessionStorage.removeItem("player2");
         }
 
 		console.log("SettingId in Gameplay:", window.localStorage.getItem('settingId'));
