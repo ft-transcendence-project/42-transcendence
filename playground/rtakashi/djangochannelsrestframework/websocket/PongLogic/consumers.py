@@ -5,10 +5,10 @@ import asyncio
 import math
 from .utils import Utils
 from .shared import SharedState
-from .serverside_pong_api import move_paddle, init_game, pause_game, resume_game
+from .serverside_pong_api import move_paddle, init_game, pause_game, resume_game, set_game_state
 from websocket.models import GameState
 from channels.db import database_sync_to_async
-# from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
+from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
 from djangochannelsrestframework.consumers import AsyncAPIConsumer
 from websocket.serializers import GameStateSerializer
 from djangochannelsrestframework.mixins import (
@@ -23,30 +23,12 @@ from asgiref.sync import sync_to_async
 from djangochannelsrestframework.decorators import action
 from djangochannelsrestframework.observer import model_observer
 
-class GameStateConsumer(SharedState,AsyncAPIConsumer, ListModelMixin):
+class GameStateConsumer(SharedState,GenericAsyncAPIConsumer, ListModelMixin):
     from websocket.models import GameState
     queryset = GameState.objects.all()
     serializer_class = GameStateSerializer
-    lookup_field = 'pk' 
+    lookup_field = 'id' 
     # ↑試合番号とか？
-    
-    @model_observer(GameState)
-    async def game_state_activity(
-        self,
-        message: GameStateSerializer,
-        observer=None,
-        subscribing_request_ids=[],
-        **kwargs
-    ):
-        await self.send_json(message)
-    
-    @game_state_activity.serializer
-    def game_state_activity_serializer(self, instance, action, **kwargs):
-        # インスタンスデータをシリアル化
-        return {
-            "action": action,
-            "id": instance.state
-        }
     
     async def receive_json(self, content, **kwargs):
         action = content.get("action")
@@ -80,13 +62,14 @@ class GameStateConsumer(SharedState,AsyncAPIConsumer, ListModelMixin):
                         "r_score": game_state.r_score,
                         "l_score": game_state.l_score,
                     }
+                #     serialized_data = self.get_serializer(game_state).data
                     await self.send_json(serialized_data)
-                else:
-                    await self.send_json({"error": "No game state available"})
-                return
+                # else:
+                #     await self.send_json({"error": "No game state available"})
+                # return
                     # await self.game_state_activity.subscribe()
-                    # print(f"get_state:",game_state)
-                    # return
+                    print(f"get_state:",game_state)
+                    return
             if action == "move_up" or action == "move_down":
                 game_state = await move_paddle(action, content)
             elif action == "init_game":
@@ -211,6 +194,7 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
             Utils.adjust_ball_position(
                 SharedState.Ball, SharedState.Paddle, velocity, SharedState.GameWindow
             )
+            await set_game_state("playing")
 
     async def check_game_state(self):
         async with SharedState.lock:
@@ -223,6 +207,7 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
             elif SharedState.Ball.x + SharedState.Ball.radius < 0:
                 SharedState.Score.right += 1
                 self.state = "stop"
+            await set_game_state("playing")
 
     async def connect(self):
         if "game_loop" in SharedState.tasks:
@@ -232,11 +217,13 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
         await self.accept()
         self.state = "stop"
         SharedState.tasks["game_loop"] = asyncio.create_task(Utils.game_start(self.game_loop()))
-
+        await set_game_state("playing")
+    
     async def disconnect(self, close_code):
         if "game_loop" in SharedState.tasks:
             SharedState.init()
             SharedState.tasks["game_loop"].cancel()
+            await set_game_state("waiting")
         await self.channel_layer.group_discard("sendmessage", self.channel_name)
         print("Websocket disconnected")
 
@@ -264,6 +251,7 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
             elif key == "I" and action == "pressed":
                 if SharedState.Paddle.right_y - 3 >= 0:
                     SharedState.Paddle.right_y -= 3
+            await set_game_state("playing")
         if self.state == "stop":
             await self.send_pos()
 
