@@ -37,6 +37,13 @@ const SetupOtp = {
       .addEventListener("submit", async (e) => {
         e.preventDefault();
 
+        function getCSRFToken() {
+          return document.cookie
+            .split("; ")
+            .find((row) => row.startsWith("csrftoken="))
+            ?.split("=")[1];
+        }
+
         try {
           const token = document.cookie.replace(
             /(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/,
@@ -50,6 +57,7 @@ const SetupOtp = {
               headers: {
                 Authorization: `JWT ${token}`,
                 "Content-Type": "application/json",
+                "X-CSRFToken": getCSRFToken(),
               },
             }
           );
