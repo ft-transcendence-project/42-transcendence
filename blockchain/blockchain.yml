@@ -7,11 +7,14 @@ services:
       - "8545:8545"
     volumes:
       - ./ganache/ganache-data:/data
-    networks:
-      - blockchain_net
+    environment:
+      MNEMONIC: "${MNEMONIC}"
     command:
       - --host
       - "0.0.0.0"
+      - --mnemonic
+      - "${MNEMONIC}"
+
 
   truffle:
     build:
@@ -20,13 +23,6 @@ services:
     container_name: truffle
     volumes:
       - ./truffle:/app
-    networks:
-      - blockchain_net
-    tty: true
-    stdin_open: true
-    #    command: ["truffle", "migrate", "--network", "development"]
-    command: /bin/sh
-
-networks:
-  blockchain_net:
-    driver: bridge
+    depends_on:
+      - ganache
+    command: ["sh", "-c", "truffle migrate --network development && tail -f /dev/null"]  

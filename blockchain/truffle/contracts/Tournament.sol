@@ -2,8 +2,8 @@
 pragma solidity ^0.8.0;
 
 contract Tournament {
+    // 試合情報を格納する構造体
     struct Match {
-        uint256 timestamp;
         uint256 matchNumber;
         uint256 winnerId;
         uint256 winnerScore;
@@ -11,12 +11,17 @@ contract Tournament {
         uint256 loserScore;
     }
 
-    Match[] public matches;
-    bool public isActive;
-    uint256 public constant MAX_MATCHES = 7;
+    // 試合番号をキーにして試合情報を格納するマッピング
+    mapping(uint256 => Match) public matches;
 
+    // 記録された試合の総数
+    uint256 public matchCount;
+
+    // コントラクトの所有者のアドレス
+    address public owner;
+
+    // 新しい試合が記録されたときに発行されるイベント
     event MatchRecorded(
-        uint256 timestamp,
         uint256 matchNumber,
         uint256 winnerId,
         uint256 winnerScore,
@@ -24,74 +29,51 @@ contract Tournament {
         uint256 loserScore
     );
 
+    // コントラクトの所有者のみが特定の関数を実行できるように制限
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Caller is not the owner");
+        _;
+    }
+
+    // コントラクトをデプロイするときに所有者を設定するコンストラクタ
     constructor() {
-        isActive = false;
+        owner = msg.sender;
     }
 
-    function startTournament() public {
-        require(!isActive, "Tournament is already active");
-        isActive = true;
-    }
-
+    // 新しい試合結果を記録する関数 
     function recordMatch(
-        uint256 matchNumber,
         uint256 winnerId,
         uint256 winnerScore,
         uint256 loserId,
         uint256 loserScore
-    ) public {
-        // 最大試合数のチェックを最初に行う
-        require(matches.length < MAX_MATCHES, "Tournament is already complete");
-        require(isActive, "Tournament is not active");
-        // require(matchNumber < MAX_MATCHES, "Invalid match number");
-
-        Match memory newMatch = Match({
-            timestamp: block.timestamp,
-            matchNumber: matchNumber,
+    ) public onlyOwner {
+        matchCount++;
+        matches[matchCount] = Match({
+            matchNumber: matchCount,
             winnerId: winnerId,
             winnerScore: winnerScore,
             loserId: loserId,
             loserScore: loserScore
         });
 
-        matches.push(newMatch);
-
+        // MatchRecordedイベントを発行
         emit MatchRecorded(
-            block.timestamp,
-            matchNumber,
+            matchCount,
             winnerId,
             winnerScore,
             loserId,
             loserScore
         );
-
-        // 最大試合数に達したらトーナメントを終了
-        if (matches.length >= MAX_MATCHES) {
-            isActive = false;
-        }
     }
 
-    function getMatchCount() public view returns (uint256) {
-        return matches.length;
-    }
-
-    function getMatch(uint256 index) public view returns (
-        uint256 timestamp,
-        uint256 matchNumber,
+    // 指定した試合番号の試合情報を取得する関数
+    function getMatch(uint256 matchNumber) public view returns (
         uint256 winnerId,
         uint256 winnerScore,
         uint256 loserId,
         uint256 loserScore
     ) {
-        require(index < matches.length, "Match does not exist");
-        Match memory matchData = matches[index];
-        return (
-            matchData.timestamp,
-            matchData.matchNumber,
-            matchData.winnerId,
-            matchData.winnerScore,
-            matchData.loserId,
-            matchData.loserScore
-        );
+        Match memory m = matches[matchNumber];
+        return (m.winnerId, m.winnerScore, m.loserId, m.loserScore);
     }
 }

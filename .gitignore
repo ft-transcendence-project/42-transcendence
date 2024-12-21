@@ -2,3 +2,5 @@
 data
 .vscode
 .env
+build
+blockchain/truffle/contract_address.json

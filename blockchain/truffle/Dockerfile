@@ -15,6 +15,3 @@ RUN npm install -g truffle
 
 # プロジェクトのファイルをコンテナにコピー
 COPY . .
-
-# Truffle migrate を実行
-CMD ["truffle", "migrate", "--network", "development"]

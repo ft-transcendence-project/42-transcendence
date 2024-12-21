@@ -1,0 +1,77 @@
+.hero {
+  position: relative;
+  text-align: center;
+  overflow: hidden;
+  color: gold;
+}
+
+.hero h1 {
+  font-family: "Holtwood One SC", serif;
+  font-weight: normal;
+  font-size: 5.4em;
+  margin: 0 0 20px;
+  text-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+  text-transform: uppercase;
+  letter-spacing: -1px;
+}
+
+.hero p {
+  font-family: "Abel", sans-serif;
+  text-transform: uppercase;
+  color: #5cca87;
+  letter-spacing: 6px;
+  text-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+  font-size: 1.2em;
+}
+
+.hero-wrap {
+  padding: 3.5em 10px;
+}
+
+.hero p.intro {
+  font-family: "Holtwood One SC", serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 3em;
+  margin-bottom: -40px;
+}
+
+.matchup {
+  background-color: #ffffff;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 10px 20px;
+}
+
+.team {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  font-weight: 500;
+}
+
+.team-top {
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+}
+
+.score {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.winner .score {
+  color: #28a745;
+}
+
+.text-uppercase {
+  text-transform: uppercase;
+}
+
+.text-success {
+  color: #3f915f;
+}
+
+.text-secondary {
+  color: #3a3a3a;
+}

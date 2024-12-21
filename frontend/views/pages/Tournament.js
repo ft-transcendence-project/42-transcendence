@@ -20,7 +20,7 @@ const Tournament = {
 
         try {
           const response = await fetch(
-            `${window.env.BACKEND_HOST}/tournaments/api/register`,
+            `${window.env.BACKEND_HOST}/tournament/api/register/`,
             {
               method: "POST",
               headers: {
@@ -33,8 +33,9 @@ const Tournament = {
           const data = await response.json();
 
           if (response.ok) {
-            console.log(data);
-            window.location.hash = "#/game";
+            console.log(data)
+            sessionStorage.setItem('tournamentData', JSON.stringify(data));
+            window.location.hash = "#/matches";
           } else {
             const errors = Object.entries(data)
               .map(([k, v]) => {

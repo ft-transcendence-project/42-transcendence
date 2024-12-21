@@ -8,7 +8,9 @@ import SetupOtp from "./views/pages/SetUpOtp.js";
 import VerifyOtp from "./views/pages/VerifyOtp.js";
 import Home from "./views/pages/Home.js";
 import Gameplay from "./views/pages/Gameplay.js";
+import GameSetting from "./views/pages/GameSetting.js";
 import Tournament from "./views/pages/Tournament.js";
+import Matches from "./views/pages/Matches.js";
 
 const routes = {
   "/": Home,
@@ -18,7 +20,9 @@ const routes = {
   "/setup-otp": SetupOtp,
   "/verify-otp": VerifyOtp,
   "/gameplay": Gameplay,
+  "/gamesetting": GameSetting,
   "/tournament": Tournament,
+  "/matches": Matches,
 };
 
 const getCookie = (name) => {
@@ -44,6 +48,7 @@ const router = async () => {
   }
 
   const page = routes[location];
+  console.log(page);
   window.currentPage = page;
 
   if (getCookie("token")) {
