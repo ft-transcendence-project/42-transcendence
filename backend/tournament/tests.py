@@ -129,6 +129,9 @@ class SaveScoreViewTest(TestCase):
         )
         self.url = '/tournament/api/save-score/'
 
+        self.client.defaults["HTTP_X_FORWARDED_PROTO"] = "https"
+        self.client.defaults["wsgi.url_scheme"] = "https"
+
     # スコアの保存が正しく行われるか
     def test_save_score(self):
         data = {
