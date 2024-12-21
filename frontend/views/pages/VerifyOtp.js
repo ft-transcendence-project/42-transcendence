@@ -9,6 +9,13 @@ const VerifyOtp = {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
+      function getCSRFToken() {
+        return document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("csrftoken="))
+          ?.split("=")[1];
+      }
+
       try {
         const user = sessionStorage.getItem("user");
         const otp_token = document.getElementById("id_otp_token").value;
@@ -18,6 +25,7 @@ const VerifyOtp = {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              "X-CSRFToken": getCSRFToken(),
             },
             body: JSON.stringify({ user, otp_token }),
           }

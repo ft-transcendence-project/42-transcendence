@@ -24,6 +24,13 @@ const SignUp = {
       let password = document.getElementById("password").value;
       let email = document.getElementById("email").value;
 
+      function getCSRFToken() {
+        return document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("csrftoken="))
+          ?.split("=")[1];
+      }
+
       try {
         const response = await fetch(
           `${window.env.BACKEND_HOST}/accounts/api/signup/`,
@@ -31,6 +38,7 @@ const SignUp = {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              "X-CSRFToken": getCSRFToken(),
             },
             body: JSON.stringify({ username, password, email }),
           }
