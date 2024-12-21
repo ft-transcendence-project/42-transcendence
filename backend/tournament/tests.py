@@ -110,3 +110,44 @@ class TournamentRegisterViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Tournament.objects.count(), 0)
         self.assertEqual(Player.objects.count(), 0)
+
+
+class SaveScoreViewTest(TestCase):
+    # test用のプレイヤーやトーナメントを作成
+    def setUp(self):
+        self.player1 = Player.objects.create(name="Player 1")
+        self.player2 = Player.objects.create(name="Player 2")
+        self.tournament = Tournament.objects.create(name="Tournament 1", date="2024-12-20")
+        self.match = Match.objects.create(
+            tournament=self.tournament,
+            match_number=1,
+            timestamp="2024-12-20T12:00:00Z",
+            player1=self.player1,
+            player2=self.player2,
+            player1_score=0,
+            player2_score=0
+        )
+        self.url = '/tournament/api/save-score/'
+
+        self.client.defaults["HTTP_X_FORWARDED_PROTO"] = "https"
+        self.client.defaults["wsgi.url_scheme"] = "https"
+
+    # スコアの保存が正しく行われるか
+    def test_save_score(self):
+        data = {
+            "id": self.match.id,
+            "tournament_id": self.tournament.id,
+            "match_number": 1,
+            "timestamp": "2024-12-20T12:00:00Z",
+            "player1_id": self.player1.id,
+            "player2_id": self.player2.id,
+            "player1_score": 10,
+            "player2_score": 8,
+            "winner_id": self.player1.id
+        }
+        response = self.client.post(self.url, data, content_type='application/json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        match = Match.objects.get(id=self.match.id)
+        self.assertEqual(match.player1_score, 10)
+        self.assertEqual(match.player2_score, 8)
+        self.assertEqual(match.winner, self.player1)
