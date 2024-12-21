@@ -35,6 +35,10 @@ class Match(models.Model):
     @property
     def winner(self):
         return self.player1 if self.player1_score > self.player2_score else self.player2
+    
+    @winner.setter
+    def winner(self, value):
+        self._winner = value
 
     class Meta:
         constraints = [
