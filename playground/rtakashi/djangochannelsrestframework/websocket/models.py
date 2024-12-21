@@ -2,20 +2,12 @@ from django.db import models
 
 # Create your models here.
 
-# ↓後でgame_state = models.JSONField(help_text="Game state data in JSON format, including players and ball positions.")にしてみる
-#     "action": "initialize_game",
-#     "game_state": {
-#         "players": {
-#             "r_player": {"paddle_y": 50},
-#             "l_player": {"paddle_y": 50}
-#         },
-#         "ball": {"x": 50, "y": 50, "vx": 1, "vy": 1}
-#     }
-
-
 class GameState(models.Model):
-    action = models.CharField(max_length=50, null=False, default="waiting")
-    game_state = models.JSONField()
-
-    def __str__(self):
-        return f"GameState(id: {self.id}, action: {self.action})"
+    id = models.AutoField(primary_key=True)
+    state = models.CharField(max_length=20, null=False, default="waiting")
+    r_player = models.FloatField(default=240)
+    l_player = models.FloatField(default=240)
+    ball_x = models.FloatField(default=500)
+    ball_y = models.FloatField(default=300)
+    r_score = models.PositiveIntegerField(default=0)
+    l_score = models.PositiveIntegerField(default=0)

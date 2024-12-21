@@ -5,57 +5,109 @@ import asyncio
 import math
 from .utils import Utils
 from .shared import SharedState
-
+from .serverside_pong_api import move_paddle, init_game, pause_game, resume_game
+from websocket.models import GameState
 from channels.db import database_sync_to_async
-from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
+# from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
+from djangochannelsrestframework.consumers import AsyncAPIConsumer
 from websocket.serializers import GameStateSerializer
+from djangochannelsrestframework.mixins import (
+    ListModelMixin,
+    RetrieveModelMixin,
+    PatchModelMixin,
+    UpdateModelMixin,
+    CreateModelMixin,
+    DeleteModelMixin,
+)
+from asgiref.sync import sync_to_async
+from djangochannelsrestframework.decorators import action
+from djangochannelsrestframework.observer import model_observer
 
-TASKS = {}
-class GameStateConsumer(SharedState, GenericAsyncAPIConsumer):
+class GameStateConsumer(SharedState,AsyncAPIConsumer, ListModelMixin):
     from websocket.models import GameState
-
     queryset = GameState.objects.all()
     serializer_class = GameStateSerializer
-
-    # POST
+    lookup_field = 'pk' 
+    # ↑試合番号とか？
+    
+    @model_observer(GameState)
+    async def game_state_activity(
+        self,
+        message: GameStateSerializer,
+        observer=None,
+        subscribing_request_ids=[],
+        **kwargs
+    ):
+        await self.send_json(message)
+    
+    @game_state_activity.serializer
+    def game_state_activity_serializer(self, instance, action, **kwargs):
+        # インスタンスデータをシリアル化
+        return {
+            "action": action,
+            "id": instance.state
+        }
+    
     async def receive_json(self, content, **kwargs):
         action = content.get("action")
+        valid_actions = [
+            "move_up",
+            "move_down",
+            "init_game",
+            "pause_game",
+            "resume_game",
+            "get_game_state"
+        ]
+        if action not in valid_actions:
+            error_response = {
+                "error": f"Invalid action: {action}",
+                "valid_actions": valid_actions,
+            }
+            await self.send_json(error_response)
+            return
         async with SharedState.lock:
-            if action == "move_up":
-                player = content.get("player")
-                if player == "right":
-                    SharedState.Paddle.right_y -= 3
-                elif player == "left":
-                    SharedState.Paddle.left_y -= 3
-            elif action == "move_down":
-                player = content.get("player")
-                if player == "right":
-                    SharedState.Paddle.right_y += 3
-                elif player == "left":
-                    SharedState.Paddle.left_y += 3
-            elif action == "game_init":
-                SharedState.init()
-            elif action == "game_pause":
-                pong = PongLogic()
-                TASKS["game_loop"].cancel()
+            if action == "get_game_state":
+                game_state = await database_sync_to_async(GameState.objects.last)()
+                if game_state:
+                # シリアライズして返す
+                    serialized_data = {
+                        "id": game_state.id,
+                        "state": game_state.state,
+                        "r_player": game_state.r_player,
+                        "l_player": game_state.l_player,
+                        "ball_x": game_state.ball_x,
+                        "ball_y": game_state.ball_y,
+                        "r_score": game_state.r_score,
+                        "l_score": game_state.l_score,
+                    }
+                    await self.send_json(serialized_data)
+                else:
+                    await self.send_json({"error": "No game state available"})
                 return
-            # DBに保管,gameloop止める
-            elif action == "game_resume":
-                pong = PongLogic()
-                TASKS["game_loop"] = asyncio.create_task(Utils.game_start(pong.game_loop()))
-                return
+                    # await self.game_state_activity.subscribe()
+                    # print(f"get_state:",game_state)
+                    # return
+            if action == "move_up" or action == "move_down":
+                game_state = await move_paddle(action, content)
+            elif action == "init_game":
+                game_state = await init_game()
+            elif action == "pause_game":
+                game_state = await pause_game()
+            elif action == "resume_game":
+                game_state = await resume_game()
+            print(f"gamestate2",game_state)
             response_message = Utils.create_game_update_message(SharedState.Ball, SharedState.Paddle, SharedState.Score)
             await self.channel_layer.group_send(
                 "sendmessage",
                 {
                     "type": "send_message",
-                    "content": response_message
-                }
+                    "content": response_message,
+                },
             )
-            if action == "game_init":
+            if action == "init_game":
                 await asyncio.sleep(2)
+            
 
-    # GET
 class PongLogic(SharedState, AsyncWebsocketConsumer):
     def __new__(cls, *args, **kwargs):
         if not hasattr(cls, '_instance'):
@@ -63,8 +115,6 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
             cls._instance.state = "stop" 
         return cls._instance
 
-    # TASKS = {}
-    # PongLogic
     async def game_loop(self):
         turn_count = 0
         while SharedState.Score.left < 15 and SharedState.Score.right < 15:
@@ -90,8 +140,6 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
         if self.state == "stop":
             await asyncio.sleep(2)
             self.state = "running"
-        # else:
-        #     await asyncio.sleep(0.005)
 
     async def update_pos(self):
         async with SharedState.lock:
@@ -177,18 +225,18 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
                 self.state = "stop"
 
     async def connect(self):
-        if "game_loop" in TASKS:
-            TASKS["game_loop"].cancel()
+        if "game_loop" in SharedState.tasks:
+            SharedState.tasks["game_loop"].cancel()
         await self.channel_layer.group_add("sendmessage", self.channel_name)
         print("Websocket connected")
         await self.accept()
         self.state = "stop"
-        TASKS["game_loop"] = asyncio.create_task(Utils.game_start(self.game_loop()))
+        SharedState.tasks["game_loop"] = asyncio.create_task(Utils.game_start(self.game_loop()))
 
     async def disconnect(self, close_code):
-        if "game_loop" in TASKS:
+        if "game_loop" in SharedState.tasks:
             SharedState.init()
-            TASKS["game_loop"].cancel()
+            SharedState.tasks["game_loop"].cancel()
         await self.channel_layer.group_discard("sendmessage", self.channel_name)
         print("Websocket disconnected")
 
