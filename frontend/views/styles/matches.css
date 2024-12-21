@@ -60,6 +60,10 @@
   color: #2c3e50;
 }
 
+.winner {
+  color: #28a745;
+}
+
 .winner .score {
   color: #28a745;
 }
