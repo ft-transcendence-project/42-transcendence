@@ -72,40 +72,90 @@ const Gameplay = {
 			animationFrameId = requestAnimationFrame(update);
 		};
 
-        function gameOver(data) {
-            let winner = data.winner;
-            if (winner === "left") {
-                winner = sessionStorage.getItem("player1");
-            } else if (winner === "right") {
-                winner = sessionStorage.getItem("player2");
-            }
+        // function gameOver(data) {
+        //     let winner = data.winner;
+        //     if (winner === "left") {
+        //         winner = sessionStorage.getItem("player1");
+        //     } else if (winner === "right") {
+        //         winner = sessionStorage.getItem("player2");
+        //     }
 
-            try {
-                let tournamentData = JSON.parse(sessionStorage.getItem("tournamentData"));
-                const currentMatch = parseInt(sessionStorage.getItem("currentMatch")) - 1;
-                sessionStorage.setItem("currentMatch", currentMatch + 2);
+        //     try {
+        //         let tournamentData = JSON.parse(sessionStorage.getItem("tournamentData"));
+        //         const currentMatch = parseInt(sessionStorage.getItem("currentMatch")) - 1;
+        //         sessionStorage.setItem("currentMatch", currentMatch + 2);
 
-                if (tournamentData && tournamentData.matches) {
-                    tournamentData.matches[currentMatch].player1_score = data.left_score;
-                    tournamentData.matches[currentMatch].player2_score = data.right_score;
-                    tournamentData.matches[currentMatch].winner = winner;
-                    sessionStorage.setItem("tournamentData", JSON.stringify(tournamentData));
+        //         if (tournamentData && tournamentData.matches) {
+        //             tournamentData.matches[currentMatch].player1_score = data.left_score;
+        //             tournamentData.matches[currentMatch].player2_score = data.right_score;
+        //             tournamentData.matches[currentMatch].winner = winner;
+        //             sessionStorage.setItem("tournamentData", JSON.stringify(tournamentData));
 
-                    if (currentMatch < 4) {
-                        const nextMatch = currentMatch + 1;
-                        if (nextMatch < tournamentData.matches.length) {
-                            sessionStorage.setItem("player1", tournamentData.matches[nextMatch].player1.name);
-                            sessionStorage.setItem("player2", tournamentData.matches[nextMatch].player2.name);
-                        }
-                    }
-                }
+        //             if (currentMatch < 4) {
+        //                 const nextMatch = currentMatch + 1;
+        //                 if (nextMatch < tournamentData.matches.length) {
+        //                     sessionStorage.setItem("player1", tournamentData.matches[nextMatch].player1.name);
+        //                     sessionStorage.setItem("player2", tournamentData.matches[nextMatch].player2.name);
+        //                 }
+        //             }
+        //         }
 
-                alert(`Game Over! ${winner} wins!`);
-                document.getElementById('gameOverButtons').style.display = 'block';
-            } catch (error) {
-                console.error("Error updating tournament data:", error);
-            }
-        }
+        //         alert(`Game Over! ${winner} wins!`);
+        //         document.getElementById('gameOverButtons').style.display = 'block';
+        //     } catch (error) {
+        //         console.error("Error updating tournament data:", error);
+        //     }
+        // }
+
+		async function gameOver(data) {
+			let winner = data.winner;
+			if (winner === "left") {
+				winner = sessionStorage.getItem("player1");
+			} else if (winner === "right") {
+				winner = sessionStorage.getItem("player2");
+			}
+		
+			try {
+				let tournamentData = JSON.parse(sessionStorage.getItem("tournamentData"));
+				console.log('tournamentData:', tournamentData);
+				const currentMatch = parseInt(sessionStorage.getItem("currentMatch")) - 1;
+				sessionStorage.setItem("currentMatch", currentMatch + 2);
+		
+				if (tournamentData && tournamentData.matches) {
+					tournamentData.matches[currentMatch].player1_score = data.left_score;
+					tournamentData.matches[currentMatch].player2_score = data.right_score;
+					tournamentData.matches[currentMatch].winner = winner;
+
+					const response = await fetch(`${window.env.BACKEND_HOST}/tournament/api/save-score/`,
+						{
+							method: "POST",
+							headers: {
+							  "Content-Type": "application/json",
+							},
+							body: JSON.stringify({ tournamentData }),
+						}
+					);
+
+					if (!response.ok) {
+						const errorData = await response.json();
+						throw new Error(`HTTP Error Status: ${response.status}`);
+					}
+		
+					if (currentMatch < 4) {
+						const nextMatch = currentMatch + 1;
+						if (nextMatch < tournamentData.matches.length) {
+							sessionStorage.setItem("player1", tournamentData.matches[nextMatch].player1.name);
+						    sessionStorage.setItem("player2", tournamentData.matches[nextMatch].player2.name);
+						    }
+						}
+					
+				}
+				alert(`Game Over! ${winner} wins!`);
+				        document.getElementById('gameOverButtons').style.display = 'block';
+				    } catch (error) {
+				        console.error("Error updating tournament data:", error);
+				    }
+				}
 
 		window.ws.onmessage = (e) => {
 			const data = JSON.parse(e.data);
