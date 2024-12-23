@@ -138,8 +138,12 @@ const Gameplay = {
 
 					if (!response.ok) {
 						const errorData = await response.json();
+						console.error("Error updating tournament data:", errorData);
 						throw new Error(`HTTP Error Status: ${response.status}`);
 					}
+
+					const responseData = await response.json();
+					console.log("Tournament data updated successfully:", responseData);
 		
 					if (currentMatch < 4) {
 						const nextMatch = currentMatch + 1;
