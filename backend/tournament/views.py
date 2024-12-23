@@ -48,6 +48,15 @@ class TournamentRegisterView(APIView):
 
 
 class SaveScoreView(APIView):
+    def get(self, request):
+        try:
+            latest_tournament = Tournament.objects.latest("date")
+            serializer = TournamentDetailSerializer(latest_tournament)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Tournament.DoesNotExist:
+            return Response(
+                {"error": "No tournament found"}, status=status.HTTP_404_NOT_FOUND)
+    
     def post(self, request):
         tournament_data = request.data.get('tournamentData')
         if not tournament_data:

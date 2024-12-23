@@ -116,8 +116,17 @@ const Gameplay = {
 			}
 		
 			try {
-				let tournamentData = JSON.parse(sessionStorage.getItem("tournamentData"));
-				console.log('tournamentData:', tournamentData);
+				const response = await fetch(`${window.env.BACKEND_HOST}/tournament/api/save-score/`);
+
+				if (!response.ok){
+					const errorData = await response.json();
+					console.error("Error updating tournament data:", errorData);
+					throw new Error(`HTTP Error Status: ${response.status}`);
+				}
+
+				const tournamentData = await response.json();
+				console.log("Tournament data updated successfully:", tournamentData);
+
 				const currentMatch = parseInt(sessionStorage.getItem("currentMatch")) - 1;
 				sessionStorage.setItem("currentMatch", currentMatch + 2);
 		
