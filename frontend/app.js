@@ -4,7 +4,7 @@ import Navbar from "./views/components/Navbar.js";
 import Login from "./views/pages/Login.js";
 import Logout from "./views/pages/Logout.js";
 import SignUp from "./views/pages/SignUp.js";
-import SetupOtp from "./views/pages/SetUpOtp.js";
+import SetupOtp from "./views/pages/SetupOtp.js";
 import VerifyOtp from "./views/pages/VerifyOtp.js";
 import Home from "./views/pages/Home.js";
 import Gameplay from "./views/pages/Gameplay.js";

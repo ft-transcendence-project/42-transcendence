@@ -4,6 +4,15 @@ const Gameplay = {
 	},
 
 	after_render: async () => {
+        const player1 = sessionStorage.getItem("player1");
+        if (player1) {
+            document.getElementById("player1").textContent = player1;
+        }
+        const player2 = sessionStorage.getItem("player2");
+        if (player2) {
+            document.getElementById("player2").textContent = player2;
+        }
+
 		console.log("SettingId in Gameplay:", window.localStorage.getItem('settingId'));
 
 		const gameCanvas = document.getElementById('gameCanvas');
@@ -63,21 +72,60 @@ const Gameplay = {
 			animationFrameId = requestAnimationFrame(update);
 		};
 
+        function gameOver(data) {
+            let winner = data.winner;
+            if (winner === "left") {
+                winner = sessionStorage.getItem("player1");
+            } else if (winner === "right") {
+                winner = sessionStorage.getItem("player2");
+            }
+
+            try {
+                let tournamentData = JSON.parse(sessionStorage.getItem("tournamentData"));
+                const currentMatch = parseInt(sessionStorage.getItem("currentMatch")) - 1;
+                sessionStorage.setItem("currentMatch", currentMatch + 2);
+
+                if (tournamentData && tournamentData.matches) {
+                    tournamentData.matches[currentMatch].player1_score = data.left_score;
+                    tournamentData.matches[currentMatch].player2_score = data.right_score;
+                    tournamentData.matches[currentMatch].winner = winner;
+                    sessionStorage.setItem("tournamentData", JSON.stringify(tournamentData));
+
+                    if (currentMatch < 4) {
+                        const nextMatch = currentMatch + 1;
+                        if (nextMatch < tournamentData.matches.length) {
+                            sessionStorage.setItem("player1", tournamentData.matches[nextMatch].player1.name);
+                            sessionStorage.setItem("player2", tournamentData.matches[nextMatch].player2.name);
+                        }
+                    }
+                }
+
+                alert(`Game Over! ${winner} wins!`);
+                document.getElementById('gameOverButtons').style.display = 'block';
+            } catch (error) {
+                console.error("Error updating tournament data:", error);
+            }
+        }
+
 		window.ws.onmessage = (e) => {
-			const coordinates = JSON.parse(e.data);
-			score.left = coordinates.left_score;
-			score.right = coordinates.right_score;
-			paddle.left_y = coordinates.left_paddle_y;
-			paddle.right_y = coordinates.right_paddle_y;
-			ball.x = coordinates.ball_x;
-			ball.y = coordinates.ball_y;
-			ball.radius = coordinates.ball_radius;
-			obstacle.x = coordinates.obstacle_x;
-			obstacle.y = coordinates.obstacle_y;
-			obstacle.width = coordinates.obstacle_width;
-			obstacle.height = coordinates.obstacle_height;
-			blind.width = coordinates.blind_width;
-			blind.height = coordinates.blind_height;
+			const data = JSON.parse(e.data);
+            if (data.type === "game_over") {
+                gameOver(data);
+                return;
+            }
+			score.left = data.left_score;
+			score.right = data.right_score;
+			paddle.left_y = data.left_paddle_y;
+			paddle.right_y = data.right_paddle_y;
+			ball.x = data.ball_x;
+			ball.y = data.ball_y;
+			ball.radius = data.ball_radius;
+			obstacle.x = data.obstacle_x;
+			obstacle.y = data.obstacle_y;
+			obstacle.width = data.obstacle_width;
+			obstacle.height = data.obstacle_height;
+			blind.width = data.blind_width;
+			blind.height = data.blind_height;
 		};
 
 		function sendMessage(message) {
@@ -151,7 +199,7 @@ const Gameplay = {
 			ctx.fillRect(blind.x, blind.y, blind.width, blind.height);
 
 			ctx.fillStyle = "white";
-			ctx.font = "20px Arial";
+			ctx.font = "50px Arial";
 			ctx.fillText(score.left, center_x - 50, 50);
 			ctx.fillText(score.right, center_x + 50, 50);
 		}
