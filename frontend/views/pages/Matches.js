@@ -8,7 +8,9 @@ const Matches = {
       let currentMatch = parseInt(sessionStorage.getItem("currentMatch"));
       console.log(currentMatch);
 
-      const response = await fetch(`${window.env.BACKEND_HOST}/tournament/api/save-data/`);
+      const response = await fetch(
+        `${window.env.BACKEND_HOST}/tournament/api/save-data/`
+      );
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Error updating tournament data:", errorData);
