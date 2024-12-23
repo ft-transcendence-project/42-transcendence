@@ -15,8 +15,9 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.state = "stop"
-        self.tasks = {}
+        # self.tasks = {}
         self.group_name = None
+        self.lock = asyncio.Lock()
 
     # PongLogic
     async def game_loop(self):
@@ -59,7 +60,7 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
         # except Exception as e:
         #     print(f"Error retrieving for GameSetting: {e}")
         while SharedState.Score.left < 15 and SharedState.Score.right < 15:
-            async with SharedState.lock:
+            async with self.lock:
                 if self.state == "stop":
                     SharedState.reset_ball_position()
                     SharedState.reset_ball_angle()
@@ -83,7 +84,7 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
             self.state = "running"
 
     async def update_pos(self):
-        async with SharedState.lock:
+        async with self.lock:
             # self.ball.angle = math.pi / 3 #test用
             velocity = {
                 "x": SharedState.Ball.velocity * math.cos(SharedState.Ball.angle),
@@ -157,7 +158,7 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
             )
 
     async def check_game_state(self):
-        async with SharedState.lock:
+        async with self.lock:
             if (
                 SharedState.Ball.x - SharedState.Ball.radius
                 > SharedState.GameWindow.width
@@ -171,21 +172,27 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
     async def connect(self):
         # self.setting_id = self.scope["url_route"]["kwargs"]["settingid"]
         # print(f"setting_id: {self.setting_id}")
-
         # self.group_name = f"game_{self.setting_id}"
         self.group_name = "send_message"
-        if "game_loop" in self.tasks:
-            self.tasks["game_loop"].cancel()
+        # if "game_loop" in SharedState.tasks:
+        #     SharedState.tasks["game_loop"].cancel()
         await self.channel_layer.group_add(self.group_name, self.channel_name)
         print(f"Websocket connected to group: {self.group_name}")
         await self.accept()
-        self.tasks["game_loop"] = asyncio.create_task(self.game_loop())
+        if "game_loop" not in SharedState.tasks:
+            SharedState.tasks["game_loop"] = asyncio.create_task(self.game_loop())
+        members = self.get_group_members(self.group_name)
+        print("現在のグループ内のチャンネル:", members)
+
+    # グループ内のチャンネル一覧を取得
+    async def get_group_members(self, group_name):
+        from django.core.cache import cache
+        return cache.get(group_name, set())
 
     async def disconnect(self, close_code):
-        if "game_loop" in self.tasks:
-            SharedState.init()
-            self.tasks["game_loop"].cancel()
-
+        # if "game_loop" in SharedState.tasks:
+        #     SharedState.init()
+        #     SharedState.tasks["game_loop"].cancel()
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
         print(f"Websocket disconnected from group: {self.group_name}")
 
@@ -194,7 +201,7 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
         key = data.get("key")
         action = data.get("action")
 
-        async with SharedState.lock:
+        async with self.lock:
             if key == "D" and action == "pressed":
                 if (
                     SharedState.Paddle.left_y + 3
@@ -231,10 +238,10 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
 
     async def send_pos(self):
         response_message = {
-            "left_paddle_y": SharedState.Paddle.left_y,
-            "right_paddle_y": SharedState.Paddle.right_y,
             "ball_x": SharedState.Ball.x,
             "ball_y": SharedState.Ball.y,
+            "left_paddle_y": SharedState.Paddle.left_y,
+            "right_paddle_y": SharedState.Paddle.right_y,
             "ball_radius": SharedState.Ball.radius,
             "obstacle_x": SharedState.Obstacle.x,
             "obstacle_y": SharedState.Obstacle.y,

@@ -5,7 +5,8 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 
 class SharedState:
-    lock = asyncio.Lock()
+    # lock = asyncio.Lock()
+    tasks = {}
 
     class GameWindow:
         width = 1000
