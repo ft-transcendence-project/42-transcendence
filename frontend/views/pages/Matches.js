@@ -2,32 +2,6 @@ const Matches = {
   render: async () => {
     return (await fetch("/views/templates/Matches.html")).text();
   },
-//
-//   after_render: async () => {
-//     try {
-//       let currentMatch = parseInt(sessionStorage.getItem("currentMatch"));
-//       console.log(currentMatch);
-//
-//       const storedData = sessionStorage.getItem("tournamentData");
-//       if (storedData) {
-//         const tournamentData = JSON.parse(storedData);
-//         const currentMatchData = tournamentData.matches[currentMatch - 1];
-//
-//         sessionStorage.setItem("player1", currentMatchData.player1.name);
-//         console.log(sessionStorage.getItem("player1"));
-//         sessionStorage.setItem("player2", currentMatchData.player2.name);
-//         console.log(sessionStorage.getItem("player2"));
-//         console.log(tournamentData);
-//         updateMatchDisplay(tournamentData);
-//       } else {
-//         alert("No tournament data found in session storage.");
-//         window.location.hash = "#/tournament";
-//       }
-//     } catch (error) {
-//       console.error("Error handling tournament data:", error);
-//     }
-//   },
-// };
 
   after_render: async () => {
     try {
