@@ -46,7 +46,7 @@ jobs:
 
       - name: Wait for services to be healthy
         run: |
-          ./wait-for-it.sh localhost:443 --timeout=60 --strict -- echo "Web service is up"
+          ./wait-for-it.sh localhost:8443 --timeout=60 --strict -- echo "Web service is up"
 
       - name: Run Django tests
         run: |
