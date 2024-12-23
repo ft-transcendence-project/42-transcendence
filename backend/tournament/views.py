@@ -47,7 +47,7 @@ class TournamentRegisterView(APIView):
             )
 
 
-class SaveScoreView(APIView):
+class SaveDataView(APIView):
     def get(self, request):
         try:
             latest_tournament = Tournament.objects.latest("date")

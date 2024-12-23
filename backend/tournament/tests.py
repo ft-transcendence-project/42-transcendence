@@ -112,7 +112,7 @@ class TournamentRegisterViewTests(APITestCase):
         self.assertEqual(Player.objects.count(), 0)
 
 
-class SaveScoreViewTest(TestCase):
+class SaveDataViewTest(TestCase):
     # test用のプレイヤーやトーナメントを作成
     def setUp(self):
         self.player1 = Player.objects.create(name="Player 1")
@@ -127,7 +127,7 @@ class SaveScoreViewTest(TestCase):
             player1_score=0,
             player2_score=0
         )
-        self.url = '/tournament/api/save-score/'
+        self.url = '/tournament/api/save-data/'
 
         self.client.defaults["HTTP_X_FORWARDED_PROTO"] = "https"
         self.client.defaults["wsgi.url_scheme"] = "https"

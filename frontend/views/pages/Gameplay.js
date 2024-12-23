@@ -116,7 +116,7 @@ const Gameplay = {
 			}
 
 			try {
-				const response = await fetch(`${window.env.BACKEND_HOST}/tournament/api/save-score/`);
+				const response = await fetch(`${window.env.BACKEND_HOST}/tournament/api/save-data/`);
 
 				if (!response.ok) {
 					const errorData = await response.json();
@@ -135,7 +135,7 @@ const Gameplay = {
 					tournamentData.matches[currentMatch].player2_score = data.right_score;
 					tournamentData.matches[currentMatch].winner = winner;
 
-					const postResponse = await fetch(`${window.env.BACKEND_HOST}/tournament/api/save-score/`, {
+					const postResponse = await fetch(`${window.env.BACKEND_HOST}/tournament/api/save-data/`, {
 						method: "POST",
 						headers: {
 							"Content-Type": "application/json",
