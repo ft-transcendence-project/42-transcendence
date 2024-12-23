@@ -9,6 +9,8 @@ services:
     entrypoint: !override "/usr/src/app/entrypoint.sh"
     environment: !override
       - ENVIRONMENT=production
+    env_file: !override
+      - .env.prod
     development: !reset []
     ports: !reset []
 
@@ -19,6 +21,8 @@ services:
     environment: !override
       - BACKEND_HOST=https://localhost:8443/api
       - BACKEND_WS_HOST=wss://localhost:8443/ws
+    env_file: !override
+      - .env.prod
     ports: !reset []
 
   web:
