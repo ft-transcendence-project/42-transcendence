@@ -3,14 +3,9 @@ from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 import asyncio
 
-# import random
 import math
 from .utils import Utils
 from .shared import SharedState
-
-# from channels.db import database_sync_to_async
-# from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
-# from websocket.serializers import GameStateSerializer
 
 
 class PongLogic(SharedState, AsyncWebsocketConsumer):
@@ -265,10 +260,10 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
 
     async def send_pos(self):
         response_message = {
-            "ball_x": SharedState.Ball.x,
-            "ball_y": SharedState.Ball.y,
             "left_paddle_y": SharedState.Paddle.left_y,
             "right_paddle_y": SharedState.Paddle.right_y,
+            "ball_x": SharedState.Ball.x,
+            "ball_y": SharedState.Ball.y,
             "ball_radius": SharedState.Ball.radius,
             # "obstacle_x": SharedState.Obstacle.x,
             # "obstacle_y": SharedState.Obstacle.y,
