@@ -225,7 +225,7 @@ const Gameplay = {
 			ctx.fillRect(blind.x, blind.y, blind.width, blind.height);
 
 			ctx.fillStyle = "white";
-			ctx.font = "20px Arial";
+			ctx.font = "50px Arial";
 			ctx.fillText(score.left, center_x - 50, 50);
 			ctx.fillText(score.right, center_x + 50, 50);
 		}

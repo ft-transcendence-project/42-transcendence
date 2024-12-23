@@ -25,6 +25,8 @@ const Tournament = {
           }
         }
 
+        const uniqueUsers = [...new Set(users)];
+
         try {
           const response = await fetch(
             `${window.env.BACKEND_HOST}/tournament/api/register/`,
@@ -33,7 +35,7 @@ const Tournament = {
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify(users),
+              body: JSON.stringify(uniqueUsers),
             }
           );
 
@@ -49,8 +51,8 @@ const Tournament = {
                 return `${k}: ${v}`;
               })
               .join(", ");
-            console.error("Tournament register failed: ", errors);
-            alert("Tournament register failed: ", errors);
+            console.error("Tournament register failed", errors);
+            alert("Tournament register failed");
           }
         } catch (error) {
           console.error("Unknown error: ", error);
