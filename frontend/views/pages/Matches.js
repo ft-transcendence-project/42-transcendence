@@ -46,7 +46,7 @@ function updateMatchDisplay(tournament) {
     const player2 = match.player2.name;
     const score1 = match.player1_score;
     const score2 = match.player2_score;
-    const winner = match.winner;
+    const winner = match.winner.name;
 
     const matchNumber = match.match_number;
     if (matchNumber <= 4) {
@@ -75,15 +75,15 @@ function updateMatchDisplay(tournament) {
           score1;
         document.querySelector(`#match${matchNumber}-score2`).textContent =
           score2;
-      }
 
-      player1Div.classList.remove("winner");
-      player2Div.classList.remove("winner");
+        player1Div.classList.remove("winner");
+        player2Div.classList.remove("winner");
 
-      if (winner === player1) {
-        player1Div.classList.add("winner");
-      } else if (winner === player2) {
-        player2Div.classList.add("winner");
+        if (winner === player1) {
+          player1Div.classList.add("winner");
+        } else if (winner === player2) {
+          player2Div.classList.add("winner");
+        }
       }
     }
   });
