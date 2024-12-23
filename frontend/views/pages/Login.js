@@ -40,7 +40,7 @@ const Login = {
 
         if (response.ok) {
           console.log("Login success: ", data);
-          sessionStorage.setItem("token", data.token);
+          document.cookie = `token=${data.token}; path=/; Secure; SameSite=Strict; max-age=86400`;
           window.location.hash = "#/";
         } else {
           const errors = Object.entries(data)
@@ -60,6 +60,7 @@ const Login = {
       .addEventListener("click", async (event) => {
         event.preventDefault();
         window.location.href = `${window.env.BACKEND_HOST}/oauth/`;
+        document.cookie = `token=dummy; path=/; Secure; SameSite=Strict; max-age=86400`;
       });
 
     document
