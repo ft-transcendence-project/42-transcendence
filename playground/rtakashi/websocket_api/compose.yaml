@@ -1,0 +1,18 @@
+services:
+  web:
+    build: .
+    command: sh -c "python manage.py makemigrations websocket && python manage.py migrate && daphne -b 0.0.0.0 -p 8000 websocket_rtakashi.asgi:application"
+    volumes:
+      - .:/code
+    ports:
+     - "8000:8000"
+    depends_on:
+      - redis
+    environment:
+      - REDIS_URL=redis://redis:6379
+      # - DJANGO_SETTINGS_MODULE=websocket_rtakashi.settings
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"

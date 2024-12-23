@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    canvas {
+      display: block;
+      margin: 30px auto;
+    }
+  </style>
+  <title>test</title>
+</head>
+
+
+<body>
+  <canvas id="gameCanvas"></canvas>
+  <script>
+    const gameCanvas = document.getElementById("gameCanvas");
+    const ctx = gameCanvas.getContext("2d");
+
+    gameCanvas.width = 1000;
+    gameCanvas.height = 600;
+    gameCanvas.style.width = "1000px";
+    gameCanvas.style.height = "600px";
+
+    // スコア表の位置
+    const center_x = gameCanvas.width / 2;
+    const center_y = gameCanvas.height / 2;
+    const l_score_x = center_x - gameCanvas.width / 6;
+    const r_score_x = center_x + gameCanvas.width / 6;
+    const score_y = gameCanvas.height / 12;
+    const score = {
+      right: 0,
+      left: 0
+    };
+
+    //パドルとボール
+    const paddle_h = 120;
+    const paddle_w = 15;
+    const paddle = {
+      left_x: 0,
+      right_x: gameCanvas.width,
+      left_y: center_y - paddle_h / 2,
+      right_y: center_y - paddle_h / 2,
+    };
+    const ball = {
+      x: 0,
+      y: 0,
+    };
+
+    const keyStates = { left: false, right: false };
+
+    let animationFrameId;
+
+    document.addEventListener("DOMContentLoaded", function () {
+      // websocketの接続先
+      const url = "ws://" + window.location.host + "/ws/gamelogic/";
+      let ws = new WebSocket(url);
+      console.log(url);
+
+      // websocketでの接続が確立されたときに動く
+      ws.onopen = function () {
+        console.log("Connected");
+        animationFrameId = requestAnimationFrame(update);
+      };
+
+      ws.onclose = function (event) {
+        console.log("Disconnected");
+      };
+
+      window.addEventListener("beforeunload", function () {
+        cancelAnimationFrame(animationFrameId);
+        ws.close();  // WebSocketの接続をクローズ
+      });
+
+      // websocketでメッセージを受信されたら動く
+      ws.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+        console.log("Received message by consumers.py:", data);
+        score.left = data.left_score;
+        score.right = data.right_score;
+        paddle.left_y = data.left_paddle_y;
+        paddle.right_y = data.right_paddle_y;
+        ball.x = data.ball_x;
+        ball.y = data.ball_y;
+      };
+
+      function sendMessage(message) {
+        ws.send(JSON.stringify(message));
+      }
+
+      // ボタンを長押ししたら送り続ける
+      document.addEventListener("keydown", function (event) {
+        let message = null;
+        if (event.key === "D" || event.key === "d") {
+          message = { key: "D", action: "pressed", paddle: "left" };
+        } else if (event.key === "E" || event.key === "e") {
+          message = { key: "E", action: "pressed", paddle: "left" };
+        } else if (event.key === "I" || event.key === "i") {
+          message = { key: "I", action: "pressed", paddle: "right" };
+        } else if (event.key === "K" || event.key === "k") {
+          message = { key: "K", action: "pressed", paddle: "right" };
+        }
+
+        if (message && message.paddle === "left" && !keyStates.left) {
+          keyStates.left = true;
+          leftinterval = setInterval(function () {
+            sendMessage(message);
+          }, 1);
+        }
+        if (message && message.paddle === "right" && !keyStates.right) {
+          keyStates.right = true;
+          rightinterval = setInterval(function () {
+            sendMessage(message);
+          }, 1);
+        }
+      });
+
+      // ボタンを離したら送るのをやめる
+      document.addEventListener("keyup", function (event) {
+        if (
+          event.key === "E" ||
+          event.key === "e" ||
+          event.key === "D" ||
+          event.key === "d"
+        ) {
+          clearInterval(leftinterval); // メッセージ送信の間隔を止める
+          keyStates.left = false;
+        } else if (
+          event.key === "I" ||
+          event.key === "i" ||
+          event.key === "K" ||
+          event.key === "k"
+        ) {
+          clearInterval(rightinterval); // メッセージ送信の間隔を止める
+          keyStates.right = false;
+        }
+      });
+
+      function draw() {
+        ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+        // 背景描画
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 5;
+        ctx.setLineDash([10, 10]);
+
+        ctx.beginPath();
+        ctx.moveTo(gameCanvas.width / 2, 0);
+        ctx.lineTo(gameCanvas.width / 2, gameCanvas.height);
+        ctx.stroke();
+        //スコア描画
+        ctx.font = `6vw "Press Start 2P", cursive`;
+        ctx.fillStyle = "white";
+        ctx.textBaseline = "top";
+        ctx.textAlign = "right"; // 右端を指定した座標に配置
+        ctx.fillText(score.left, l_score_x, score_y);
+        ctx.textAlign = "left";
+        ctx.fillText(score.right, r_score_x, score_y);
+
+        //パドルとボール描画
+        ctx.fillRect(paddle.left_x, paddle.left_y, paddle_w, paddle_h);
+        ctx.fillRect(
+          paddle.right_x - paddle_w,
+          paddle.right_y,
+          paddle_w,
+          paddle_h
+        );
+        ctx.fillRect(ball.x - 10, ball.y - 10, 20, 20);
+      }
+
+      function update() {
+        draw();
+        requestAnimationFrame(update);
+      }
+      update();
+    });
+  </script>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+    crossorigin="anonymous"></script>
+</body>
+
+</html>

@@ -1,0 +1,8 @@
+asgiref
+django
+django-otp
+sqlparse
+channels
+channels_redis
+daphne
+djangochannelsrestframework
