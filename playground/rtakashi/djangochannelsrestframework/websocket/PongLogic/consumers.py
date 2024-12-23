@@ -75,6 +75,7 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
             await self.update_pos()
             await self.check_game_state()
         await self.send_pos()
+        self.state = "end"
 
     async def rendering(self):
         await self.send_pos()
@@ -174,8 +175,8 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
         # print(f"setting_id: {self.setting_id}")
         # self.group_name = f"game_{self.setting_id}"
         self.group_name = "send_message"
-        # if "game_loop" in SharedState.tasks:
-        #     SharedState.tasks["game_loop"].cancel()
+        if "game_loop" in SharedState.tasks and self.state == "end":
+            SharedState.tasks["game_loop"].cancel()
         await self.channel_layer.group_add(self.group_name, self.channel_name)
         print(f"Websocket connected to group: {self.group_name}")
         await self.accept()
@@ -190,9 +191,9 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
         return cache.get(group_name, set())
 
     async def disconnect(self, close_code):
-        # if "game_loop" in SharedState.tasks:
-        #     SharedState.init()
-        #     SharedState.tasks["game_loop"].cancel()
+        if "game_loop" in SharedState.tasks and self.state == "end":
+            SharedState.init()
+            SharedState.tasks["game_loop"].cancel()
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
         print(f"Websocket disconnected from group: {self.group_name}")
 
