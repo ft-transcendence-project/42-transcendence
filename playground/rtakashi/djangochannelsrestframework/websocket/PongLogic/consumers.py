@@ -220,8 +220,8 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
                     if SharedState.Paddle.right_y - 3 >= 0:
                         SharedState.Paddle.right_y -= 3
 
-            if self.state == "stop":
-                await self.send_pos()
+                if self.state == "stop":
+                    await self.send_pos()
         except json.JSONDecodeError as e:
             await self.send_error_message(f"Error from endpoint: {e}")
 
