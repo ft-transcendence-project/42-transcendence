@@ -176,6 +176,7 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
         # self.setting_id = self.scope["url_route"]["kwargs"]["settingid"]
         # print(f"setting_id: {self.setting_id}")
         # self.group_name = f"game_{self.setting_id}"
+        print ("state",self.state)
         self.group_name = "send_message"
         if "game_loop" in SharedState.tasks and self.state == "end":
             SharedState.tasks["game_loop"].cancel()
@@ -198,7 +199,12 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
             key = data.get("key")
             action = data.get("action")
             player = data.get("player")
-
+            if await self.is_valid_action(action) == False:
+               await self.send_error_message("Invalid action")
+               return
+            if await self.is_valid_player(action, player) == False:
+               await self.send_error_message("Invalid player")
+               return
             async with self.lock:
                 if (key == "D" and action == "pressed") or (action == "move_down" and player == "left"):
                     if (
@@ -229,10 +235,21 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
             self.channel_name,
             {
                 "type": "send_message",
-                "content": error_message
+                "content": {"error": error_message}
             }
         )
-    
+
+    async def is_valid_action(self,action):
+        if action != "pressed" and action != "move_up" and action != "move_down":
+            return False
+        return True
+
+    async def is_valid_player(self,action, player):
+        if action == "move_up" or action == "move_down":
+            if player != "right" and player != "left":
+                return False
+        return True
+
 
     async def handle_other_message(self, message):
         # その他のメッセージに対応する処理
