@@ -41,7 +41,7 @@ jobs:
 
       - name: Build and run Docker Compose
         run: |
-          mv .env_template .env
+          mv .env.prod_template .env
           docker compose -f compose.yaml -f compose.prod.yaml up -d --build
 
       - name: Wait for services to be healthy
