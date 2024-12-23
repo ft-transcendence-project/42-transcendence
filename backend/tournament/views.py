@@ -60,11 +60,11 @@ class SaveScoreView(APIView):
     def post(self, request):
         tournament_data = request.data.get('tournamentData')
         if not tournament_data:
-            return Response({"error": "tournamentDataが見つかりません。"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Not found tournament data"}, status=status.HTTP_400_BAD_REQUEST)
 
         matches = tournament_data.get('matches', [])
         if not matches:
-            return Response({"error": "試合データが見つかりません。"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Not found matches data"}, status=status.HTTP_400_BAD_REQUEST)
 
         match_data = matches[0]  
         tournament_id = tournament_data.get('id')

@@ -114,11 +114,11 @@ const Gameplay = {
 			} else if (winner === "right") {
 				winner = sessionStorage.getItem("player2");
 			}
-		
+
 			try {
 				const response = await fetch(`${window.env.BACKEND_HOST}/tournament/api/save-score/`);
 
-				if (!response.ok){
+				if (!response.ok) {
 					const errorData = await response.json();
 					console.error("Error updating tournament data:", errorData);
 					throw new Error(`HTTP Error Status: ${response.status}`);
@@ -129,46 +129,44 @@ const Gameplay = {
 
 				const currentMatch = parseInt(sessionStorage.getItem("currentMatch")) - 1;
 				sessionStorage.setItem("currentMatch", currentMatch + 2);
-		
+
 				if (tournamentData && tournamentData.matches) {
 					tournamentData.matches[currentMatch].player1_score = data.left_score;
 					tournamentData.matches[currentMatch].player2_score = data.right_score;
 					tournamentData.matches[currentMatch].winner = winner;
 
-					const response = await fetch(`${window.env.BACKEND_HOST}/tournament/api/save-score/`,
-						{
-							method: "POST",
-							headers: {
-							  "Content-Type": "application/json",
-							},
-							body: JSON.stringify({ tournamentData }),
-						}
-					);
+					const postResponse = await fetch(`${window.env.BACKEND_HOST}/tournament/api/save-score/`, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({ tournamentData }),
+					});
 
-					if (!response.ok) {
-						const errorData = await response.json();
+					if (!postResponse.ok) {
+						const errorData = await postResponse.json();
 						console.error("Error updating tournament data:", errorData);
-						throw new Error(`HTTP Error Status: ${response.status}`);
+						throw new Error(`HTTP Error Status: ${postResponse.status}`);
 					}
 
-					const responseData = await response.json();
+					const responseData = await postResponse.json();
 					console.log("Tournament data updated successfully:", responseData);
-		
+
 					if (currentMatch < 4) {
 						const nextMatch = currentMatch + 1;
 						if (nextMatch < tournamentData.matches.length) {
 							sessionStorage.setItem("player1", tournamentData.matches[nextMatch].player1.name);
-						    sessionStorage.setItem("player2", tournamentData.matches[nextMatch].player2.name);
-						    }
+							sessionStorage.setItem("player2", tournamentData.matches[nextMatch].player2.name);
 						}
-					
+					}
 				}
+
 				alert(`Game Over! ${winner} wins!`);
-				        document.getElementById('gameOverButtons').style.display = 'block';
-				    } catch (error) {
-				        console.error("Error updating tournament data:", error);
-				    }
-				}
+				document.getElementById('gameOverButtons').style.display = 'block';
+			} catch (error) {
+				console.error("Error updating tournament data:", error);
+			}
+		}
 
 		window.ws.onmessage = (e) => {
 			const data = JSON.parse(e.data);
