@@ -167,15 +167,34 @@ class VerifyOTPViewTests(APITestCase):
         valid_token = totp.token()
         response = self.client.post(
             reverse("accounts:verify_otp"),
-            {"otp_token": valid_token},
+            {"user": self.user.username, "otp_token": valid_token},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, {"redirect": "homepage"})
+        self.assertIn("token", response.data)
+        self.assertEqual(response.data["redirect"], "homepage")
 
     def test_verify_otp_view_post_invalid_otp(self):
         """間違ったOTPトークンでOTP確認が失敗することを確認する"""
         response = self.client.post(
-            reverse("accounts:verify_otp"), {"otp_token": "123456"}
+            reverse("accounts:verify_otp"),
+            {"user": self.user.username, "otp_token": "123456"},
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("error", response.data)
+
+    def test_verify_otp_view_post_invalid_user(self):
+        """存在しないユーザーでOTP確認が失敗することを確認する"""
+        totp = TOTP(
+            key=self.device.bin_key,
+            step=self.device.step,
+            t0=self.device.t0,
+            digits=self.device.digits,
+        )
+        totp.time = time.time()
+        valid_token = totp.token()
+        response = self.client.post(
+            reverse("accounts:verify_otp"),
+            {"user": "nonexistent", "otp_token": valid_token},
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("user", response.data)
