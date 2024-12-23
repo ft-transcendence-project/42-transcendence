@@ -89,7 +89,7 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
             self.state = "running"
 
     async def update_pos(self):
-        async with self.lock:
+        # async with self.lock:
             # self.ball.angle = math.pi / 3 #test用
             velocity = {
                 "x": SharedState.Ball.velocity * math.cos(SharedState.Ball.angle),
@@ -161,7 +161,7 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
             Utils.update_obstacle_position(SharedState.Obstacle, SharedState.GameWindow)
 
     async def check_game_state(self):
-        async with self.lock:
+        # async with self.lock:
             if (
                 SharedState.Ball.x - SharedState.Ball.radius
                 > SharedState.GameWindow.width
@@ -193,32 +193,46 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
         print(f"Websocket disconnected from group: {self.group_name}")
 
     async def receive(self, text_data=None):
-        data = json.loads(text_data)
-        key = data.get("key")
-        action = data.get("action")
+        try:
+            data = json.loads(text_data)
+            key = data.get("key")
+            action = data.get("action")
+            player = data.get("player")
 
-        async with self.lock:
-            if key == "D" and action == "pressed":
-                if (
-                    SharedState.Paddle.left_y + 3
-                    <= SharedState.GameWindow.height - SharedState.Paddle.height
-                ):
-                    SharedState.Paddle.left_y += 3
-            elif key == "E" and action == "pressed":
-                if SharedState.Paddle.left_y - 3 >= 0:
-                    SharedState.Paddle.left_y -= 3
-            elif key == "K" and action == "pressed":
-                if (
-                    SharedState.Paddle.right_y + 3
-                    <= SharedState.GameWindow.height - SharedState.Paddle.height
-                ):
-                    SharedState.Paddle.right_y += 3
-            elif key == "I" and action == "pressed":
-                if SharedState.Paddle.right_y - 3 >= 0:
-                    SharedState.Paddle.right_y -= 3
+            async with self.lock:
+                if (key == "D" and action == "pressed") or (action == "move_down" and player == "left"):
+                    if (
+                        SharedState.Paddle.left_y + 3
+                        <= SharedState.GameWindow.height - SharedState.Paddle.height
+                    ):
+                        SharedState.Paddle.left_y += 3
+                elif key == "E" and action == "pressed" or (action == "move_up" and player == "left"):
+                    if SharedState.Paddle.left_y - 3 >= 0:
+                        SharedState.Paddle.left_y -= 3
+                elif key == "K" and action == "pressed" or (action == "move_down" and player == "right"):
+                    if (
+                        SharedState.Paddle.right_y + 3
+                        <= SharedState.GameWindow.height - SharedState.Paddle.height
+                    ):
+                        SharedState.Paddle.right_y += 3
+                elif key == "I" and action == "pressed" or (action == "move_up" and player == "right"):
+                    if SharedState.Paddle.right_y - 3 >= 0:
+                        SharedState.Paddle.right_y -= 3
 
-        if self.state == "stop":
-            await self.send_pos()
+            if self.state == "stop":
+                await self.send_pos()
+        except json.JSONDecodeError as e:
+            await self.send_error_message(f"Error from endpoint: {e}")
+
+    async def send_error_message(self, error_message):
+        await self.channel_layer.send(
+            self.channel_name,
+            {
+                "type": "send_message",
+                "content": error_message
+            }
+        )
+    
 
     async def handle_other_message(self, message):
         # その他のメッセージに対応する処理
@@ -239,12 +253,12 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
             "left_paddle_y": SharedState.Paddle.left_y,
             "right_paddle_y": SharedState.Paddle.right_y,
             "ball_radius": SharedState.Ball.radius,
-            "obstacle_x": SharedState.Obstacle.x,
-            "obstacle_y": SharedState.Obstacle.y,
-            "obstacle_width": SharedState.Obstacle.width,
-            "obstacle_height": SharedState.Obstacle.height,
-            "blind_width": SharedState.blind.width,
-            "blind_height": SharedState.blind.height,
+            # "obstacle_x": SharedState.Obstacle.x,
+            # "obstacle_y": SharedState.Obstacle.y,
+            # "obstacle_width": SharedState.Obstacle.width,
+            # "obstacle_height": SharedState.Obstacle.height,
+            # "blind_width": SharedState.blind.width,
+            # "blind_height": SharedState.blind.height,
             "left_score": SharedState.Score.left,
             "right_score": SharedState.Score.right,
         }
