@@ -192,8 +192,9 @@ class Utils:
     @staticmethod
     def update_obstacle_position(obstacle, game_window):
         if (
-            obstacle.y + obstacle.height + obstacle.velocity <= game_window.height - 100 and
-            obstacle.y + obstacle.velocity >= 100):
+            obstacle.y + obstacle.height + obstacle.velocity <= game_window.height - 100
+            and obstacle.y + obstacle.velocity >= 100
+        ):
             obstacle.y += obstacle.velocity
         else:
             obstacle.velocity *= -1

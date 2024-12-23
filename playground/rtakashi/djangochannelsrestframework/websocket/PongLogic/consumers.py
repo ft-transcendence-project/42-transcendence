@@ -2,6 +2,7 @@ import json
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 import asyncio
+
 # import random
 import math
 from .utils import Utils
@@ -10,6 +11,7 @@ from .shared import SharedState
 # from channels.db import database_sync_to_async
 # from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
 # from websocket.serializers import GameStateSerializer
+
 
 class PongLogic(SharedState, AsyncWebsocketConsumer):
     def __init__(self, *args, **kwargs):
@@ -23,8 +25,8 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
     async def game_loop(self):
         turn_count = 0
         # try:
-            # from gameplay.models import GameSetting
-            # setting = await sync_to_async(GameSetting.objects.get)(id=self.setting_id)
+        # from gameplay.models import GameSetting
+        # setting = await sync_to_async(GameSetting.objects.get)(id=self.setting_id)
         #     ball_size_choise = setting.ball_size
         #     ball_v_choise = setting.ball_velocity
         #     map_choise = setting.map
@@ -66,7 +68,9 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
                     SharedState.reset_ball_angle()
                     if turn_count % 2 == 0:
                         SharedState.Ball.angle += math.pi
-                    SharedState.Ball.angle = Utils.normalize_angle(SharedState.Ball.angle)
+                    SharedState.Ball.angle = Utils.normalize_angle(
+                        SharedState.Ball.angle
+                    )
                     turn_count += 1
                     Utils.set_direction(SharedState.Ball)
                 # print("angle: ", self.ball.angle)
@@ -154,9 +158,7 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
             Utils.adjust_ball_position(
                 SharedState.Ball, SharedState.Paddle, velocity, SharedState.GameWindow
             )
-            Utils.update_obstacle_position(
-                SharedState.Obstacle, SharedState.GameWindow
-            )
+            Utils.update_obstacle_position(SharedState.Obstacle, SharedState.GameWindow)
 
     async def check_game_state(self):
         async with self.lock:
@@ -182,13 +184,6 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
         await self.accept()
         if "game_loop" not in SharedState.tasks:
             SharedState.tasks["game_loop"] = asyncio.create_task(self.game_loop())
-        members = self.get_group_members(self.group_name)
-        print("現在のグループ内のチャンネル:", members)
-
-    # グループ内のチャンネル一覧を取得
-    async def get_group_members(self, group_name):
-        from django.core.cache import cache
-        return cache.get(group_name, set())
 
     async def disconnect(self, close_code):
         if "game_loop" in SharedState.tasks and self.state == "end":
