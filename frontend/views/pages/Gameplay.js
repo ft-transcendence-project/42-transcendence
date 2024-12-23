@@ -126,6 +126,9 @@ const Gameplay = {
 					}
 				}
 
+				// blockchain上にデータを保存
+				saveScoreToBlockchain(data.left_score, data.right_score, winner);
+
 				alert(`Game Over! ${winner} wins!`);
 				document.getElementById('gameOverButtons').style.display = 'block';
 			} catch (error) {
@@ -153,6 +156,35 @@ const Gameplay = {
 			blind.width = data.blind_width;
 			blind.height = data.blind_height;
 		};
+
+		async function saveScoreToBlockchain(leftScore, rightScore, winner) {
+			try {
+				const response = fetch(`${window.env.BACKEND_HOST}/blockchain/api/save-score/`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					// 勝者と敗者のIDとスコアを送信
+					body: JSON.stringify({
+						winner_id: winner === sessionStorage.getItem("player1") ? 1 : 2,
+						winner_score: winner === sessionStorage.getItem("player1") ? leftScore : rightScore,
+						loser_id: winner === sessionStorage.getItem("player1") ? 2 : 1,
+						loser_score: winner === sessionStorage.getItem("player1") ? rightScore : leftScore,
+					}),
+				});
+
+				if (!response.ok) {
+					const errorData = response.json();
+					console.error("Error saving score to blockchain:", errorData);
+					throw new Error(`HTTP Error Status: ${response.status}`);
+				}
+
+				const responseData = await response.json();
+				console.log("Score saved to blockchain successfully:", responseData);
+			} catch (error) {
+				console.error("Error saving score to blockchain:", error);
+			}
+		}
 
 		function sendMessage(message) {
 			window.ws.send(JSON.stringify(message));
