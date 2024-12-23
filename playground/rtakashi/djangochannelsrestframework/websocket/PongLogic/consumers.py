@@ -13,11 +13,16 @@ from websocket.serializers import GameStateSerializer
 from asgiref.sync import sync_to_async
 
 class PongLogic(SharedState, AsyncWebsocketConsumer):
-    def __new__(cls, *args, **kwargs):
-        if not hasattr(cls, '_instance'):
-            cls._instance = super().__new__(cls, *args, **kwargs)
-            cls._instance.state = "stop" 
-        return cls._instance
+    # def __new__(cls, *args, **kwargs):
+    #     if not hasattr(cls, '_instance'):
+    #         cls._instance = super().__new__(cls, *args, **kwargs)
+    #         cls._instance.state = "stop" 
+    #     return cls._instance
+    cnt = 0
+    def __init__(self):
+        super().__init__()  # 親クラスの初期化
+        PongLogic.cnt += 1  # クラス変数をインクリメント
+        self.num = PongLogic.cnt
 
     async def game_loop(self):
         turn_count = 0
@@ -31,6 +36,8 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
                     SharedState.Ball.angle = Utils.normalize_angle(SharedState.Ball.angle)
                     turn_count += 1
                     Utils.set_direction(SharedState.Ball)
+                    if SharedState.lock.locked():
+                        print(self.num,SharedState.lock.locked())
                     # print("angle: ", self.ball.angle)
                     # print("direction: ", self.ball.direction["facing_up"], self.ball.direction["facing_down"], self.ball.direction["facing_right"], self.ball.direction["facing_left"])
             await self.rendering()
@@ -185,7 +192,7 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
         )
 
     async def send_pos(self):
-        print("ball",SharedState.Ball.x)
+        # print("ball",SharedState.Ball.x)
         response_message = Utils.create_game_update_message(SharedState.Ball, SharedState.Paddle, SharedState.Score)
         await self.channel_layer.group_send(
             "sendmessage",
