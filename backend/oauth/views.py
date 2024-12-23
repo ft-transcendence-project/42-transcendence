@@ -12,7 +12,6 @@ from rest_framework.response import Response
 @api_view(["GET"])
 def oauth_view(request):
     if settings.DEBUG == False:
-        print("redirect ok!!!!")
         return redirect(
             f"https://api.intra.42.fr/oauth/authorize?client_id={os.environ.get('UID')}&redirect_uri=https://localhost:8443/api/oauth/callback/&response_type=code"
         )
@@ -25,8 +24,6 @@ def oauth_view(request):
 def oauth_callback_view(request):
     code = request.GET.get("code")
     error = request.GET.get("error")
-    print(code)
-    print(error)
     if error:
         return Response(
             {
@@ -38,9 +35,6 @@ def oauth_callback_view(request):
 
     if code:
         if settings.DEBUG == False:
-            print("post ok!!!")
-            print(os.environ.get("UID"))
-            print(os.environ.get("SECRET"))
             response = requests.post(
                 "https://api.intra.42.fr/oauth/token",
                 data={
@@ -62,11 +56,8 @@ def oauth_callback_view(request):
                     "redirect_uri": "http://localhost:8000/oauth/callback/",
                 },
             )
-        print(response)
         token_data = response.json()
-        print(token_data)
         access_token = token_data.get("access_token")
-        print(access_token)
 
         if access_token:
             user_info_response = requests.get(
