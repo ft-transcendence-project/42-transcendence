@@ -135,7 +135,7 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
         print("Websocket connected")
         await self.accept()
         self.state = "stop"
-        SharedState.tasks["game_loop"] = asyncio.create_task(Utils.game_start(self.game_loop()))
+        SharedState.tasks["game_loop"] = asyncio.create_task(self.game_loop())
         
     async def disconnect(self, close_code):
         if "game_loop" in SharedState.tasks:
