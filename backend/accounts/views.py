@@ -89,11 +89,16 @@ class VerifyOTPView(APIView):
     def post(self, request):
         serializer = OTPSerializer(data=request.data)
         if serializer.is_valid():
+            user = serializer.validated_data["user"]
             otp = serializer.validated_data["otp_token"]
-            device = TOTPDevice.objects.filter(user=request.user).first()
+            device = TOTPDevice.objects.filter(user=user).first()
+
             if device and device.verify_token(otp):
-                login(request, request.user)
-                return Response({"redirect": "homepage"}, status=status.HTTP_200_OK)
+                token = generate_jwt(user)
+                login(request, user)
+                return Response(
+                    {"token": token, "redirect": "homepage"}, status=status.HTTP_200_OK
+                )
             else:
                 return Response(
                     {"error": "Invalid OTP"}, status=status.HTTP_400_BAD_REQUEST
