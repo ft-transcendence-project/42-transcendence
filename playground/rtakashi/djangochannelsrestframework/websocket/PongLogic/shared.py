@@ -6,7 +6,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 class SharedState:
     lock = asyncio.Lock()
-    tasks = {}
+
     class GameWindow:
         width = 1000
         height = 600
@@ -36,6 +36,19 @@ class SharedState:
         left_y = 240
         right_y = 240
 
+    class Obstacle:
+        x = 250
+        y = 100
+        width = 500
+        height = 30
+        velocity = 2
+
+    class blind:
+        x = 350
+        y = 0
+        width = 300
+        height = 600
+
     class Score:
         right = 0
         left = 0
@@ -56,6 +69,10 @@ class SharedState:
         cls.Paddle.right_y = 240
         cls.Score.right = 0
         cls.Score.left = 0
+        cls.Obstacle.width = 0
+        cls.Obstacle.height = 0
+        cls.blind.width = 0
+        cls.blind.height = 0
 
     @classmethod
     def reset_ball_position(cls):

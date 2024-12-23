@@ -1,7 +1,7 @@
 import math
 
 
-class Utils():
+class Utils:
     @staticmethod
     def normalize_angle(angle):
         return angle % (2 * math.pi)
@@ -190,12 +190,10 @@ class Utils():
         return velocity["x"], velocity["y"]
 
     @staticmethod
-    def create_game_update_message(ball, paddle, score):
-        return {
-            "left_paddle_y": paddle.left_y,
-            "right_paddle_y": paddle.right_y,
-            "ball_x": ball.x,
-            "ball_y": ball.y,
-            "left_score": score.left,
-            "right_score": score.right
-        }
+    def update_obstacle_position(obstacle, game_window):
+        if (
+            obstacle.y + obstacle.height + obstacle.velocity <= game_window.height - 100 and
+            obstacle.y + obstacle.velocity >= 100):
+            obstacle.y += obstacle.velocity
+        else:
+            obstacle.velocity *= -1
