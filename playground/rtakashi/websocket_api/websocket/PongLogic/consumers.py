@@ -193,11 +193,11 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
             data = json.loads(text_data)
             key = data.get("key")
             action = data.get("action")
-            if action != "pressed"
-                self.send_error_message("Invalid action")
+            if action == None or action != "pressed":
+                await self.send_error_message("Invalid action")
                 return
-            if key != "D" and key != "E" and key != "K" and key != "I"
-               self.send_error_message("Invalid key")
+            if key == None or (key != "D" and key != "E" and key != "K" and key != "I"):
+                await self.send_error_message("Invalid key")
                 return
             async with self.lock:
                 if key == "D" and action == "pressed":
