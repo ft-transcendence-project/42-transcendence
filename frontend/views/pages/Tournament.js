@@ -8,7 +8,6 @@ const Tournament = {
   after_render: async () => {
     updateContent();
 
-    sessionStorage.removeItem("tournamentData");
     sessionStorage.setItem("currentMatch", 1);
 
     document
@@ -43,7 +42,6 @@ const Tournament = {
 
           if (response.ok) {
             console.log(data);
-            sessionStorage.setItem("tournamentData", JSON.stringify(data));
             window.location.hash = "#/matches";
           } else {
             const errors = Object.entries(data)
