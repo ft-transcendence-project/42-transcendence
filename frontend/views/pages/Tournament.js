@@ -9,6 +9,7 @@ const Tournament = {
     updateContent();
 
     sessionStorage.setItem("currentMatch", 1);
+    sessionStorage.setItem("isTournament", "true");
 
     document
       .getElementById("tournament-form")
@@ -42,7 +43,7 @@ const Tournament = {
 
           if (response.ok) {
             console.log(data);
-            window.location.hash = "#/matches";
+            window.location.hash = "#/gamesetting";
           } else {
             const errors = Object.entries(data)
               .map(([k, v]) => {
