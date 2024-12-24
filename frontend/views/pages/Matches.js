@@ -30,7 +30,7 @@ const Matches = {
         console.log(storedData);
         updateMatchDisplay(storedData);
       } else {
-        alert("No tournament data found in session storage.");
+        alert("No tournament data found in database.");
         window.location.hash = "#/tournament";
       }
     } catch (error) {
