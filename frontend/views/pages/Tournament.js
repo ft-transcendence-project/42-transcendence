@@ -8,21 +8,29 @@ const Tournament = {
   after_render: async () => {
     updateContent();
 
+    sessionStorage.setItem("isTournament", "true");
+
     // トーナメントデータがあり、終了していない場合は続きを行う
     try {
       const response = await fetch(
         `${window.env.BACKEND_HOST}/tournament/api/save-data/`
       );
 
-      const tournamentData = await response?.json();
-      if (tournamentData?.is_over === false) {
+      if (!response.ok) {
+        throw new Error(`HTTP Error Status: ${response.status}`);
+      }
+
+      const tournamentData = await response.json();
+      if (!window.localStorage.getItem("settingId")) {
+        window.location.hash = "#/gamesetting";
+        return;
+      } else if (tournamentData?.is_over === false) {
         window.location.hash = "#/matches";
         return;
       }
     } catch (error) {}
 
     sessionStorage.setItem("currentMatch", 1);
-    sessionStorage.setItem("isTournament", "true");
 
     document
       .getElementById("tournament-form")
