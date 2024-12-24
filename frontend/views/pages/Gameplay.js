@@ -246,7 +246,7 @@ const Gameplay = {
 		  console.log("WebSocket closed");
 		}
 	
-		if (window.localStorage.getItem('settingId')) {
+		if (window.localStorage.getItem('settingId') && sessionStorage.getItem("isTournament") !== "true") {
 		  try {
 			const response = await fetch(`${window.env.BACKEND_HOST}/gameplay/api/gamesetting/${window.localStorage.getItem('settingId')}/`, {
 			  method: "DELETE",
