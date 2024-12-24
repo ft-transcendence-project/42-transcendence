@@ -129,13 +129,13 @@ const Gameplay = {
                     }
     
                     alert(`Game Over! ${winner} wins!`);
-                    document.getElementById('gameOverButtons').style.display = 'block';
+                    document.getElementById('nextGameButton').style.display = 'block';
                 } catch (error) {
                     console.error("Error updating tournament data:", error);
                 }
             } else {
                 alert(`Game Over! ${winner} wins!`);
-                document.getElementById('gameOverButtons').style.display = 'block';
+                document.getElementById('gameOverButton').style.display = 'block';
             }
 		}
 
