@@ -261,6 +261,7 @@ const Gameplay = {
 			  throw new Error(`HTTP error! status: ${response.status}`);
 			}
 	
+            window.localStorage.removeItem('settingId')
 			console.log("Settings deleted successfully:", window.localStorage.getItem('settingId'));
 		  } catch (error) {
 			console.error("Failed to delete settings:", error);
