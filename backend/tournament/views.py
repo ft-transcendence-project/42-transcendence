@@ -71,7 +71,7 @@ class SaveDataView(APIView):
                 {"error": "Matches data not found"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        match_id = request.data.get("currentMatch_id")
+        match_id = request.data.get("currentMatchId")
         if match_id is None:
             return Response(
                 {"error": "Current match id not found"},
