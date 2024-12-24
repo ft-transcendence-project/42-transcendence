@@ -47,6 +47,11 @@ const GameSetting = {
             return;
         }
         window.location.hash = `#/gameplay`; // Gameplay画面へ遷移
+        const tournamentButton = document.getElementById("navbar:tournament");
+        if (tournamentButton) {
+            tournamentButton.removeAttribute("href");
+            tournamentButton.classList.replace("active", "disabled");
+        } // トーナメントボタンを無効に
       } catch (error) {
         console.error("Failed to update settings:", error);
       }

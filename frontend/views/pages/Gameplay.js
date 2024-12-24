@@ -261,6 +261,12 @@ const Gameplay = {
 			console.error("Failed to delete settings:", error);
 		  }
 		}
+
+        const tournamentButton = document.getElementById("navbar:tournament");
+        if (tournamentButton) {
+            tournamentButton.setAttribute("href", "#/tournament");
+            tournamentButton.classList.replace("disabled", "active");
+        } // トーナメントボタンを有効に
 	  },
 };
 
