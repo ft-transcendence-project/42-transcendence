@@ -4,6 +4,7 @@ from django.db import models
 class Tournament(models.Model):
     name = models.CharField(max_length=100)
     date = models.DateField()
+    is_over = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -36,7 +37,7 @@ class Match(models.Model):
     def winner(self):
         # デフォルトで勝者はplayer2
         return self.player1 if self.player1_score > self.player2_score else self.player2
-    
+
     @winner.setter
     def winner(self, value):
         self._winner = value
