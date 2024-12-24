@@ -193,30 +193,29 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
             data = json.loads(text_data)
             key = data.get("key")
             action = data.get("action")
-            player = data.get("player")
-            if await self.is_valid_action(action) == False:
-               await self.send_error_message("Invalid action")
-               return
-            if await self.is_valid_player(action, player) == False:
-               await self.send_error_message("Invalid player")
-               return
+            if action == None or action != "pressed":
+                await self.send_error_message("Invalid action")
+                return
+            if key == None or (key != "D" and key != "E" and key != "K" and key != "I"):
+                await self.send_error_message("Invalid key")
+                return
             async with self.lock:
-                if (key == "D" and action == "pressed") or (action == "move_down" and player == "left"):
+                if key == "D" and action == "pressed":
                     if (
                         SharedState.Paddle.left_y + 3
                         <= SharedState.GameWindow.height - SharedState.Paddle.height
                     ):
                         SharedState.Paddle.left_y += 3
-                elif key == "E" and action == "pressed" or (action == "move_up" and player == "left"):
+                elif key == "E" and action == "pressed":
                     if SharedState.Paddle.left_y - 3 >= 0:
                         SharedState.Paddle.left_y -= 3
-                elif key == "K" and action == "pressed" or (action == "move_down" and player == "right"):
+                elif key == "K" and action == "pressed":
                     if (
                         SharedState.Paddle.right_y + 3
                         <= SharedState.GameWindow.height - SharedState.Paddle.height
                     ):
                         SharedState.Paddle.right_y += 3
-                elif key == "I" and action == "pressed" or (action == "move_up" and player == "right"):
+                elif key == "I" and action == "pressed":
                     if SharedState.Paddle.right_y - 3 >= 0:
                         SharedState.Paddle.right_y -= 3
 
@@ -233,18 +232,6 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
                 "content": {"error": error_message}
             }
         )
-
-    async def is_valid_action(self,action):
-        if action != "pressed" and action != "move_up" and action != "move_down":
-            return False
-        return True
-
-    async def is_valid_player(self,action, player):
-        if action == "move_up" or action == "move_down":
-            if player != "right" and player != "left":
-                return False
-        return True
-
 
     async def handle_other_message(self, message):
         # その他のメッセージに対応する処理
