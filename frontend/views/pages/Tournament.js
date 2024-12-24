@@ -8,6 +8,19 @@ const Tournament = {
   after_render: async () => {
     updateContent();
 
+    // トーナメントデータがあり、終了していない場合は続きを行う
+    try {
+      const response = await fetch(
+        `${window.env.BACKEND_HOST}/tournament/api/save-data/`
+      );
+
+      const tournamentData = await response?.json();
+      if (tournamentData?.is_over === false) {
+        window.location.hash = "#/matches";
+        return;
+      }
+    } catch (error) {}
+
     sessionStorage.setItem("currentMatch", 1);
     sessionStorage.setItem("isTournament", "true");
 
@@ -47,8 +60,6 @@ const Tournament = {
 
             // トーナメントの場合ゲーム画面へ飛べないように
             const gameplayButton = document.getElementById("navbar:gameplay");
-            console.log(gameplayButton)
-            console.log(gameplayButton.classList)
             if (gameplayButton) {
               gameplayButton.removeAttribute("href");
               gameplayButton.classList.replace("active", "disabled");
