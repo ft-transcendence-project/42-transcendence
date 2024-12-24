@@ -112,77 +112,75 @@ class TournamentRegisterViewTests(APITestCase):
         self.assertEqual(Player.objects.count(), 0)
 
 
-class SaveDataViewTest(TestCase):
-    # test用のプレイヤーやトーナメントを作成
+class SaveDataViewTest(APITestCase):
     def setUp(self):
         self.player1 = Player.objects.create(name="Player 1")
         self.player2 = Player.objects.create(name="Player 2")
-        self.tournament = Tournament.objects.create(name="Tournament 1", date="2024-12-20")
+        self.tournament = Tournament.objects.create(
+            name="Test Tournament", date=timezone.now().date()
+        )
         self.match = Match.objects.create(
             tournament=self.tournament,
             match_number=1,
-            timestamp="2024-12-20T12:00:00Z",
+            timestamp=timezone.now(),
             player1=self.player1,
             player2=self.player2,
             player1_score=0,
-            player2_score=0
+            player2_score=0,
         )
-        self.url = '/tournament/api/save-data/'
-
+        self.url = reverse("tournament:save-data")
         self.client.defaults["HTTP_X_FORWARDED_PROTO"] = "https"
         self.client.defaults["wsgi.url_scheme"] = "https"
 
-    # スコアの保存が正しく行われるか
-    def test_save_score(self):
+    def test_get_latest_tournament(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["id"], self.tournament.id)
+
+    def test_save_match_data(self):
         data = {
+            "currentMatchId": 0,
             "tournamentData": {
                 "id": self.tournament.id,
                 "matches": [
                     {
-                        "id": self.match.id,
                         "match_number": 1,
-                        "timestamp": "2024-12-20T12:00:00Z",
                         "player1": {"id": self.player1.id},
                         "player2": {"id": self.player2.id},
                         "player1_score": 10,
-                        "player2_score": 8,
-                        "winner_id": self.player1.id
+                        "player2_score": 5,
+                        "winner": "player1",
                     }
-                ]
-            }
+                ],
+            },
         }
-        response = self.client.post(self.url, data, content_type='application/json')
+        response = self.client.post(self.url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        match = Match.objects.get(id=self.match.id)
-        self.assertEqual(match.player1_score, 10)
-        self.assertEqual(match.player2_score, 8)
-        self.assertEqual(match.winner, self.player1)
+        updated_match = Match.objects.get(id=self.match.id)
+        self.assertEqual(updated_match.player1_score, 10)
+        self.assertEqual(updated_match.player2_score, 5)
+        self.assertEqual(updated_match.winner, self.player1)
 
-    def test_create_new_tournament(self):
+    def test_invalid_tournament_data(self):
+        response = self.client.post(self.url, {}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_match_not_found(self):
         data = {
+            "currentMatchId": 0,
             "tournamentData": {
-                "id": 999, # Non-existent ID
+                "id": 999,
                 "matches": [
                     {
-                        "id": 999, # Non-existent ID
-                        "match_number": 1,
-                        "timestamp": "2024-12-20T12:00:00Z",
+                        "match_number": 999,
                         "player1": {"id": self.player1.id},
                         "player2": {"id": self.player2.id},
                         "player1_score": 10,
-                        "player2_score": 8,
-                        "winner": "player1"
+                        "player2_score": 5,
                     }
-                ]
-            }
+                ],
+            },
         }
-        response = self.client.post(self.url, data, content_type='application/json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        new_tournament = Tournament.objects.get(id=999)
-        self.assertIsNotNone(new_tournament)
-        match = Match.objects.get(id=999)
-        self.assertEqual(match.player1_score, 10)
-        self.assertEqual(match.player2_score, 8)
-        self.assertEqual(match.winner, self.player1)
+        response = self.client.post(self.url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
