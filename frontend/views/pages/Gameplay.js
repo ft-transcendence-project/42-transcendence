@@ -92,20 +92,20 @@ const Gameplay = {
 				const tournamentData = await response.json();
 				console.log("Tournament data updated successfully:", tournamentData);
 
-				const currentMatch = parseInt(sessionStorage.getItem("currentMatch")) - 1;
-				sessionStorage.setItem("currentMatch", currentMatch + 2);
+				const currentMatch_id = parseInt(sessionStorage.getItem("currentMatch")) - 1;
+				sessionStorage.setItem("currentMatch", currentMatch_id + 2);
 
 				if (tournamentData && tournamentData.matches) {
-					tournamentData.matches[currentMatch].player1_score = data.left_score;
-					tournamentData.matches[currentMatch].player2_score = data.right_score;
-					tournamentData.matches[currentMatch].winner = winner;
+					tournamentData.matches[currentMatch_id].player1_score = data.left_score;
+					tournamentData.matches[currentMatch_id].player2_score = data.right_score;
+					tournamentData.matches[currentMatch_id].winner = winner;
 
 					const postResponse = await fetch(`${window.env.BACKEND_HOST}/tournament/api/save-data/`, {
 						method: "POST",
 						headers: {
 							"Content-Type": "application/json",
 						},
-						body: JSON.stringify({ tournamentData }),
+						body: JSON.stringify({ currentMatch_id, tournamentData }),
 					});
 
 					if (!postResponse.ok) {
@@ -117,8 +117,8 @@ const Gameplay = {
 					const responseData = await postResponse.json();
 					console.log("Tournament data updated successfully:", responseData);
 
-					if (currentMatch < 4) {
-						const nextMatch = currentMatch + 1;
+					if (currentMatch_id < 4) {
+						const nextMatch = currentMatch_id + 1;
 						if (nextMatch < tournamentData.matches.length) {
 							sessionStorage.setItem("player1", tournamentData.matches[nextMatch].player1.name);
 							sessionStorage.setItem("player2", tournamentData.matches[nextMatch].player2.name);
