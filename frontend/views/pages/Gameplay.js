@@ -93,7 +93,6 @@ const Gameplay = {
 				console.log("Tournament data updated successfully:", tournamentData);
 
 				const currentMatch_id = parseInt(sessionStorage.getItem("currentMatch")) - 1;
-				sessionStorage.setItem("currentMatch", currentMatch_id + 2);
 
 				if (tournamentData && tournamentData.matches) {
 					tournamentData.matches[currentMatch_id].player1_score = data.left_score;
@@ -116,6 +115,8 @@ const Gameplay = {
 
 					const responseData = await postResponse.json();
 					console.log("Tournament data updated successfully:", responseData);
+
+                    sessionStorage.setItem("currentMatch", currentMatch_id + 2);
 
 					if (currentMatch_id < 4) {
 						const nextMatch = currentMatch_id + 1;
