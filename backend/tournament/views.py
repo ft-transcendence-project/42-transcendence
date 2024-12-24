@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 
 from .models import Match, Player, Tournament
 from .serializers import MatchDetailSerializer, TournamentDetailSerializer
+from .blockchain_services import record_match_on_blockchain
 
 
 class TournamentRegisterView(APIView):
@@ -97,6 +98,9 @@ class SaveDataView(APIView):
                 )
             )
             match.save()
+
+            #試合結果をブロックチェーンに記録
+            record_match_on_blockchain(match.id)
 
             serializer = MatchDetailSerializer(match)
             return Response(serializer.data, status=status.HTTP_200_OK)

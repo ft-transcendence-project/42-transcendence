@@ -1,5 +1,7 @@
 from .services import get_match_data
-from blockchain import web3_ganache_connect
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 def record_match_on_blockchain(match_id):
     match_data = get_match_data(match_id)
