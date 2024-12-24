@@ -42,6 +42,10 @@ const GameSetting = {
         console.log("Settings updated successfully:", settings);
         localStorage.setItem("settingId", settingId);
         console.log("Settings ID saved to localStorage:", window.localStorage.getItem("settingId"));
+        if (sessionStorage.getItem("isTournament") === "true") {
+            window.location.hash = `#/matches`; // Matches画面へ遷移
+            return;
+        }
         window.location.hash = `#/gameplay`; // Gameplay画面へ遷移
       } catch (error) {
         console.error("Failed to update settings:", error);
