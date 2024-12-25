@@ -35,6 +35,15 @@ const Matches = {
     }
 
     const matchData = storedData.matches[currentMatch - 1];
+
+    if (matchData.player1 && matchData.player2) {
+      sessionStorage.setItem("player1", matchData.player1.name);
+      sessionStorage.setItem("player2", matchData.player2.name);
+    } else {
+      alert("Player information not found");
+      return (window.location.hash = "#/tournament");
+    }
+
     sessionStorage.setItem("matchData", JSON.stringify(matchData));
     updateMatchDisplay(storedData);
   },

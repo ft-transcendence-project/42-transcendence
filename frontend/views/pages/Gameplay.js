@@ -118,14 +118,6 @@ const Gameplay = {
                         console.log("Tournament data updated successfully:", responseData);
     
                         sessionStorage.setItem("currentMatch", currentMatchId + 2);
-    
-                        if (currentMatchId < 4) {
-                            const nextMatch = currentMatchId + 1;
-                            if (nextMatch < tournamentData.matches.length) {
-                                sessionStorage.setItem("player1", tournamentData.matches[nextMatch].player1.name);
-                                sessionStorage.setItem("player2", tournamentData.matches[nextMatch].player2.name);
-                            }
-                        }
                     }
     
                     alert(`Game Over! ${winner} wins!`);
