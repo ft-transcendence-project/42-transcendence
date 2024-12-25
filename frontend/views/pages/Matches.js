@@ -13,6 +13,7 @@ const Matches = {
     } catch (error) {
       console.error("Error handling tournament data:", error);
       alert("Failed to load tournament data");
+      return (window.location.hash = "#/tournament");
     }
   },
 
