@@ -13,7 +13,7 @@ const Gameplay = {
             document.getElementById("player2").textContent = player2;
         }
 
-		console.log("SettingId in Gameplay:", window.localStorage.getItem('settingId'));
+		console.log("SettingId in Gameplay:", sessionStorage.getItem('settingId'));
 
 		const gameCanvas = document.getElementById('gameCanvas');
 		const ctx = gameCanvas.getContext('2d');
@@ -60,7 +60,7 @@ const Gameplay = {
 		};
 
 		// Websocket
-		const url = `${window.env.BACKEND_WS_HOST}/gameplay/${window.localStorage.getItem('settingId')}/`;
+		const url = `${window.env.BACKEND_WS_HOST}/gameplay/${sessionStorage.getItem('settingId')}/`;
 		window.ws = new WebSocket(url);
 		console.log(url + " WebSocket created");
 
@@ -251,9 +251,9 @@ const Gameplay = {
 		  console.log("WebSocket closed");
 		}
 	
-		if (window.localStorage.getItem('settingId') && sessionStorage.getItem("isTournament") !== "true") {
+		if (sessionStorage.getItem('settingId') && sessionStorage.getItem("isTournament") !== "true") {
 		  try {
-			const response = await fetch(`${window.env.BACKEND_HOST}/gameplay/api/gamesetting/${window.localStorage.getItem('settingId')}/`, {
+			const response = await fetch(`${window.env.BACKEND_HOST}/gameplay/api/gamesetting/${sessionStorage.getItem('settingId')}/`, {
 			  method: "DELETE",
 			});
 	
@@ -261,8 +261,8 @@ const Gameplay = {
 			  throw new Error(`HTTP error! status: ${response.status}`);
 			}
 	
-            window.localStorage.removeItem('settingId')
-			console.log("Settings deleted successfully:", window.localStorage.getItem('settingId'));
+            sessionStorage.removeItem('settingId')
+			console.log("Settings deleted successfully:", sessionStorage.getItem('settingId'));
 		  } catch (error) {
 			console.error("Failed to delete settings:", error);
 		  }

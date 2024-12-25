@@ -21,7 +21,7 @@ const Tournament = {
       }
 
       const tournamentData = await response.json();
-      if (!window.localStorage.getItem("settingId")) {
+      if (!sessionStorage.getItem("settingId")) {
         window.location.hash = "#/gamesetting";
         return;
       } else if (tournamentData?.is_over === false) {

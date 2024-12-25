@@ -40,8 +40,8 @@ const GameSetting = {
         const responseData = await response.json();
         const settingId = responseData.id;
         console.log("Settings updated successfully:", settings);
-        localStorage.setItem("settingId", settingId);
-        console.log("Settings ID saved to localStorage:", window.localStorage.getItem("settingId"));
+        sessionStorage.setItem("settingId", settingId);
+        console.log("Settings ID saved to sessionStorage:", sessionStorage.getItem("settingId"));
         if (sessionStorage.getItem("isTournament") === "true") {
             window.location.hash = `#/matches`; // Matches画面へ遷移
             return;
