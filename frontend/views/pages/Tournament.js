@@ -65,13 +65,6 @@ const Tournament = {
           if (response.ok) {
             console.log(data);
             window.location.hash = "#/gamesetting";
-
-            // トーナメントの場合ゲーム画面へ飛べないように
-            const gameplayButton = document.getElementById("navbar:gameplay");
-            if (gameplayButton) {
-              gameplayButton.removeAttribute("href");
-              gameplayButton.classList.replace("active", "disabled");
-            }
           } else {
             const errors = Object.entries(data)
               .map(([k, v]) => {
