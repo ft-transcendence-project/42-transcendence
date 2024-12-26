@@ -5,7 +5,7 @@ import asyncio
 # import random
 import math
 from .utils import Utils
-from .shared import PongInfo
+from .pong_info import PongInfo
 
 # from channels.db import database_sync_to_async
 # from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
@@ -151,9 +151,9 @@ class PongLogic(AsyncWebsocketConsumer):
             Utils.adjust_ball_position(
                 self.pong_info.ball, self.pong_info.paddle, velocity, self.pong_info.game_window
             )
-            Utils.update_obstacle_position(
-                self.pong_info.obstacle, self.pong_info.game_window
-            )
+            # Utils.update_obstacle_position(
+            #     self.pong_info.obstacle, self.pong_info.game_window
+            # )
 
     async def check_game_state(self):
         async with self.pong_info.lock:
