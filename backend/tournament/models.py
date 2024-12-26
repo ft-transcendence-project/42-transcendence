@@ -19,6 +19,7 @@ class Player(models.Model):
 
 class Match(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
+    round = models.IntegerField(default=1)
     match_number = models.PositiveIntegerField()
     timestamp = models.DateTimeField()
     player1 = models.ForeignKey(
@@ -47,6 +48,7 @@ class Match(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["tournament", "match_number"], name="unique_match_number"
+                fields=["tournament", "round", "match_number"],
+                name="unique_round_match_number",
             )
         ]

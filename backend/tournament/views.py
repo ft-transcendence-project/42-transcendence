@@ -84,6 +84,7 @@ class SaveDataView(APIView):
             match = Match.objects.get(
                 tournament_id=tournament_data.get("id"),
                 match_number=match_data.get("match_number"),
+                round=match_data.get("round"),
             )
 
             match.player1_score = match_data.get("player1_score", 0)
@@ -97,14 +98,16 @@ class SaveDataView(APIView):
             )
             match.save()
 
-            current_matches = Match.objects.filter(
+            current_round_matches = Match.objects.filter(
                 tournament_id=tournament_data.get("id"),
-                match_number__lte=(4 if match.match_number <= 4 else 6),
+                round=match.round,
             )
 
-            if all(m.winner for m in current_matches):
-                if len(current_matches) > 2:
-                    self.create_next_matches(tournament_data.get("id"), current_matches)
+            if all(m.winner for m in current_round_matches):
+                if len(current_round_matches) >= 2:
+                    self.create_next_matches(
+                        tournament_data.get("id"), current_round_matches, match.round
+                    )
 
             serializer = MatchDetailSerializer(match)
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -114,14 +117,16 @@ class SaveDataView(APIView):
                 {"error": "Match not found"}, status=status.HTTP_404_NOT_FOUND
             )
 
-    def create_next_matches(self, tournament_id, current_round_matches):
-        next_match_number = len(current_round_matches) + 1
+    def create_next_matches(self, tournament_id, current_round_matches, current_round):
+        # (round, match_number) = (1, 1), (1, 2) , ... ,(3, 1)
+        next_match_number = 1
 
         for i in range(0, len(current_round_matches), 2):
             if i + 1 < len(current_round_matches):
                 Match.objects.create(
                     tournament_id=tournament_id,
                     match_number=next_match_number,
+                    round=current_round + 1,
                     timestamp=timezone.now(),
                     player1=current_round_matches[i].winner,
                     player2=current_round_matches[i + 1].winner,

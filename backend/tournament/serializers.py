@@ -18,6 +18,7 @@ class MatchDetailSerializer(serializers.ModelSerializer):
         model = Match
         fields = [
             "id",
+            "round",
             "match_number",
             "timestamp",
             "player1",
