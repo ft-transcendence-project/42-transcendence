@@ -193,10 +193,15 @@ const Gameplay = {
 			ctx.fillRect(paddle.left_x, paddle.left_y, paddle_w, paddle_h);
 			ctx.fillRect(paddle.right_x - paddle_w, 0 + paddle.right_y, paddle_w, paddle_h);
 			ctx.fillRect(ball.x - ball.radius, ball.y - ball.radius, 2 * ball.radius, 2 * ball.radius);
-			ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+			ctx.fillRect(250, 135, obstacle.width, obstacle.height);
+			ctx.fillRect(250, 435, obstacle.width, obstacle.height);
 
 			ctx.fillStyle = "red";
 			ctx.fillRect(blind.x, blind.y, blind.width, blind.height);
+
+			ctx.fillStyle = "yellow";
+			ctx.fillRect(250, 135, obstacle.width, obstacle.height);
+			ctx.fillRect(250, 435, obstacle.width, obstacle.height);
 
 			ctx.fillStyle = "white";
 			ctx.font = "50px Arial";

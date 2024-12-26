@@ -70,6 +70,7 @@ class PongInfo:
         self.ball = Ball()
         self.paddle = Paddle()
         self.score = Score()
+        self.obstacle_exist = False
         self.obstacle1 = Obstacle(1)
         self.obstacle2 = Obstacle(2)
         self.blind = Blind()
