@@ -35,7 +35,9 @@ class Match(models.Model):
 
     @property
     def winner(self):
-        # デフォルトで勝者はplayer2
+        # デフォルトではNone
+        if self.player1_score == 0 and self.player2_score == 0:
+            return None
         return self.player1 if self.player1_score > self.player2_score else self.player2
 
     @winner.setter
