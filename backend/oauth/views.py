@@ -75,8 +75,18 @@ def oauth_callback_view(request):
 
             login(request, user)
             if settings.DEBUG == False:
-                return redirect("https://localhost:8443/#/")
-            return redirect("http://localhost:3000/#/")
+                response = redirect("https://localhost:8443/#/")
+            else:
+                response = redirect("http://localhost:3000/#/")
+
+            response.set_cookie(
+                key="token",
+                value="dummy",
+                max_age=86400,
+                secure=True,
+                samesite="Lax",
+            )
+            return response
     return Response(
         {
             "error": "No code provided",
