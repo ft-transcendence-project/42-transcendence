@@ -32,10 +32,7 @@ const Matches = {
       return (window.location.hash = "#/tournament");
     }
 
-    if (!currentMatch) {
-      currentMatch = this.initializeCurrentMatch(storedData);
-    }
-
+    currentMatch = this.initializeCurrentMatch(storedData);
     const matchData = storedData.matches[currentMatch - 1];
 
     if (matchData.player1 && matchData.player2) {

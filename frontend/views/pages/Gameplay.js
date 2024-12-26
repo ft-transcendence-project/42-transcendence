@@ -116,13 +116,8 @@ const Gameplay = {
     
                         const responseData = await postResponse.json();
                         console.log("Tournament data updated successfully:", responseData);
-    
-                        // todo: tournament.is_overのチェックに変える
-                        if (currentMatchId < 6) {
-                            sessionStorage.setItem("currentMatch", currentMatchId + 2);
                         }
-                    }
-    
+
                     alert(`Game Over! ${winner} wins!`);
                     document.getElementById('nextGameButton').style.display = 'block';
                 } catch (error) {
