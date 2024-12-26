@@ -70,41 +70,39 @@ function updateMatchDisplay(tournament) {
     const winner = match.winner.name;
 
     const matchNumber = match.match_number;
-    if (matchNumber <= 4) {
-      const player1Div = document.querySelector(`#match${matchNumber}-player1`);
-      if (player1Div.firstChild?.nodeType === Node.TEXT_NODE) {
-        player1Div.firstChild.textContent = player1;
-      } else {
-        player1Div.insertBefore(
-          document.createTextNode(player1),
-          player1Div.firstChild
-        );
-      }
+    const player1Div = document.querySelector(`#match${matchNumber}-player1`);
+    if (player1Div.firstChild?.nodeType === Node.TEXT_NODE) {
+      player1Div.firstChild.textContent = player1;
+    } else {
+      player1Div.insertBefore(
+        document.createTextNode(player1),
+        player1Div.firstChild
+      );
+    }
 
-      const player2Div = document.querySelector(`#match${matchNumber}-player2`);
-      if (player2Div.firstChild?.nodeType === Node.TEXT_NODE) {
-        player2Div.firstChild.textContent = player2;
-      } else {
-        player2Div.insertBefore(
-          document.createTextNode(player2),
-          player2Div.firstChild
-        );
-      }
+    const player2Div = document.querySelector(`#match${matchNumber}-player2`);
+    if (player2Div.firstChild?.nodeType === Node.TEXT_NODE) {
+      player2Div.firstChild.textContent = player2;
+    } else {
+      player2Div.insertBefore(
+        document.createTextNode(player2),
+        player2Div.firstChild
+      );
+    }
 
-      if (score1 > 0 || score2 > 0) {
-        document.querySelector(`#match${matchNumber}-score1`).textContent =
-          score1;
-        document.querySelector(`#match${matchNumber}-score2`).textContent =
-          score2;
+    if (score1 > 0 || score2 > 0) {
+      document.querySelector(`#match${matchNumber}-score1`).textContent =
+        score1;
+      document.querySelector(`#match${matchNumber}-score2`).textContent =
+        score2;
 
-        player1Div.classList.remove("winner");
-        player2Div.classList.remove("winner");
+      player1Div.classList.remove("winner");
+      player2Div.classList.remove("winner");
 
-        if (winner === player1) {
-          player1Div.classList.add("winner");
-        } else if (winner === player2) {
-          player2Div.classList.add("winner");
-        }
+      if (winner === player1) {
+        player1Div.classList.add("winner");
+      } else if (winner === player2) {
+        player2Div.classList.add("winner");
       }
     }
   });
