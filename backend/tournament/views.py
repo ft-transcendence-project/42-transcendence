@@ -86,7 +86,6 @@ class SaveDataView(APIView):
                 match_number=match_data.get("match_number"),
             )
 
-            # 既存のマッチを更新
             match.player1_score = match_data.get("player1_score", 0)
             match.player2_score = match_data.get("player2_score", 0)
             match.winner = Player.objects.get(
@@ -98,20 +97,14 @@ class SaveDataView(APIView):
             )
             match.save()
 
-            # 同じラウンドの全マッチを取得
             current_matches = Match.objects.filter(
                 tournament_id=tournament_data.get("id"),
                 match_number__lte=(4 if match.match_number <= 4 else 6),
             )
 
-            # 全マッチが完了しているか確認
             if all(m.winner for m in current_matches):
-                # 決勝戦でなければ次のラウンドを作成
                 if len(current_matches) > 2:
                     self.create_next_matches(tournament_data.get("id"), current_matches)
-                    return Response(
-                        {"status": "To next round"}, status=status.HTTP_200_OK
-                    )
 
             serializer = MatchDetailSerializer(match)
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -122,8 +115,7 @@ class SaveDataView(APIView):
             )
 
     def create_next_matches(self, tournament_id, current_round_matches):
-        max_match_number = max(m.match_number for m in current_round_matches)
-        next_match_number = max_match_number // 2 + 1  # //: 整数
+        next_match_number = len(current_round_matches) + 1
 
         for i in range(0, len(current_round_matches), 2):
             if i + 1 < len(current_round_matches):
