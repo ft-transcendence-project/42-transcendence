@@ -39,19 +39,12 @@ class PongLogic(AsyncWebsocketConsumer):
                 self.pong_info.ball.velocity = 5
             elif ball_v_choise == "slow":
                 self.pong_info.ball.velocity = 3
-            if map_choise == "a":
-                self.pong_info.obstacle.width = 0
-                self.pong_info.obstacle.height = 0
-                self.pong_info.blind.width = 0
-                self.pong_info.blind.height = 0
-            elif map_choise == "b":
-                self.pong_info.obstacle.width = 500
-                self.pong_info.obstacle.height = 30
-                self.pong_info.blind.width = 0
-                self.pong_info.blind.height = 0
+            if map_choise == "b":
+                self.pong_info.obstacle1.width = 500
+                self.pong_info.obstacle1.height = 30
+                self.pong_info.obstacle2.width = 500
+                self.pong_info.obstacle2.height = 30
             elif map_choise == "c":
-                self.pong_info.obstacle.width = 0
-                self.pong_info.obstacle.height = 0
                 self.pong_info.blind.width = 300
                 self.pong_info.blind.height = 600
             print(f"map: {map_choise}, ball_size: {self.pong_info.ball.radius}, ball_v: {self.pong_info.ball.velocity}")
@@ -151,9 +144,6 @@ class PongLogic(AsyncWebsocketConsumer):
             Utils.adjust_ball_position(
                 self.pong_info.ball, self.pong_info.paddle, velocity, self.pong_info.game_window
             )
-            # Utils.update_obstacle_position(
-            #     self.pong_info.obstacle, self.pong_info.game_window
-            # )
 
     async def check_game_state(self):
         async with self.pong_info.lock:
@@ -251,10 +241,10 @@ class PongLogic(AsyncWebsocketConsumer):
             "ball_x": pong_info.ball.x,
             "ball_y": pong_info.ball.y,
             "ball_radius": pong_info.ball.radius,
-            "obstacle_x": pong_info.obstacle.x,
-            "obstacle_y": pong_info.obstacle.y,
-            "obstacle_width": pong_info.obstacle.width,
-            "obstacle_height": pong_info.obstacle.height,
+            "obstacle_x": pong_info.obstacle1.x,
+            "obstacle_y": pong_info.obstacle1.y,
+            "obstacle_width": pong_info.obstacle1.width,
+            "obstacle_height": pong_info.obstacle1.height,
             "blind_width": pong_info.blind.width,
             "blind_height": pong_info.blind.height,
             "left_score": pong_info.score.left,
