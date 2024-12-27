@@ -51,6 +51,7 @@ class PongLogic(AsyncWebsocketConsumer):
             print(f"map: {map_choise}, ball_size: {self.pong_info.ball.radius}, ball_v: {self.pong_info.ball.velocity}")
         except Exception as e:
             print(f"Error retrieving for GameSetting: {e}")
+        await self.send_pos(True)
         while self.pong_info.score.left < 15 and self.pong_info.score.right < 15:
             async with self.pong_info.lock:
                 if self.pong_info.state == "stop":
@@ -258,29 +259,42 @@ class PongLogic(AsyncWebsocketConsumer):
             },
         )
 
-    async def send_pos(self):
+    async def send_pos(self, first=False):
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
         pong_info = self.pong_info_map[setting_id]
-        response_message = {
-            "id": pong_info.setting_id,
-            "left_paddle_y": pong_info.paddle.left_y,
-            "right_paddle_y": pong_info.paddle.right_y,
-            "ball_x": pong_info.ball.x,
-            "ball_y": pong_info.ball.y,
-            "ball_radius": pong_info.ball.radius,
-            "obstacle1_x": pong_info.obstacle1.x,
-            "obstacle1_y": pong_info.obstacle1.y,
-            "obstacle1_width": pong_info.obstacle1.width,
-            "obstacle1_height": pong_info.obstacle1.height,
-            "obstacle2_x": pong_info.obstacle2.x,
-            "obstacle2_y": pong_info.obstacle2.y,
-            "obstacle2_width": pong_info.obstacle2.width,
-            "obstacle2_height": pong_info.obstacle2.height,
-            "blind_width": pong_info.blind.width,
-            "blind_height": pong_info.blind.height,
-            "left_score": pong_info.score.left,
-            "right_score": pong_info.score.right,
-        }
+        if (first):
+            response_message = {
+                "id": pong_info.setting_id,
+                "left_paddle_y": pong_info.paddle.left_y,
+                "right_paddle_y": pong_info.paddle.right_y,
+                "ball_x": pong_info.ball.x,
+                "ball_y": pong_info.ball.y,
+                "ball_radius": pong_info.ball.radius,
+                "obstacle1_x": pong_info.obstacle1.x,
+                "obstacle1_y": pong_info.obstacle1.y,
+                "obstacle1_width": pong_info.obstacle1.width,
+                "obstacle1_height": pong_info.obstacle1.height,
+                "obstacle2_x": pong_info.obstacle2.x,
+                "obstacle2_y": pong_info.obstacle2.y,
+                "obstacle2_width": pong_info.obstacle2.width,
+                "obstacle2_height": pong_info.obstacle2.height,
+                "blind_x": pong_info.blind.x,
+                "blind_y": pong_info.blind.y,
+                "blind_width": pong_info.blind.width,
+                "blind_height": pong_info.blind.height,
+                "left_score": pong_info.score.left,
+                "right_score": pong_info.score.right,
+            }
+        else:
+            response_message = {
+                "id": pong_info.setting_id,
+                "left_paddle_y": pong_info.paddle.left_y,
+                "right_paddle_y": pong_info.paddle.right_y,
+                "ball_x": pong_info.ball.x,
+                "ball_y": pong_info.ball.y,
+                "left_score": pong_info.score.left,
+                "right_score": pong_info.score.right,
+            }
         await self.channel_layer.group_send(
             pong_info.group_name,
             {
