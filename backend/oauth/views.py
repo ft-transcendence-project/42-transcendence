@@ -2,14 +2,19 @@ import os
 
 import requests
 from accounts.models import CustomUser
+from django.conf import settings
 from django.contrib.auth import login
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 
 @api_view(["GET"])
 def oauth_view(request):
+    if settings.DEBUG == False:
+        return redirect(
+            f"https://api.intra.42.fr/oauth/authorize?client_id={os.environ.get('UID')}&redirect_uri=https://localhost:8443/api/oauth/callback/&response_type=code"
+        )
     return redirect(
         f"https://api.intra.42.fr/oauth/authorize?client_id={os.environ.get('UID')}&redirect_uri=http://localhost:8000/oauth/callback/&response_type=code"
     )
@@ -29,16 +34,28 @@ def oauth_callback_view(request):
         )
 
     if code:
-        response = requests.post(
-            "https://api.intra.42.fr/oauth/token",
-            data={
-                "grant_type": "authorization_code",
-                "client_id": os.environ.get("UID"),
-                "client_secret": os.environ.get("SECRET"),
-                "code": code,
-                "redirect_uri": "http://localhost:8000/oauth/callback/",
-            },
-        )
+        if settings.DEBUG == False:
+            response = requests.post(
+                "https://api.intra.42.fr/oauth/token",
+                data={
+                    "grant_type": "authorization_code",
+                    "client_id": os.environ.get("UID"),
+                    "client_secret": os.environ.get("SECRET"),
+                    "code": code,
+                    "redirect_uri": "https://localhost:8443/api/oauth/callback/",
+                },
+            )
+        else:
+            response = requests.post(
+                "https://api.intra.42.fr/oauth/token",
+                data={
+                    "grant_type": "authorization_code",
+                    "client_id": os.environ.get("UID"),
+                    "client_secret": os.environ.get("SECRET"),
+                    "code": code,
+                    "redirect_uri": "http://localhost:8000/oauth/callback/",
+                },
+            )
         token_data = response.json()
         access_token = token_data.get("access_token")
 
@@ -57,7 +74,19 @@ def oauth_callback_view(request):
                 user.save()
 
             login(request, user)
-            return redirect("http://localhost:3000/#/")
+            if settings.DEBUG == False:
+                response = redirect("https://localhost:8443/#/")
+            else:
+                response = redirect("http://localhost:3000/#/")
+
+            response.set_cookie(
+                key="token",
+                value="dummy",
+                max_age=86400,
+                secure=True,
+                samesite="Lax",
+            )
+            return response
     return Response(
         {
             "error": "No code provided",

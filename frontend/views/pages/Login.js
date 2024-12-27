@@ -73,7 +73,6 @@ const Login = {
       .addEventListener("click", async (event) => {
         event.preventDefault();
         window.location.href = `${window.env.BACKEND_HOST}/oauth/`;
-        document.cookie = `token=dummy; path=/; Secure; SameSite=Strict; max-age=86400`;
       });
 
     document
