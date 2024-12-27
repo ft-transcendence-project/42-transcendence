@@ -3,84 +3,78 @@ import random
 import asyncio
 from channels.generic.websocket import AsyncWebsocketConsumer
 
+class GameWindow:
+    def __init__(self):
+        self.width = 1000
+        self.height = 600
 
-class SharedState:
-    lock = asyncio.Lock()
-
-    class GameWindow:
-        width = 1000
-        height = 600
-
-    class Ball:
-        radius = 10
-        x = 500
-        y = 300
-        angle = 0
-        velocity = 5
-        direction = {
+class Ball:
+    def __init__(self):
+        self.radius = 10
+        self.x = 500
+        self.y = 300
+        self.angle = 0
+        self.velocity = 5
+        self.direction = {
             "facing_up": False,
             "facing_down": False,
             "facing_right": False,
             "facing_left": False,
         }
-        bound_angle = {
+        self.bound_angle = {
             "left_top": math.pi * 7 / 4,
             "left_bottom": math.pi / 4,
             "right_top": math.pi * 5 / 4,
             "right_bottom": math.pi * 3 / 4,
         }
 
-    class Paddle:
-        width = 15
-        height = 120
-        left_y = 240
-        right_y = 240
+class Paddle:
+    def __init__(self):
+        self.width = 15
+        self.height = 120
+        self.left_y = 240
+        self.right_y = 240
 
-    class Obstacle:
-        x = 250
-        y = 100
-        width = 500
-        height = 30
-        velocity = 2
+class Obstacle:
+    def __init__(self):
+        self.x = 250
+        self.y = 100
+        self.width = 500
+        self.height = 30
+        self.velocity = 2
 
-    class blind:
-        x = 350
-        y = 0
-        width = 300
-        height = 600
+class Blind:
+    def __init__(self):
+        self.x = 350
+        self.y = 0
+        self.width = 300
+        self.height = 600
 
-    class Score:
-        right = 0
-        left = 0
+class Score:
+    def __init__(self):
+        self.left = 0
+        self.right = 0
 
-    @classmethod
-    def init(cls):
-        cls.Ball.x = 500
-        cls.Ball.y = 300
-        cls.Ball.angle = 0
-        cls.Ball.velocity = 5
-        cls.Ball.direction = {
-            "facing_up": False,
-            "facing_down": False,
-            "facing_right": False,
-            "facing_left": False,
-        }
-        cls.Paddle.left_y = 240
-        cls.Paddle.right_y = 240
-        cls.Score.right = 0
-        cls.Score.left = 0
-        cls.Obstacle.width = 0
-        cls.Obstacle.height = 0
-        cls.blind.width = 0
-        cls.blind.height = 0
 
-    @classmethod
-    def reset_ball_position(cls):
-        cls.Ball.x = 500
-        cls.Ball.y = 300
+class PongInfo:
+    def __init__(self):
+        self.lock = asyncio.Lock()
+        self.state = "stop"
+        self.task = {}
+        self.setting_id = None
+        self.group_name = None
+        self.game_window = GameWindow()
+        self.ball = Ball()
+        self.paddle = Paddle()
+        self.score = Score()
+        self.obstacle = Obstacle()
+        self.blind = Blind()
 
-    @classmethod
-    def reset_ball_angle(cls):
-        cls.Ball.angle = random.uniform(
-            cls.Ball.bound_angle["right_bottom"], cls.Ball.bound_angle["right_top"]
+    def reset_ball_position(self):
+        self.ball.x = 500
+        self.ball.y = 300
+
+    def reset_ball_angle(self):
+        self.ball.angle = random.uniform(
+            self.ball.bound_angle["right_bottom"], self.ball.bound_angle["right_top"]
         )
