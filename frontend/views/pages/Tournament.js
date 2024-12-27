@@ -8,6 +8,28 @@ const Tournament = {
   after_render: async () => {
     updateContent();
 
+    sessionStorage.setItem("isTournament", "true");
+
+    // トーナメントデータがあり、終了していない場合は続きを行う
+    try {
+      const response = await fetch(
+        `${window.env.BACKEND_HOST}/tournament/api/save-data/`
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP Error Status: ${response.status}`);
+      }
+
+      const tournamentData = await response.json();
+      if (!sessionStorage.getItem("settingId")) {
+        window.location.hash = "#/gamesetting";
+        return;
+      } else if (tournamentData?.is_over === false) {
+        window.location.hash = "#/matches";
+        return;
+      }
+    } catch (error) {}
+
     sessionStorage.setItem("currentMatch", 1);
 
     document
@@ -42,7 +64,7 @@ const Tournament = {
 
           if (response.ok) {
             console.log(data);
-            window.location.hash = "#/matches";
+            window.location.hash = "#/gamesetting";
           } else {
             const errors = Object.entries(data)
               .map(([k, v]) => {

@@ -13,7 +13,7 @@ const Gameplay = {
             document.getElementById("player2").textContent = player2;
         }
 
-		console.log("SettingId in Gameplay:", window.localStorage.getItem('settingId'));
+		console.log("SettingId in Gameplay:", sessionStorage.getItem('settingId'));
 
 		const gameCanvas = document.getElementById('gameCanvas');
 		const ctx = gameCanvas.getContext('2d');
@@ -60,7 +60,7 @@ const Gameplay = {
 		};
 
 		// Websocket
-		const url = `${window.env.BACKEND_WS_HOST}/gameplay/${window.localStorage.getItem('settingId')}/`;
+		const url = `${window.env.BACKEND_WS_HOST}/gameplay/${sessionStorage.getItem('settingId')}/`;
 		window.ws = new WebSocket(url);
 		console.log(url + " WebSocket created");
 
@@ -80,58 +80,55 @@ const Gameplay = {
 				winner = sessionStorage.getItem("player2");
 			}
 
-			try {
-				const response = await fetch(`${window.env.BACKEND_HOST}/tournament/api/save-data/`);
-
-				if (!response.ok) {
-					const errorData = await response.json();
-					console.error("Error updating tournament data:", errorData);
-					throw new Error(`HTTP Error Status: ${response.status}`);
-				}
-
-				const tournamentData = await response.json();
-				console.log("Tournament data updated successfully:", tournamentData);
-
-				const currentMatchId = parseInt(sessionStorage.getItem("currentMatch")) - 1;
-
-				if (tournamentData && tournamentData.matches) {
-					tournamentData.matches[currentMatchId].player1_score = data.left_score;
-					tournamentData.matches[currentMatchId].player2_score = data.right_score;
-					tournamentData.matches[currentMatchId].winner = winner;
-
-					const postResponse = await fetch(`${window.env.BACKEND_HOST}/tournament/api/save-data/`, {
-						method: "POST",
-						headers: {
-							"Content-Type": "application/json",
-						},
-						body: JSON.stringify({ currentMatchId, tournamentData }),
-					});
-
-					if (!postResponse.ok) {
-						const errorData = await postResponse.json();
-						console.error("Error updating tournament data:", errorData);
-						throw new Error(`HTTP Error Status: ${postResponse.status}`);
-					}
-
-					const responseData = await postResponse.json();
-					console.log("Tournament data updated successfully:", responseData);
-
-                    sessionStorage.setItem("currentMatch", currentMatchId + 2);
-
-					if (currentMatchId < 4) {
-						const nextMatch = currentMatchId + 1;
-						if (nextMatch < tournamentData.matches.length) {
-							sessionStorage.setItem("player1", tournamentData.matches[nextMatch].player1.name);
-							sessionStorage.setItem("player2", tournamentData.matches[nextMatch].player2.name);
-						}
-					}
-				}
-
-				alert(`Game Over! ${winner} wins!`);
-				document.getElementById('gameOverButtons').style.display = 'block';
-			} catch (error) {
-				console.error("Error updating tournament data:", error);
-			}
+            if (sessionStorage.getItem("isTournament") === "true") {
+                try {
+                    const response = await fetch(`${window.env.BACKEND_HOST}/tournament/api/save-data/`);
+    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        console.error("Error updating tournament data:", errorData);
+                        throw new Error(`HTTP Error Status: ${response.status}`);
+                    }
+    
+                    const tournamentData = await response.json();
+                    console.log("Tournament data updated successfully:", tournamentData);
+    
+                    const currentMatchId = parseInt(sessionStorage.getItem("currentMatch")) - 1;
+    
+                    if (tournamentData && tournamentData.matches) {
+                        tournamentData.matches[currentMatchId].player1_score = data.left_score;
+                        tournamentData.matches[currentMatchId].player2_score = data.right_score;
+                        tournamentData.matches[currentMatchId].winner = winner;
+    
+                        const postResponse = await fetch(`${window.env.BACKEND_HOST}/tournament/api/save-data/`, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({ currentMatchId, tournamentData }),
+                        });
+    
+                        if (!postResponse.ok) {
+                            const errorData = await postResponse.json();
+                            console.error("Error updating tournament data:", errorData);
+                            throw new Error(`HTTP Error Status: ${postResponse.status}`);
+                        }
+    
+                        const responseData = await postResponse.json();
+                        console.log("Tournament data updated successfully:", responseData);
+    
+                        sessionStorage.setItem("currentMatch", currentMatchId + 2);
+                    }
+    
+                    alert(`Game Over! ${winner} wins!`);
+                    document.getElementById('nextGameButton').style.display = 'block';
+                } catch (error) {
+                    console.error("Error updating tournament data:", error);
+                }
+            } else {
+                alert(`Game Over! ${winner} wins!`);
+                document.getElementById('gameOverButton').style.display = 'block';
+            }
 		}
 
 		window.ws.onmessage = (e) => {
@@ -246,9 +243,9 @@ const Gameplay = {
 		  console.log("WebSocket closed");
 		}
 	
-		if (window.localStorage.getItem('settingId')) {
+		if (sessionStorage.getItem('settingId') && sessionStorage.getItem("isTournament") !== "true") {
 		  try {
-			const response = await fetch(`${window.env.BACKEND_HOST}/gameplay/api/gamesetting/${window.localStorage.getItem('settingId')}/`, {
+			const response = await fetch(`${window.env.BACKEND_HOST}/gameplay/api/gamesetting/${sessionStorage.getItem('settingId')}/`, {
 			  method: "DELETE",
 			});
 	
@@ -256,11 +253,18 @@ const Gameplay = {
 			  throw new Error(`HTTP error! status: ${response.status}`);
 			}
 	
-			console.log("Settings deleted successfully:", window.localStorage.getItem('settingId'));
+            sessionStorage.removeItem('settingId')
+			console.log("Settings deleted successfully:", sessionStorage.getItem('settingId'));
 		  } catch (error) {
 			console.error("Failed to delete settings:", error);
 		  }
 		}
+
+        const tournamentButton = document.getElementById("navbar:tournament");
+        if (tournamentButton) {
+            tournamentButton.setAttribute("href", "#/tournament");
+            tournamentButton.classList.replace("disabled", "active");
+        } // トーナメントボタンを有効に
 	  },
 };
 
