@@ -36,7 +36,13 @@ const Gameplay = {
 			y: center_y,
 			radius: 10,
 		};
-		const obstacle = {
+		const obstacle1 = {
+			x: center_x,
+			y: center_y,
+			width: 0,
+			height: 0,
+		};
+		const obstacle2 = {
 			x: center_x,
 			y: center_y,
 			width: 0,
@@ -120,10 +126,14 @@ const Gameplay = {
 			ball.x = data.ball_x;
 			ball.y = data.ball_y;
 			ball.radius = data.ball_radius;
-			obstacle.x = data.obstacle_x;
-			obstacle.y = data.obstacle_y;
-			obstacle.width = data.obstacle_width;
-			obstacle.height = data.obstacle_height;
+			obstacle1.x = data.obstacle1_x;
+			obstacle1.y = data.obstacle1_y;
+			obstacle1.width = data.obstacle1_width;
+			obstacle1.height = data.obstacle1_height;
+			obstacle2.x = data.obstacle2_x;
+			obstacle2.y = data.obstacle2_y;
+			obstacle2.width = data.obstacle2_width;
+			obstacle2.height = data.obstacle2_height;
 			blind.width = data.blind_width;
 			blind.height = data.blind_height;
 		};
@@ -193,15 +203,13 @@ const Gameplay = {
 			ctx.fillRect(paddle.left_x, paddle.left_y, paddle_w, paddle_h);
 			ctx.fillRect(paddle.right_x - paddle_w, 0 + paddle.right_y, paddle_w, paddle_h);
 			ctx.fillRect(ball.x - ball.radius, ball.y - ball.radius, 2 * ball.radius, 2 * ball.radius);
-			ctx.fillRect(250, 135, obstacle.width, obstacle.height);
-			ctx.fillRect(250, 435, obstacle.width, obstacle.height);
 
 			ctx.fillStyle = "red";
 			ctx.fillRect(blind.x, blind.y, blind.width, blind.height);
 
 			ctx.fillStyle = "yellow";
-			ctx.fillRect(250, 135, obstacle.width, obstacle.height);
-			ctx.fillRect(250, 435, obstacle.width, obstacle.height);
+			ctx.fillRect(obstacle1.x, obstacle1.y, obstacle1.width, obstacle1.height);
+			ctx.fillRect(obstacle2.x, obstacle2.y, obstacle2.width, obstacle2.height);
 
 			ctx.fillStyle = "white";
 			ctx.font = "50px Arial";
