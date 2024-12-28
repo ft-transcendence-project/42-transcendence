@@ -12,13 +12,23 @@ services:
     development: !reset []
     ports: !reset []
 
+  gameplay:
+    # todo: env.prodを追加
+    volumes: !reset []
+    entrypoint: !override "/usr/src/app/entrypoint.sh"
+    environment: !override
+      - ENVIRONMENT=production
+    development: !reset []
+    ports: !reset []
+
   db:
     volumes: !reset []
 
   frontend:
     environment: !override
       - BACKEND_HOST=https://localhost:8443/api
-      - BACKEND_WS_HOST=wss://localhost:8443/ws
+      - GAMEPLAY_HOST=https://localhost:8444/gameplay
+      - GAMEPLAY_WS_HOST=wss://localhost:8443/ws
     ports: !reset []
 
   web:

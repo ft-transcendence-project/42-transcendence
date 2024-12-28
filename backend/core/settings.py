@@ -31,7 +31,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
-    "daphne",
+    "gunicorn",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -41,14 +41,12 @@ INSTALLED_APPS = [
     "django_otp",
     "django_otp.plugins.otp_totp",
     "rest_framework",
-    "gameplay",
     "accounts",
     "tournament",
     "matches",
     "homepage",
     "oauth",
     "resultpage",
-    "channels",
     "corsheaders",
 ]
 
@@ -85,7 +83,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "core.wsgi.application"
-ASGI_APPLICATION = "core.asgi.application"
 import os
 
 CHANNEL_LAYERS = {
@@ -218,4 +215,4 @@ if ENVIRONMENT == "production":
     SECURE_REDIRECT_EXEMPT = []
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-    WS_URL = "wss://localhost:8443/ws/"
+    WS_URL = "wss://gameplay:8443/ws/"

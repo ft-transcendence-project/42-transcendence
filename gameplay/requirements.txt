@@ -1,0 +1,9 @@
+django
+channels
+channels_redis
+daphne
+django-cors-headers
+django
+djangorestframework
+django-cors-headers
+python-logstash

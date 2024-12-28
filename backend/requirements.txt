@@ -10,9 +10,7 @@ pyotp
 python-logstash
 asgiref
 sqlparse
-channels
-channels_redis
-daphne
+gunicorn
 djangorestframework
 django-cors-headers
 web3
