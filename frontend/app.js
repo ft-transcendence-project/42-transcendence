@@ -68,6 +68,15 @@ const router = async () => {
     }
   }
 
+  if (sessionStorage.getItem("isTournament") === "true") {
+    // トーナメントの場合ゲーム画面へ飛べないように
+    const gameplayButton = document.getElementById("navbar:gameplay");
+    if (gameplayButton) {
+      gameplayButton.removeAttribute("href");
+      gameplayButton.classList.replace("active", "disabled");
+    }
+  }
+
   // footer
 
   body.innerHTML = await page.render();

@@ -1,7 +1,7 @@
 from django.urls import path
 
 from .views import TournamentRegisterView
-from .views import SaveScoreView
+from .views import SaveDataView
 
 app_name = "tournament"
 urlpatterns = [
@@ -11,9 +11,9 @@ urlpatterns = [
         name="tournament-register",
     ),
     path(
-        "api/save-score/",
-        SaveScoreView.as_view(),
-        name="save-score",
+        "api/save-data/",
+        SaveDataView.as_view(),
+        name="save-data",
     ),
 ]
 
