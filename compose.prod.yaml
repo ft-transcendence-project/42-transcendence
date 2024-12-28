@@ -17,8 +17,8 @@ services:
 
   frontend:
     environment: !override
-      - BACKEND_HOST=https://localhost:443/api
-      - BACKEND_WS_HOST=wss://localhost:443/ws
+      - BACKEND_HOST=https://localhost:8443/api
+      - BACKEND_WS_HOST=wss://localhost:8443/ws
     ports: !reset []
 
   web:
@@ -27,7 +27,7 @@ services:
       dockerfile: ./nginx/Dockerfile
     container_name: web
     ports:
-      - "443:443"
+      - "8443:443"
     depends_on:
       backend:
         condition: service_healthy
