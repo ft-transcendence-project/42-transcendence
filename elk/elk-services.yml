@@ -75,9 +75,16 @@ services:
       - XPACK_SECURITY_ENCRYPTIONKEY=${ENCRYPTION_KEY}
       - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=${ENCRYPTION_KEY}
       - XPACK_REPORTING_ENCRYPTIONKEY=${ENCRYPTION_KEY}
+      - XPACK_SECURITY_ENABLED=true
+      - SERVER_SSL_ENABLED=true
+      - SERVER_SSL_CERTIFICATE=config/certs/es01/es01.crt
+      - SERVER_SSL_KEY=config/certs/es01/es01.key
+      - SERVER_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
+      - SERVER_SSL_VERIFICATION_MODE=certificate
+      - SERVER_SSL_REDIRECT=true
     mem_limit: ${KB_MEM_LIMIT}
     healthcheck:
-      test: [ "CMD-SHELL", "curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'" ]
+      test: [ "CMD-SHELL", "curl -s -I --cacert config/certs/ca/ca.crt https://localhost:5601 | grep -q 'HTTP/1.1 302 Found'" ]
       interval: 10s
       timeout: 10s
       retries: 120
