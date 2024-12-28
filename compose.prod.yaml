@@ -26,9 +26,9 @@ services:
 
   frontend:
     environment: !override
-      - BACKEND_HOST=https://localhost:8443/api
-      - GAMEPLAY_HOST=https://localhost:8444/gameplay
-      - GAMEPLAY_WS_HOST=wss://localhost:8443/ws
+      - BACKEND_HOST=https://localhost:8443/backend
+      - GAMEPLAY_HOST=https://localhost:8443/gameplay
+      - GAMEPLAY_WS_HOST=wss://localhost:8443/gameplay.ws
     ports: !reset []
 
   web:
@@ -40,6 +40,8 @@ services:
       - "8443:443"
     depends_on:
       backend:
+        condition: service_healthy
+      gameplay:
         condition: service_healthy
       frontend:
         condition: service_healthy

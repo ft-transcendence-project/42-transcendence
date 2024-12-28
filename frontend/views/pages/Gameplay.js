@@ -60,7 +60,7 @@ const Gameplay = {
 		};
 
 		// Websocket
-		const url = `${window.env.GAMEPLAY_WS_HOST}/gameplay/${window.localStorage.getItem('settingId')}/`;
+		const url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${window.localStorage.getItem('settingId')}/`;
 		window.ws = new WebSocket(url);
 		console.log(url + " WebSocket created");
 
@@ -221,7 +221,7 @@ const Gameplay = {
 	
 		if (window.localStorage.getItem('settingId')) {
 		  try {
-			const response = await fetch(`${window.env.GAMEPLAY_HOST}/gameplay/api/gamesetting/${window.localStorage.getItem('settingId')}/`, {
+			const response = await fetch(`${window.env.GAMEPLAY_HOST}/gamesetting/api/${window.localStorage.getItem('settingId')}/`, {
 			  method: "DELETE",
 			});
 	

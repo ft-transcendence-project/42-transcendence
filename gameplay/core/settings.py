@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
-	"gameplay",
+	"gamesetting",
+    "ponglogic",
 	"channels",
     "corsheaders",
 ]
@@ -197,4 +198,3 @@ if ENVIRONMENT == "production":
     SECURE_REDIRECT_EXEMPT = []
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-    WS_URL = "wss://localhost:443/ws/"

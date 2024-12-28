@@ -27,7 +27,7 @@ services:
   gameplay:
     build: ./gameplay
     container_name: gameplay
-    entrypoint: gameplay/entrypoint.sh
+    entrypoint: "gameplay/entrypoint.sh"
     volumes:
       - .:/usr/src/app
     env_file: .env
@@ -74,7 +74,7 @@ services:
     environment:
       - BACKEND_HOST=http://localhost:8000
       - GAMEPLAY_HOST=http://localhost:8001
-      - GAMEPLAY_WS_HOST=ws://localhost:8001/ws
+      - GAMEPLAY_WS_HOST=ws://localhost:8001/gameplay.ws
     ports:
       - "3000:3000"
     depends_on:

@@ -22,5 +22,6 @@ from .views import health_check
 urlpatterns = [
     path("health/", health_check),
     path("admin/", admin.site.urls),
-	path("gameplay/", include("gameplay.urls")),
+	path("ponglogic/", include("ponglogic.urls")),
+	path("gamesetting/", include("gamesetting.urls")),
 ]

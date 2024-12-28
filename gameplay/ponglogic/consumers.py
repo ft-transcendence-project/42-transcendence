@@ -21,7 +21,7 @@ class PongLogic(AsyncWebsocketConsumer):
     async def game_loop(self):
         turn_count = 0
         try:
-            from gameplay.models import GameSetting
+            from gamesetting.models import GameSetting
             setting = await sync_to_async(GameSetting.objects.get)(id=self.pong_info.setting_id)
             ball_size_choise = setting.ball_size
             ball_v_choise = setting.ball_velocity
