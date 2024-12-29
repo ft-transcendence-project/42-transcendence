@@ -47,9 +47,9 @@ class TournamentRegisterView(APIView):
 
 
 class SaveDataView(APIView):
-    def get(self, request):
+    def get(self, request, pk=None):
         try:
-            latest_tournament = Tournament.objects.latest("date")
+            latest_tournament = Tournament.objects.get(id=pk)
             serializer = TournamentDetailSerializer(latest_tournament)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Tournament.DoesNotExist:
@@ -57,32 +57,12 @@ class SaveDataView(APIView):
                 {"error": "No tournament found"}, status=status.HTTP_404_NOT_FOUND
             )
 
-    def post(self, request):
-        tournament_data = request.data.get("tournamentData")
-        if not tournament_data:
-            return Response(
-                {"error": "Tournament data not found"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        matches = tournament_data.get("matches")
-        if not matches:
-            return Response(
-                {"error": "Matches data not found"}, status=status.HTTP_400_BAD_REQUEST
-            )
-
-        match_id = request.data.get("currentMatchId")
-        if match_id is None:
-            return Response(
-                {"error": "Current match id not found"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        match_data = matches[match_id]
+    def put(self, request, pk=None):
+        match_data = request.data.get("currentMatch")
 
         try:
             match = Match.objects.get(
-                tournament_id=tournament_data.get("id"),
+                tournament_id=pk,
                 match_number=match_data.get("match_number"),
                 round=match_data.get("round"),
             )
@@ -99,17 +79,15 @@ class SaveDataView(APIView):
             match.save()
 
             current_round_matches = Match.objects.filter(
-                tournament_id=tournament_data.get("id"),
+                tournament_id=pk,
                 round=match.round,
             )
 
             if all(m.winner for m in current_round_matches):
                 if len(current_round_matches) >= 2:
-                    self.create_next_matches(
-                        tournament_data.get("id"), current_round_matches, match.round
-                    )
+                    self.create_next_matches(pk, current_round_matches, match.round)
                 else:
-                    tournament = Tournament.objects.get(id=tournament_data.get("id"))
+                    tournament = Tournament.objects.get(id=pk)
                     tournament.is_over = True
                     tournament.winner = match.winner
                     tournament.save()
