@@ -89,7 +89,7 @@ CHANNEL_LAYERS = {
         },
     }
 }
-import os #いる？
+import os
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
