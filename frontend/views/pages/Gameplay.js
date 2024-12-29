@@ -116,10 +116,8 @@ const Gameplay = {
     
                         const responseData = await postResponse.json();
                         console.log("Tournament data updated successfully:", responseData);
-    
-                        sessionStorage.setItem("currentMatch", currentMatchId + 2);
-                    }
-    
+                        }
+
                     alert(`Game Over! ${winner} wins!`);
                     document.getElementById('nextGameButton').style.display = 'block';
                 } catch (error) {
