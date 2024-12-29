@@ -174,12 +174,7 @@ const Gameplay = {
 			blind.height = data.blind_height;
 		};
 
-		async function saveScoreToBlockchain(tournamentData) {
-			const winner_id = tournamentData.winner.id;
-			const winner_score = tournamentData.player2_score;
-			const loser_id = tournamentData.player1.id;
-			const loser_score = tournamentData.player1_score;
-
+		async function saveScoreToBlockchain(winner_id, winner_score, loser_id, loser_score) {
 			console.log("Sending data to blockchain:", {
 				winner_id: winner_id,
 				winner_score: winner_score,
@@ -187,8 +182,29 @@ const Gameplay = {
 				loser_score: loser_score,
 			});
 
+			const response = await fetch(`${window.env.BACKEND_HOST}/blockchain/api/save-score/`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					winner_id: winner_id,
+					winner_score: winner_score,
+					loser_id: loser_id,
+					loser_score: loser_score,
+				}),
+
 			// ブロックチェーンへの送信処理を追加
 			// await blockchain.send({ winner_id, winner_score, loser_id, loser_score });
+		});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				console.error("Error saving score to blockchain:", errorData);
+				throw new Error(`HTTP Error Status: ${response.status}`);
+			}
+			const responseData = await response.json();
+			console.log("Score saved to blockchain successfully:", responseData);
 		}
 
 		function sendMessage(message) {

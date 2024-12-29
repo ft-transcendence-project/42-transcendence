@@ -109,7 +109,7 @@ class SaveDataView(APIView):
             print(f"Blockchain transaction receipt: {receipt}")
 
             serializer = MatchDetailSerializer(match)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({'match' : serializer.data, 'receipt': receipt}, status=status.HTTP_200_OK)
 
         except Match.DoesNotExist:
             return Response(
