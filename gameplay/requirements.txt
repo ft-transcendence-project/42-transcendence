@@ -1,6 +1,8 @@
 django
 channels
 channels_redis
+psycopg2
+django_otp
 daphne
 django-cors-headers
 django

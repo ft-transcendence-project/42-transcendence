@@ -60,7 +60,7 @@ const Gameplay = {
 		};
 
 		// Websocket
-		const url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${window.localStorage.getItem('settingId')}/`;
+		const url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${sessionStorage.getItem('settingId')}/`;
 		window.ws = new WebSocket(url);
 		console.log(url + " WebSocket created");
 
