@@ -1,7 +1,6 @@
 from django.urls import path
 
-from .views import TournamentRegisterView
-from .views import SaveDataView
+from .views import SaveDataView, TournamentRegisterView
 
 app_name = "tournament"
 urlpatterns = [
@@ -16,4 +15,3 @@ urlpatterns = [
         name="save-data",
     ),
 ]
-
