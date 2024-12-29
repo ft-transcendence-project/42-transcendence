@@ -262,7 +262,7 @@ const Gameplay = {
 	
 		if (sessionStorage.getItem('settingId') && sessionStorage.getItem("isTournament") !== "true") {
 		  try {
-			const response = await fetch(`${window.env.GAMEPLAY_HOST}/gamesetting/api/${window.localStorage.getItem('settingId')}/`, {
+			const response = await fetch(`${window.env.GAMEPLAY_HOST}/gamesetting/api/${window.sessionStorage.getItem('settingId')}/`, {
 			  method: "DELETE",
 			});
 	
