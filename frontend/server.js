@@ -29,6 +29,17 @@ const server = http.createServer(async (req, res) => {
     const filePath = getFilePath(req.url);
     const contentType = getContentType(filePath);
 
+    // 画像ファイルの場合はバイナリとして読み込む
+    if (contentType.startsWith("image/")) {
+      const data = await fs.readFile(filePath);
+      res.writeHead(200, {
+        "Content-Type": contentType,
+        "Cache-Control": "public, max-age=31536000",
+      });
+      res.end(data);
+      return;
+    }
+
     const content = await fs.readFile(filePath, "utf-8");
     const renderedContent = content
       .replace(
@@ -62,6 +73,9 @@ const server = http.createServer(async (req, res) => {
 });
 
 const getFilePath = (url) => {
+  if (url.startsWith("/public/")) {
+    return path.join(__dirname, url);
+  }
   return path.join(__dirname, url === "/" ? "index.html" : url);
 };
 
@@ -74,6 +88,7 @@ const getContentType = (filePath) => {
     ".json": "application/json",
     ".png": "image/png",
     ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
     ".gif": "image/gif",
     ".svg": "image/svg+xml",
     ".ico": "image/x-icon",
