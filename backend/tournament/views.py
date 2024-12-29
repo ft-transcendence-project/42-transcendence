@@ -100,7 +100,13 @@ class SaveDataView(APIView):
             match.save()
 
             #試合結果をブロックチェーンに記録
-            record_match_on_blockchain(match.id)
+            receipt = record_match_on_blockchain(
+                        match.winner.id,
+                        max(match.player1_score, match.player2_score),
+                        match.player1.id if match.winner.id == match.player2.id else match.player2.id,
+                        min(match.player1_score, match.player2_score)
+                    )
+            print(f"Blockchain transaction receipt: {receipt}")
 
             serializer = MatchDetailSerializer(match)
             return Response(serializer.data, status=status.HTTP_200_OK)

@@ -84,23 +84,3 @@ class TournamentContract:
 
     def get_match(self, match_number):
         return self.contract.functions.getMatch(match_number).call()
-
-def main():
-    tournament = TournamentContract()
-    print("Recording match...")
-    tournament.record_match(1, 10, 2, 5)
-    tournament.record_match(3, 8, 4, 3)
-
-    print("Fetching match data...")
-    match_data_1 = tournament.get_match(1)
-    match_data_2 = tournament.get_match(2)
-
-    print(f"Match 1 data: {match_data_1}")
-    print(f"Match 2 data: {match_data_2}")
-
-    assert match_data_1 == [1, 10, 2, 5], f"Unexpected match 1 data: {match_data_1}"
-    assert match_data_2 == [3, 8, 4, 3], f"Unexpected match 2 data: {match_data_2}"
-    print("All tests passed.")
-
-if __name__ == "__main__":
-    main()

@@ -1,22 +1,19 @@
 from .services import get_match_data
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../blockchain')))
+from web3_ganache_connect import TournamentContract
 
-def record_match_on_blockchain(match_id):
-    match_data = get_match_data(match_id)
-    if not match_data:
-        print(f"Match data not found for match_id: {match_id}")
-        return
-
+def record_match_on_blockchain(winner_id, winner_score, loser_id, loser_score):
     try:
-        tournament = web3_ganache_connect.TournamentContract
+        tournament = TournamentContract()
         receipt = tournament.record_match(
-            match_data['winner_id'],
-            match_data['winner_score'],
-            match_data['loser_id'],
-            match_data['loser_score']
+            winner_id,
+            winner_score,
+            loser_id,
+            loser_score
         )
         print(f"Transaction receipt: {receipt}")
+        return receipt
     except Exception as e:
         print(f"An eror occurred while recording match on blockchain: {e}")
