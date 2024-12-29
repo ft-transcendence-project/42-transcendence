@@ -205,6 +205,7 @@ class PongLogic(AsyncWebsocketConsumer):
             self.pong_info = PongInfo()
             self.pong_info.setting_id = setting_id
             self.pong_info.group_name = group_name
+            self.pong_info.channel_name = self.channel_name
             self.pong_info_map[setting_id] = self.pong_info
             try:
                 self.pong_info.task["game_loop"] = asyncio.create_task(self.game_loop())
@@ -212,9 +213,11 @@ class PongLogic(AsyncWebsocketConsumer):
                 print(f"Error creating game_loop task: {e}")
 
     async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(self.pong_info.group_name, self.channel_name)
-        self.pong_info.task["game_loop"].cancel()
-        del self.pong_info_map[self.pong_info.setting_id]
+        setting_id = self.scope["url_route"]["kwargs"]["settingid"]
+        await self.channel_layer.group_discard(self.pong_info_map[setting_id].group_name, self.channel_name)
+        if self.pong_info_map[setting_id].channel_name == self.channel_name:
+            self.pong_info.task["game_loop"].cancel()
+            del self.pong_info_map[self.pong_info.setting_id]
 
     async def receive(self, text_data=None):
         data = json.loads(text_data)

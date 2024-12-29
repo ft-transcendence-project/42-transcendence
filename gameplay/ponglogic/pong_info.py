@@ -66,6 +66,7 @@ class PongInfo:
         self.task = {}
         self.setting_id = None
         self.group_name = None
+        self.channel_name = None
         self.game_window = GameWindow()
         self.ball = Ball()
         self.paddle = Paddle()
