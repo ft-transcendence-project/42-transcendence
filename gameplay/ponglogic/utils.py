@@ -101,6 +101,18 @@ class Utils:
                 return True
             else:
                 return False
+            
+    @staticmethod
+    def has_collided_with_obstacles_top_or_bottom(ball, obstacle):
+        if ((ball.x + ball.radius > obstacle.x and ball.x - ball.radius < obstacle.x + obstacle.width)
+            and (ball.y + ball.radius == obstacle.y or ball.y - ball.radius == obstacle.y + obstacle.height)):
+            return True
+        
+    @staticmethod
+    def has_collided_with_obstacles_left_or_right(ball, obstacle):
+        if ((ball.x + ball.radius == obstacle.x or ball.x - ball.radius == obstacle.x + obstacle.width)
+            and ball.y + ball.radius >= obstacle.y and ball.y - ball.radius <= obstacle.y + obstacle.height):
+            return True
 
     @staticmethod
     def update_ball_angle(ball, paddle, is_left, is_top):
@@ -154,7 +166,7 @@ class Utils:
                 )
 
     @staticmethod
-    def adjust_ball_position(ball, paddle, velocity, game_window):
+    def adjust_ball_position(ball, paddle, velocity, game_window, obstacle_exist, obstacle1, obstacle2):
         # 左パドルに衝突しそうかどうか
         if (
             ball.x - ball.radius > paddle.width
@@ -179,6 +191,41 @@ class Utils:
         # 下の壁に衝突しそうかどうか
         if ball.y + ball.radius > game_window.height:
             ball.y = game_window.height - ball.radius
+        # 障害物1に衝突しそうかどうか
+        if (obstacle_exist == True):
+            if (ball.y + ball.radius > obstacle1.y and ball.y + ball.radius - obstacle1.y <= abs(velocity["y"])
+                and ball.x + ball.radius > obstacle1.x and ball.x - ball.radius < obstacle1.x + obstacle1.width
+                and ball.direction["facing_down"]):
+                ball.y = obstacle1.y - ball.radius
+            elif (ball.y - ball.radius < obstacle1.y + obstacle1.height and obstacle1.y + obstacle1.height - ball.y + ball.radius <= abs(velocity["y"])
+                  and ball.x + ball.radius > obstacle1.x and ball.x - ball.radius < obstacle1.x + obstacle1.width
+                  and ball.direction["facing_up"]):
+                ball.y = obstacle1.y + obstacle1.height + ball.radius
+            if (ball.y + ball.radius >= obstacle1.y and ball.y - ball.radius <= obstacle1.y + obstacle1.height
+                and ball.x + ball.radius > obstacle1.x and ball.x + ball.radius - obstacle1.x <= abs(velocity["x"])
+                and ball.direction["facing_right"]):
+                ball.x = obstacle1.x - ball.radius
+            elif (ball.y + ball.radius >= obstacle1.y and ball.y - ball.radius <= obstacle1.y + obstacle1.height
+                  and ball.x - ball.radius < obstacle1.x + obstacle1.width and obstacle1.x + obstacle1.width - ball.x + ball.radius <= abs(velocity["x"])
+                  and ball.direction["facing_left"]):
+                ball.x = obstacle1.x + obstacle1.width + ball.radius
+            # 障害物2に衝突しそうかどうか
+            if (ball.y + ball.radius > obstacle2.y and ball.y + ball.radius - obstacle2.y <= abs(velocity["y"])
+                and ball.x + ball.radius > obstacle2.x and ball.x - ball.radius < obstacle2.x + obstacle2.width
+                and ball.direction["facing_down"]):
+                ball.y = obstacle2.y - ball.radius
+            elif (ball.y - ball.radius < obstacle2.y + obstacle2.height and obstacle2.y + obstacle2.height - ball.y + ball.radius <= abs(velocity["y"])
+                  and ball.x + ball.radius > obstacle2.x and ball.x - ball.radius < obstacle2.x + obstacle2.width
+                  and ball.direction["facing_up"]):
+                ball.y = obstacle2.y + obstacle2.height + ball.radius
+            if (ball.y + ball.radius >= obstacle2.y and ball.y - ball.radius <= obstacle2.y + obstacle2.height
+                and ball.x + ball.radius > obstacle2.x and ball.x + ball.radius - obstacle2.x <= abs(velocity["x"])
+                and ball.direction["facing_right"]):
+                ball.x = obstacle2.x - ball.radius
+            elif (ball.y + ball.radius >= obstacle2.y and ball.y - ball.radius <= obstacle2.y + obstacle2.height
+                  and ball.x - ball.radius < obstacle2.x + obstacle2.width and obstacle2.x + obstacle2.width - ball.x + ball.radius <= abs(velocity["x"])
+                  and ball.direction["facing_left"]):
+                ball.x = obstacle2.x + obstacle2.width + ball.radius
 
     def update_ball_velocity(is_top, velocity):
         if is_top == True:
