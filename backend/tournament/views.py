@@ -49,7 +49,7 @@ class TournamentRegisterView(APIView):
 class SaveDataView(APIView):
     def get(self, request):
         try:
-            latest_tournament = Tournament.objects.latest("date")
+            latest_tournament = Tournament.objects.filter(is_over=False).latest("date")
             serializer = TournamentDetailSerializer(latest_tournament)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Tournament.DoesNotExist:
@@ -107,6 +107,18 @@ class SaveDataView(APIView):
                 if len(current_round_matches) >= 2:
                     self.create_next_matches(
                         tournament_data.get("id"), current_round_matches, match.round
+                    )
+                else:
+                    tournament = Tournament.objects.get(id=tournament_data.get("id"))
+                    tournament.is_over = True
+                    tournament.save()
+                    return Response(
+                        {
+                            "match": MatchDetailSerializer(match).data,
+                            "tournament_complete": True,
+                            "winner": match.winner.name,
+                        },
+                        status=status.HTTP_200_OK,
                     )
 
             serializer = MatchDetailSerializer(match)
