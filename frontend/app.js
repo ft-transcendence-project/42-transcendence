@@ -11,6 +11,7 @@ import Gameplay from "./views/pages/Gameplay.js";
 import GameSetting from "./views/pages/GameSetting.js";
 import Tournament from "./views/pages/Tournament.js";
 import Matches from "./views/pages/Matches.js";
+import WinnerPage from "./views/pages/Winner.js";
 
 const routes = {
   "/": Home,
@@ -23,6 +24,7 @@ const routes = {
   "/gamesetting": GameSetting,
   "/tournament": Tournament,
   "/matches": Matches,
+  "/winner": WinnerPage,
 };
 
 const getCookie = (name) => {
