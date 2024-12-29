@@ -35,6 +35,7 @@ const Matches = {
     if (storedData.is_over === true) {
       sessionStorage.setItem("winner", storedData.winner.name);
       console.log("Tournament winner", storedData.winner.name);
+      sessionStorage.removeItem("isTournament");
       const nextGameButton = document.getElementById("matches:next-game");
       nextGameButton.setAttribute("href", "#/winner");
       nextGameButton.innerText = "To the winner page";
