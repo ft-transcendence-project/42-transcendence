@@ -59,6 +59,10 @@ class SaveDataView(APIView):
 
     def put(self, request, pk=None):
         match_data = request.data.get("currentMatch")
+        if not match_data:
+            return Response(
+                {"error": "No match data provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         try:
             match = Match.objects.get(
