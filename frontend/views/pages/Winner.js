@@ -7,12 +7,8 @@ const WinnerPage = {
 
   after_render: async () => {
     updateContent();
-
     const winner = sessionStorage.getItem("winner");
-
     document.getElementById("winner").textContent = winner;
-
-    sessionStorage.removeItem("winner");
   },
 };
 

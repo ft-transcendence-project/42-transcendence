@@ -9,6 +9,7 @@ const Tournament = {
     updateContent();
 
     sessionStorage.setItem("isTournament", "true");
+    sessionStorage.removeItem("winner");
 
     // トーナメントデータがあり、終了していない場合は続きを行う
     try {
