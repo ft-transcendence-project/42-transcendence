@@ -36,19 +36,22 @@ class Paddle:
         self.right_y = 240
 
 class Obstacle:
-    def __init__(self):
+    def __init__(self, id):
         self.x = 250
-        self.y = 100
-        self.width = 500
-        self.height = 30
+        if id == 1:
+            self.y = 135
+        elif id == 2:
+            self.y = 435
+        self.width = 0
+        self.height = 0
         self.velocity = 2
 
 class Blind:
     def __init__(self):
         self.x = 350
         self.y = 0
-        self.width = 300
-        self.height = 600
+        self.width = 0
+        self.height = 0
 
 class Score:
     def __init__(self):
@@ -67,7 +70,9 @@ class PongInfo:
         self.ball = Ball()
         self.paddle = Paddle()
         self.score = Score()
-        self.obstacle = Obstacle()
+        self.obstacle_exist = False
+        self.obstacle1 = Obstacle(1)
+        self.obstacle2 = Obstacle(2)
         self.blind = Blind()
 
     def reset_ball_position(self):
