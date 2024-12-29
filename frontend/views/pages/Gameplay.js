@@ -142,7 +142,7 @@ const Gameplay = {
 		}
 
 		window.ws.onmessage = (e) => {
-			if (window.ws === null)
+			if (window.ws === null || window.ws.readyState !== WebSocket.OPEN)
 				return;
 			const data = JSON.parse(e.data);
             if (data.type === "game_over") {
