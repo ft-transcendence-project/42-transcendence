@@ -108,6 +108,19 @@ class SaveDataView(APIView):
                     self.create_next_matches(
                         tournament_data.get("id"), current_round_matches, match.round
                     )
+                else:
+                    tournament = Tournament.objects.get(id=tournament_data.get("id"))
+                    tournament.is_over = True
+                    tournament.winner = match.winner
+                    tournament.save()
+                    return Response(
+                        {
+                            "match": MatchDetailSerializer(match).data,
+                            "tournament_complete": True,
+                            "winner": match.winner.name,
+                        },
+                        status=status.HTTP_200_OK,
+                    )
 
             serializer = MatchDetailSerializer(match)
             return Response(serializer.data, status=status.HTTP_200_OK)

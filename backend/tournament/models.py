@@ -1,15 +1,6 @@
 from django.db import models
 
 
-class Tournament(models.Model):
-    name = models.CharField(max_length=100)
-    date = models.DateField()
-    is_over = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.name
-
-
 class Player(models.Model):
     name = models.CharField(max_length=100)
 
@@ -17,8 +8,26 @@ class Player(models.Model):
         return self.name
 
 
+class Tournament(models.Model):
+    name = models.CharField(max_length=100)
+    date = models.DateField()
+    is_over = models.BooleanField(default=False)
+    winner = models.ForeignKey(
+        Player,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="tournaments_won",
+    )
+
+    def __str__(self):
+        return self.name
+
+
 class Match(models.Model):
-    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
+    tournament = models.ForeignKey(
+        Tournament, on_delete=models.CASCADE, related_name="matches"
+    )
     round = models.IntegerField(default=1)
     match_number = models.PositiveIntegerField()
     timestamp = models.DateTimeField()

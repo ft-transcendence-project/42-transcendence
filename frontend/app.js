@@ -11,6 +11,7 @@ import Gameplay from "./views/pages/Gameplay.js";
 import GameSetting from "./views/pages/GameSetting.js";
 import Tournament from "./views/pages/Tournament.js";
 import Matches from "./views/pages/Matches.js";
+import WinnerPage from "./views/pages/Winner.js";
 
 const routes = {
   "/": Home,
@@ -23,6 +24,7 @@ const routes = {
   "/gamesetting": GameSetting,
   "/tournament": Tournament,
   "/matches": Matches,
+  "/winner": WinnerPage,
 };
 
 const getCookie = (name) => {
@@ -68,13 +70,14 @@ const router = async () => {
     }
   }
 
-  if (sessionStorage.getItem("isTournament") === "true") {
+  const gameplayButton = document.getElementById("navbar:gameplay");
+  if (gameplayButton && sessionStorage.getItem("isTournament") === "true") {
     // トーナメントの場合ゲーム画面へ飛べないように
-    const gameplayButton = document.getElementById("navbar:gameplay");
-    if (gameplayButton) {
-      gameplayButton.removeAttribute("href");
-      gameplayButton.classList.replace("active", "disabled");
-    }
+    gameplayButton.removeAttribute("href");
+    gameplayButton.classList.replace("active", "disabled");
+  } else if (gameplayButton) {
+    gameplayButton.setAttribute("href", "#/gamesetting");
+    gameplayButton.classList.replace("disabled", "active");
   }
 
   // footer

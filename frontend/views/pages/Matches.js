@@ -32,6 +32,15 @@ const Matches = {
       return (window.location.hash = "#/tournament");
     }
 
+    if (storedData.is_over === true) {
+      sessionStorage.setItem("winner", storedData.winner.name);
+      console.log("Tournament winner", storedData.winner.name);
+      sessionStorage.removeItem("isTournament");
+      const nextGameButton = document.getElementById("matches:next-game");
+      nextGameButton.setAttribute("href", "#/winner");
+      nextGameButton.innerText = "To the winner page";
+    }
+
     currentMatch = this.initializeCurrentMatch(storedData);
     const matchData = storedData.matches[currentMatch - 1];
 
