@@ -2,7 +2,6 @@ django
 channels
 channels_redis
 psycopg2
-django_otp
 daphne
 djangorestframework
 django-cors-headers
