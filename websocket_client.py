@@ -11,8 +11,7 @@ import time
 
 
 fd = sys.stdin.fileno()
-# fdの端末属性を取得
-# 後でdefaultに元に戻す
+# fdの端末属性を取得.後でdefaultに戻す
 default_setting = termios.tcgetattr(fd)
 new_setting = termios.tcgetattr(fd)
 
@@ -27,10 +26,7 @@ def handle_sigint(sig, frame):
     exit(0)
 
 def read_key_nonblocking():
-    # ノンブロッキングでキー入力を読む
-    if select.select([sys.stdin], [], [], 0)[0]:
-        return sys.stdin.read(1)
-    return None
+    return sys.stdin.read(1)
 
 async def websocket_communication_loop():
     pre_key = None
@@ -45,7 +41,7 @@ async def websocket_communication_loop():
         async with websockets.connect(input_uri) as websocket:
             print("Connected to WebSocket server.")
             print("> ")
-             # 端末の設定を変更
+             # 端末の設定を変更.ノンブロッキングでキー入力を読む
             flags = fcntl.fcntl(fd, fcntl.F_GETFL)
             fcntl.fcntl(fd, fcntl.F_SETFL, flags | os.O_NONBLOCK)
             termios.tcsetattr(fd, termios.TCSANOW, new_setting)
