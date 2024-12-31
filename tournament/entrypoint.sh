@@ -1,10 +1,9 @@
 #!/bin/sh
 
-cd /usr/src/app/backend
+cd /usr/src/app/tournament
 
 python manage.py makemigrations --noinput
 python manage.py migrate --noinput
-# todo: 入れる(staticディレクトリを作る)
 # python manage.py collectstatic --noinput
 
 # 環境変数のENVIRONMENTの値がdevelopmentの時はrunserverを、productionの時はgunicornを実行
