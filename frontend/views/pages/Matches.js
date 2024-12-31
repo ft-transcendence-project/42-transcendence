@@ -20,7 +20,9 @@ const Matches = {
 
   async fetchTournamentData() {
     const response = await fetch(
-      `${window.env.BACKEND_HOST}/tournament/api/save-data/`
+      `${
+        window.env.BACKEND_HOST
+      }/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`
     );
     if (!response.ok) throw new Error(`HTTP Error Status: ${response.status}`);
     return response;

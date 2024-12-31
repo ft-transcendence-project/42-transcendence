@@ -10,7 +10,7 @@ urlpatterns = [
         name="tournament-register",
     ),
     path(
-        "api/save-data/",
+        "api/save-data/<int:pk>/",
         SaveDataView.as_view(),
         name="save-data",
     ),
