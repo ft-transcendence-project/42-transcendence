@@ -10,7 +10,7 @@ python manage.py migrate --noinput
 # 環境変数のENVIRONMENTの値がdevelopmentの時はrunserverを、productionの時はgunicornを実行
 if [ $ENVIRONMENT = "development" ]
 then
-    python manage.py runserver 0.0.0.0:8000
+    python manage.py runserver 0.0.0.0:8002
 else
-    gunicorn -b 0.0.0.0 -p 8000 core.wsgi:application
+    gunicorn -b 0.0.0.0 -p 8002 core.wsgi:application
 fi
