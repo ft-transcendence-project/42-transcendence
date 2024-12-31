@@ -46,11 +46,11 @@ jobs:
 
       - name: Wait for services to be healthy
         run: |
-          ./wait-for-it.sh localhost:8000 --timeout=60 --strict -- echo "Backend service is up"
+          ./wait-for-it.sh localhost:8000 --timeout=60 --strict -- echo "Account service is up"
 
       - name: Run Django tests
         run: |
-          docker compose exec -T backend python3 backend/manage.py test backend
+          docker compose exec -T account python3 account/manage.py test account
 
       - name: Tear down Docker Compose
         run: |
