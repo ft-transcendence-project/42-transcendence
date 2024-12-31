@@ -42,8 +42,6 @@ INSTALLED_APPS = [
     "django_otp.plugins.otp_totp",
     "rest_framework",
     "accounts",
-    "tournament",
-    "matches",
     "oauth",
     "corsheaders",
 ]

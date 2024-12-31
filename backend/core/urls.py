@@ -23,7 +23,6 @@ from .views import health_check
 urlpatterns = [
     path("health/", health_check),
     path("oauth/", include("oauth.urls")),
-    path("tournament/", include("tournament.urls")),
     path("accounts/", include("accounts.urls")),
     path("admin/", admin.site.urls),
 ]
