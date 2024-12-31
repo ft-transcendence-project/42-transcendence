@@ -54,7 +54,7 @@ const server = http.createServer(async (req, res) => {
         '<script id="load_env"></script>',
         `<script>
           window.env = {
-            BACKEND_HOST: '${process.env.BACKEND_HOST ?? ""}',
+            ACCOUNT_HOST: '${process.env.ACCOUNT_HOST ?? ""}',
             GAMEPLAY_HOST: '${process.env.GAMEPLAY_HOST ?? ""}',
             GAMEPLAY_WS_HOST: '${process.env.GAMEPLAY_WS_HOST ?? ""}',
             TOURNAMENT_HOST: '${process.env.TOURNAMENT_HOST ?? ""}'

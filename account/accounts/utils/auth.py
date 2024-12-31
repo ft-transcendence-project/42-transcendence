@@ -1,12 +1,10 @@
 import time
 
 import jwt
-from rest_framework import exceptions
-from rest_framework.authentication import (BaseAuthentication,
-                                           get_authorization_header)
-
 from accounts.models import CustomUser
 from core.settings import SECRET_KEY
+from rest_framework import exceptions
+from rest_framework.authentication import BaseAuthentication, get_authorization_header
 
 
 def generate_jwt(user):

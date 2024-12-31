@@ -10,7 +10,7 @@ const SetupOtp = {
     );
 
     const response = await fetch(
-      `${window.env.BACKEND_HOST}/accounts/api/setup-otp/`,
+      `${window.env.ACCOUNT_HOST}/accounts/api/setup-otp/`,
       {
         method: "GET",
         headers: {
@@ -51,7 +51,7 @@ const SetupOtp = {
           );
 
           const response = await fetch(
-            `${window.env.BACKEND_HOST}/accounts/api/setup-otp/`,
+            `${window.env.ACCOUNT_HOST}/accounts/api/setup-otp/`,
             {
               method: "POST",
               headers: {

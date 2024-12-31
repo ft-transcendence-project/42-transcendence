@@ -33,7 +33,7 @@ const Login = {
 
       try {
         const response = await fetch(
-          `${window.env.BACKEND_HOST}/accounts/api/login/`,
+          `${window.env.ACCOUNT_HOST}/accounts/api/login/`,
           {
             method: "POST",
             headers: {
@@ -72,7 +72,7 @@ const Login = {
       .getElementById("oauth-login")
       .addEventListener("click", async (event) => {
         event.preventDefault();
-        window.location.href = `${window.env.BACKEND_HOST}/oauth/`;
+        window.location.href = `${window.env.ACCOUNT_HOST}/oauth/`;
       });
 
     document
