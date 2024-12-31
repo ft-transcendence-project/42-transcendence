@@ -15,7 +15,7 @@ const Tournament = {
     try {
       const response = await fetch(
         `${
-          window.env.BACKEND_HOST
+          window.env.TOURNAMENT_HOST
         }/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`
       );
 
@@ -53,7 +53,7 @@ const Tournament = {
 
         try {
           const response = await fetch(
-            `${window.env.BACKEND_HOST}/tournament/api/register/`,
+            `${window.env.TOURNAMENT_HOST}/tournament/api/register/`,
             {
               method: "POST",
               headers: {

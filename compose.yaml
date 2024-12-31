@@ -51,6 +51,33 @@ services:
       retries: 5
       start_period: 30s
 
+  tournament:
+    build: ./tournament
+    container_name: tournament
+    entrypoint: "tournament/entrypoint.sh"
+    volumes:
+      - .:/usr/src/app
+    env_file: .env
+    environment:
+      - ENVIRONMENT=development
+    ports:
+      - "8002:8002"
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    develop:
+      watch:
+        - action: rebuild
+          path: ./tournament/requirements.txt
+    healthcheck:
+      test: ["CMD", "curl", "-f", "localhost:8002/health/"]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
   db:
     image: postgres
     container_name: db
@@ -75,10 +102,15 @@ services:
       - BACKEND_HOST=http://localhost:8000
       - GAMEPLAY_HOST=http://localhost:8001
       - GAMEPLAY_WS_HOST=ws://localhost:8001/gameplay.ws
+      - TOURNAMENT_HOST=http://localhost:8002
     ports:
       - "3000:3000"
     depends_on:
       backend:
+        condition: service_healthy
+      gameplay:
+        condition: service_healthy
+      tournament:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
@@ -101,4 +133,3 @@ services:
 
 include:
   - ./blockchain/blockchain.yml
-

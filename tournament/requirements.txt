@@ -1,0 +1,9 @@
+django
+requests
+psycopg2
+black
+isort
+python-logstash
+gunicorn
+djangorestframework
+django-cors-headers
