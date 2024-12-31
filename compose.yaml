@@ -1,8 +1,8 @@
 services:
-  backend:
-    build: ./backend
-    container_name: backend
-    entrypoint: "backend/entrypoint.sh"
+  account:
+    build: ./account
+    container_name: account
+    entrypoint: "account/entrypoint.sh"
     volumes:
       - .:/usr/src/app
     env_file: .env
@@ -16,7 +16,7 @@ services:
     develop:
       watch:
         - action: rebuild
-          path: ./backend/requirements.txt
+          path: ./account/requirements.txt
     healthcheck:
       test: ["CMD", "curl", "-f", "localhost:8000/health/"]
       interval: 30s
@@ -99,14 +99,14 @@ services:
     volumes:
       - ./frontend:/usr/src/frontend
     environment:
-      - BACKEND_HOST=http://localhost:8000
+      - ACCOUNT_HOST=http://localhost:8000
       - GAMEPLAY_HOST=http://localhost:8001
       - GAMEPLAY_WS_HOST=ws://localhost:8001/gameplay.ws
       - TOURNAMENT_HOST=http://localhost:8002
     ports:
       - "3000:3000"
     depends_on:
-      backend:
+      account:
         condition: service_healthy
       gameplay:
         condition: service_healthy
