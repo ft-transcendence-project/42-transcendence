@@ -1,5 +1,5 @@
 """
-URL configuration for core project.
+URL configuration for pongLogic project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.1/topics/http/urls/
@@ -16,14 +16,11 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import include, path
-
+from django.urls import path, include
 from .views import health_check
 
 urlpatterns = [
     path("health/", health_check),
-    path("oauth/", include("oauth.urls")),
-    path("tournament/", include("tournament.urls")),
-    path("accounts/", include("accounts.urls")),
     path("admin/", admin.site.urls),
+	path("gamesetting/", include("gamesetting.urls")),
 ]

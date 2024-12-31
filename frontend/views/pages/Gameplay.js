@@ -67,7 +67,7 @@ const Gameplay = {
 		};
 
 		// Websocket
-		const url = `${window.env.BACKEND_WS_HOST}/gameplay/${sessionStorage.getItem('settingId')}/`;
+		const url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${sessionStorage.getItem('settingId')}/`;
 		window.ws = new WebSocket(url);
 		console.log(url + " WebSocket created");
 
@@ -265,7 +265,7 @@ const Gameplay = {
 	
 		if (sessionStorage.getItem('settingId') && sessionStorage.getItem("isTournament") !== "true") {
 		  try {
-			const response = await fetch(`${window.env.BACKEND_HOST}/gameplay/api/gamesetting/${sessionStorage.getItem('settingId')}/`, {
+			const response = await fetch(`${window.env.GAMEPLAY_HOST}/gamesetting/api/${window.sessionStorage.getItem('settingId')}/`, {
 			  method: "DELETE",
 			});
 	

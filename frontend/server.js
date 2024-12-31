@@ -55,7 +55,8 @@ const server = http.createServer(async (req, res) => {
         `<script>
           window.env = {
             BACKEND_HOST: '${process.env.BACKEND_HOST ?? ""}',
-            BACKEND_WS_HOST: '${process.env.BACKEND_WS_HOST ?? ""}'
+            GAMEPLAY_HOST: '${process.env.GAMEPLAY_HOST ?? ""}',
+            GAMEPLAY_WS_HOST: '${process.env.GAMEPLAY_WS_HOST ?? ""}'
           };
         </script>`
       );
