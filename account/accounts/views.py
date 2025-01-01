@@ -40,14 +40,6 @@ class CustomLoginView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class LogoutView(APIView):
-    def get(self, request):
-        if request.user.is_authenticated:
-            logger.info(f"Logout successful for user: {request.user.username}")
-        logout(request)
-        return Response({"redirect": "accounts:login"}, status=status.HTTP_200_OK)
-
-
 @method_decorator([sensitive_post_parameters(), never_cache], name="dispatch")
 class SignUpView(APIView):
     def post(self, request):
