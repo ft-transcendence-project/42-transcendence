@@ -1,3 +1,4 @@
+import logging
 import os
 
 import requests
@@ -8,23 +9,28 @@ from django.shortcuts import redirect
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
+logger = logging.getLogger("oauth")
+
 
 @api_view(["GET"])
 def oauth_view(request):
+    logger.info("Initiating OAuth authorization flow")
     if settings.DEBUG == False:
-        return redirect(
-            f"https://api.intra.42.fr/oauth/authorize?client_id={os.environ.get('UID')}&redirect_uri=https://localhost:8443/api/oauth/callback/&response_type=code"
-        )
-    return redirect(
-        f"https://api.intra.42.fr/oauth/authorize?client_id={os.environ.get('UID')}&redirect_uri=http://localhost:8000/oauth/callback/&response_type=code"
-    )
+        redirect_url = f"https://api.intra.42.fr/oauth/authorize?client_id={os.environ.get('UID')}&redirect_uri=https://localhost:8443/api/oauth/callback/&response_type=code"
+    else:
+        redirect_url = f"https://api.intra.42.fr/oauth/authorize?client_id={os.environ.get('UID')}&redirect_uri=http://localhost:8000/oauth/callback/&response_type=code"
+    logger.debug(f"Redirecting to: {redirect_url}")
+    return redirect(redirect_url)
 
 
 @api_view(["GET"])
 def oauth_callback_view(request):
+    logger.info("Received OAuth callback")
     code = request.GET.get("code")
     error = request.GET.get("error")
+
     if error:
+        logger.error(f"OAuth error: {error} - {request.GET.get('error_description')}")
         return Response(
             {
                 "error": error,
@@ -34,6 +40,7 @@ def oauth_callback_view(request):
         )
 
     if code:
+        logger.debug("Exchanging authorization code for access token")
         if settings.DEBUG == False:
             response = requests.post(
                 "https://api.intra.42.fr/oauth/token",
@@ -67,13 +74,16 @@ def oauth_callback_view(request):
 
             user_info = user_info_response.json()
             username = user_info.get("login")
+            logger.info(f"Retrieved user info for: {username}")
 
             user, created = CustomUser.objects.get_or_create(username=username)
             if created:
+                logger.info(f"Created new user account for: {username}")
                 user.set_unusable_password()
                 user.save()
 
             login(request, user)
+            logger.info(f"Successfully authenticated user: {username}")
             if settings.DEBUG == False:
                 response = redirect("https://localhost:8443/#/")
             else:
@@ -87,6 +97,7 @@ def oauth_callback_view(request):
                 samesite="Lax",
             )
             return response
+    logger.error("No authorization code provided")
     return Response(
         {
             "error": "No code provided",
