@@ -3,6 +3,15 @@ const Gameplay = {
 		return (await fetch("/views/templates/Gameplay.html")).text();
 	},
 
+	keyStates: {
+		left: false,
+		right: false,
+	},
+	leftInterval: null,
+	rightInterval: null,
+	keydownListener: null,
+	keyupListener: null,
+
 	after_render: async () => {
         const player1 = sessionStorage.getItem("player1");
         if (player1) {
@@ -61,13 +70,9 @@ const Gameplay = {
 		};
 
 		let animationFrameId = null;
-		let keyStates = {
-			left: false,
-			right: false,
-		};
 
 		// Websocket
-		const url = `${window.env.BACKEND_WS_HOST}/gameplay/${sessionStorage.getItem('settingId')}/`;
+		const url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${sessionStorage.getItem('settingId')}/`;
 		window.ws = new WebSocket(url);
 		console.log(url + " WebSocket created");
 
@@ -137,6 +142,8 @@ const Gameplay = {
 		}
 
 		window.ws.onmessage = (e) => {
+			if (window.ws === null || window.ws.readyState !== WebSocket.OPEN)
+				return;
 			const data = JSON.parse(e.data);
             if (data.type === "game_over") {
                 gameOver(data);
@@ -167,55 +174,58 @@ const Gameplay = {
 		};
 
 		function sendMessage(message) {
+			if (window.ws === null || window.ws.readyState !== WebSocket.OPEN)
+				return;
 			window.ws.send(JSON.stringify(message));
 		}
 
+		Gameplay.keydownListener = (event) => {
+			let message = null;
+			if (event.key === "D" || event.key === "d") {
+				message = { key: "D", action: "pressed", paddle: "left" };
+			} else if (event.key === "E" || event.key === "e") {
+				message = { key: "E", action: "pressed", paddle: "left" };
+			} else if (event.key === "I" || event.key === "i") {
+				message = { key: "I", action: "pressed", paddle: "right" };
+			} else if (event.key === "K" || event.key === "k") {
+				message = { key: "K", action: "pressed", paddle: "right" };
+			}
+		
+			if (message && message.paddle === "left" && !Gameplay.keyStates.left) {
+				Gameplay.keyStates.left = true;
+				Gameplay.leftInterval = setInterval(function () {
+					sendMessage(message);
+				}, 1);
+			}
+			if (message && message.paddle === "right" && !Gameplay.keyStates.right) {
+				Gameplay.keyStates.right = true;
+				Gameplay.rightInterval = setInterval(function () {
+					sendMessage(message);
+				}, 1);
+			}
+		};
+		Gameplay.keyupListener = (event) => {
+			if ( event.key === "E" ||
+				event.key === "e" ||
+				event.key === "D" ||
+				event.key === "d" )
+			{
+				clearInterval(Gameplay.leftInterval); // メッセージ送信の間隔を止める
+				Gameplay.keyStates.left = false;
+			}
+			else if ( event.key === "I" ||
+				event.key === "i" ||
+				event.key === "K" ||
+				event.key === "k" )
+			{
+				clearInterval(Gameplay.rightInterval); // メッセージ送信の間隔を止める
+				Gameplay.keyStates.right = false;
+			}
+		};
+
 		if (!window.keydownListenerAdded) {
-			let leftInterval = null;
-			let rightInterval = null;
-			document.addEventListener('keydown', function (event) {
-				let message = null;
-				if (event.key === "D" || event.key === "d") {
-					message = { key: "D", action: "pressed", paddle: "left" };
-				} else if (event.key === "E" || event.key === "e") {
-					message = { key: "E", action: "pressed", paddle: "left" };
-				} else if (event.key === "I" || event.key === "i") {
-					message = { key: "I", action: "pressed", paddle: "right" };
-				} else if (event.key === "K" || event.key === "k") {
-					message = { key: "K", action: "pressed", paddle: "right" };
-				}
-			
-				if (message && message.paddle === "left" && !keyStates.left) {
-					keyStates.left = true;
-					leftInterval = setInterval(function () {
-						sendMessage(message);
-					}, 1);
-				}
-				if (message && message.paddle === "right" && !keyStates.right) {
-					keyStates.right = true;
-					rightInterval = setInterval(function () {
-						sendMessage(message);
-					}, 1);
-				}
-			});
-			document.addEventListener('keyup', function (event) {
-				if ( event.key === "E" ||
-					event.key === "e" ||
-					event.key === "D" ||
-					event.key === "d" )
-				{
-					clearInterval(leftInterval); // メッセージ送信の間隔を止める
-					keyStates.left = false;
-				}
-				else if ( event.key === "I" ||
-					event.key === "i" ||
-					event.key === "K" ||
-					event.key === "k" )
-				{
-					clearInterval(rightInterval); // メッセージ送信の間隔を止める
-					keyStates.right = false;
-				}
-			});
+			document.addEventListener("keydown", Gameplay.keydownListener);
+			document.addEventListener("keyup", Gameplay.keyupListener);
 			window.keydownListenerAdded = true;
 		}
 
@@ -255,6 +265,9 @@ const Gameplay = {
 
 	cleanup: async () => {
 		if (window.ws) {
+		  document.removeEventListener("keydown", Gameplay.keydownListener);
+		  document.removeEventListener("keyup", Gameplay.keyupListener);
+		  window.keydownListenerAdded = false;
 		  window.ws.close();
 		  window.ws = null;
 		  console.log("WebSocket closed");
@@ -262,7 +275,7 @@ const Gameplay = {
 	
 		if (sessionStorage.getItem('settingId') && sessionStorage.getItem("isTournament") !== "true") {
 		  try {
-			const response = await fetch(`${window.env.BACKEND_HOST}/gameplay/api/gamesetting/${sessionStorage.getItem('settingId')}/`, {
+			const response = await fetch(`${window.env.GAMEPLAY_HOST}/gamesetting/api/${window.sessionStorage.getItem('settingId')}/`, {
 			  method: "DELETE",
 			});
 	
