@@ -94,7 +94,7 @@ const Gameplay = {
 
             if (sessionStorage.getItem("isTournament") === "true") {
                 try {
-                    const response = await fetch(`${window.env.BACKEND_HOST}/tournament/api/save-data/`);
+                    const response = await fetch(`${window.env.BACKEND_HOST}/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`);
     
                     if (!response.ok) {
                         const errorData = await response.json();
@@ -103,21 +103,24 @@ const Gameplay = {
                     }
     
                     const tournamentData = await response.json();
-                    console.log("Tournament data updated successfully:", tournamentData);
+                    console.log("Tournament data get successfully:", tournamentData);
     
                     const currentMatchId = parseInt(sessionStorage.getItem("currentMatch")) - 1;
     
                     if (tournamentData && tournamentData.matches) {
-                        tournamentData.matches[currentMatchId].player1_score = data.left_score;
-                        tournamentData.matches[currentMatchId].player2_score = data.right_score;
-                        tournamentData.matches[currentMatchId].winner = winner;
-    
-                        const postResponse = await fetch(`${window.env.BACKEND_HOST}/tournament/api/save-data/`, {
-                            method: "POST",
+						let currentMatch = tournamentData.matches[currentMatchId];
+
+                        currentMatch.player1_score = data.left_score;
+                        currentMatch.player2_score = data.right_score;
+                        currentMatch.winner = winner;
+						console.log("currentMatch", currentMatch);
+
+                        const postResponse = await fetch(`${window.env.BACKEND_HOST}/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`, {
+                            method: "PUT",
                             headers: {
                                 "Content-Type": "application/json",
                             },
-                            body: JSON.stringify({ currentMatchId, tournamentData }),
+                            body: JSON.stringify({ currentMatch }),
                         });
     
                         if (!postResponse.ok) {

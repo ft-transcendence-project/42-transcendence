@@ -9,11 +9,14 @@ const Tournament = {
     updateContent();
 
     sessionStorage.setItem("isTournament", "true");
+    sessionStorage.removeItem("winner");
 
     // トーナメントデータがあり、終了していない場合は続きを行う
     try {
       const response = await fetch(
-        `${window.env.BACKEND_HOST}/tournament/api/save-data/`
+        `${
+          window.env.BACKEND_HOST
+        }/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`
       );
 
       if (!response.ok) {
@@ -64,6 +67,7 @@ const Tournament = {
 
           if (response.ok) {
             console.log(data);
+            localStorage.setItem("tournamentId", data.id);
             window.location.hash = "#/gamesetting";
           } else {
             const errors = Object.entries(data)

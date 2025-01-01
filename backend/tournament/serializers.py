@@ -30,8 +30,9 @@ class MatchDetailSerializer(serializers.ModelSerializer):
 
 
 class TournamentDetailSerializer(serializers.ModelSerializer):
-    matches = MatchDetailSerializer(source="match_set", many=True, read_only=True)
+    matches = MatchDetailSerializer(many=True, read_only=True)
+    winner = PlayerSerializer(read_only=True)
 
     class Meta:
         model = Tournament
-        fields = ["id", "name", "date", "matches", "is_over"]
+        fields = ["id", "name", "date", "matches", "is_over", "winner"]

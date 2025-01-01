@@ -20,7 +20,9 @@ const Matches = {
 
   async fetchTournamentData() {
     const response = await fetch(
-      `${window.env.BACKEND_HOST}/tournament/api/save-data/`
+      `${
+        window.env.BACKEND_HOST
+      }/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`
     );
     if (!response.ok) throw new Error(`HTTP Error Status: ${response.status}`);
     return response;
@@ -30,6 +32,15 @@ const Matches = {
     if (!storedData) {
       alert("No tournament data found in database.");
       return (window.location.hash = "#/tournament");
+    }
+
+    if (storedData.is_over === true) {
+      sessionStorage.setItem("winner", storedData.winner.name);
+      console.log("Tournament winner", storedData.winner.name);
+      sessionStorage.removeItem("isTournament");
+      const nextGameButton = document.getElementById("matches:next-game");
+      nextGameButton.setAttribute("href", "#/winner");
+      nextGameButton.innerText = "To the winner page";
     }
 
     currentMatch = this.initializeCurrentMatch(storedData);

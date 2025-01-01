@@ -159,7 +159,8 @@ class SaveDataViewTest(APITestCase):
             player1_score=0,
             player2_score=0,
         )
-        self.url = reverse("tournament:save-data")
+        self.tournament_id = self.tournament.id
+        self.url = reverse("tournament:save-data", kwargs={"pk": self.tournament_id})
         self.client.defaults["HTTP_X_FORWARDED_PROTO"] = "https"
         self.client.defaults["wsgi.url_scheme"] = "https"
 
@@ -197,37 +198,23 @@ class SaveDataViewTest(APITestCase):
         self.assertEqual(response.data["id"], self.tournament.id)
 
     def test_save_match_data_and_create_next_round(self):
-        # Save first round matches results
-        for i, (match, player) in enumerate(
-            [
-                (self.match1, self.player1),
-                (self.match2, self.player3),
-                (self.match3, self.player5),
-                (self.match4, self.player7),
-            ]
-        ):
+        # 各マッチのデータを順番に保存
+        for match in [self.match1, self.match2, self.match3, self.match4]:
             data = {
-                "currentMatchId": i,
-                "tournamentData": {
-                    "id": self.tournament.id,
-                    "matches": [None] * i
-                    + [
-                        {
-                            "match_number": match.match_number,
-                            "round": 1,
-                            "player1": {"id": match.player1.id},
-                            "player2": {"id": match.player2.id},
-                            "player1_score": 10,
-                            "player2_score": 5,
-                            "winner": "player1",
-                        }
-                    ],
-                },
+                "currentMatch": {
+                    "match_number": match.match_number,
+                    "round": 1,
+                    "player1": {"id": match.player1.id},
+                    "player2": {"id": match.player2.id},
+                    "player1_score": 10,
+                    "player2_score": 5,
+                    "winner": "player1",
+                }
             }
-            response = self.client.post(self.url, data, format="json")
+            response = self.client.put(self.url, data, format="json")
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # Check if round 2 matches were created
+        # 次のラウンドのマッチが作成されたか確認
         next_round_matches = Match.objects.filter(tournament=self.tournament, round=2)
         self.assertEqual(next_round_matches.count(), 2)
 
@@ -241,24 +228,74 @@ class SaveDataViewTest(APITestCase):
         self.assertEqual(match2.player2, self.player7)  # Winner of match 4
 
     def test_invalid_tournament_data(self):
-        response = self.client.post(self.url, {}, format="json")
+        response = self.client.put(self.url, None, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_match_not_found(self):
         data = {
-            "currentMatchId": 0,
-            "tournamentData": {
-                "id": 999,
-                "matches": [
-                    {
-                        "match_number": 999,
-                        "player1": {"id": self.player1.id},
-                        "player2": {"id": self.player2.id},
-                        "player1_score": 10,
-                        "player2_score": 5,
-                    }
-                ],
-            },
+            "currentMatch": {  # データ構造を修正
+                "match_number": 999,
+                "round": 1,
+                "player1": {"id": self.player1.id},
+                "player2": {"id": self.player2.id},
+                "player1_score": 10,
+                "player2_score": 5,
+                "winner": "player1",
+            }
         }
-        response = self.client.post(self.url, data, format="json")
+        response = self.client.put(self.url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_save_match_data(self):
+        match_data = {
+            "currentMatch": {
+                "match_number": self.match1.match_number,
+                "round": 1,
+                "player1": {"id": self.player1.id},
+                "player2": {"id": self.player2.id},
+                "player1_score": 10,
+                "player2_score": 5,
+                "winner": "player1",
+            }
+        }
+        response = self.client.put(self.url, match_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # 更新されたマッチを確認
+        updated_match = Match.objects.get(id=self.match1.id)
+        self.assertEqual(updated_match.player1_score, 10)
+        self.assertEqual(updated_match.player2_score, 5)
+        self.assertEqual(updated_match.winner, self.player1)
+
+    def test_tournament_completion(self):
+        # 決勝戦のマッチを作成
+        final_match = Match.objects.create(
+            tournament=self.tournament,
+            round=3,
+            match_number=1,
+            timestamp=timezone.now(),  # タイムスタンプを追加
+            player1=self.player1,
+            player2=self.player2,
+        )
+
+        match_data = {
+            "currentMatch": {
+                "match_number": final_match.match_number,
+                "round": 3,
+                "player1": {"id": self.player1.id},
+                "player2": {"id": self.player2.id},
+                "player1_score": 10,
+                "player2_score": 5,
+                "winner": "player1",
+            }
+        }
+
+        response = self.client.put(self.url, match_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data.get("tournament_complete"))
+        self.assertEqual(response.data.get("winner"), self.player1.name)
+
+        # トーナメントの状態を確認
+        tournament = Tournament.objects.get(id=self.tournament.id)
+        self.assertTrue(tournament.is_over)
+        self.assertEqual(tournament.winner, self.player1)
