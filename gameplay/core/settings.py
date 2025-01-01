@@ -184,6 +184,11 @@ LOGGING = {
             "handlers": ["console"],
             "propagate": True,
         },
+        'ponglogic': {
+            'handlers': ['console', 'logstash'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
     },
 }
 
