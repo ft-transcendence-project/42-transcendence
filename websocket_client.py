@@ -8,8 +8,11 @@ import fcntl
 import os
 import select
 import time
+import ssl
+from dotenv import load_dotenv
 
-
+load_dotenv()
+CERT_PATH = os.getenv('CERT_PATH')
 fd = sys.stdin.fileno()
 # fdの端末属性を取得.後でdefaultに戻す
 default_setting = termios.tcgetattr(fd)
@@ -32,13 +35,17 @@ async def websocket_communication_loop():
     pre_key = None
     key_hold_start = None
     try:
+        context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
+        context.load_verify_locations("./cert.pem")
+        context.check_hostname = False
+        context.verify_mode = ssl.CERT_NONE
         input_uri = input("Enter WebSocket server URI > ")
         if input_uri.lower() == "exit":
             print("bye👋")
             return
 
         # async withブロックを抜けると、接続が自動的に閉じる。
-        async with websockets.connect(input_uri) as websocket:
+        async with websockets.connect(input_uri, ssl=context) as websocket:
             print("Connected to WebSocket server.")
             print("> ")
              # 端末の設定を変更.ノンブロッキングでキー入力を読む
@@ -61,14 +68,6 @@ async def websocket_communication_loop():
                         elif key == 'k':
                             await websocket.send(json.dumps({"action": "pressed", "key": "K"}))
                         pre_key = key.upper()
-                    else:
-                        if pre_key != None and key_hold_start != None:
-                            if time.time() - key_hold_start < 0.01:
-                                print(f"preKey pressed: {pre_key}")
-                                await websocket.send(json.dumps({"action": "pressed", "key": pre_key}))
-                            else:
-                                pre_key = None
-                                key_hold_start = None
                     await asyncio.sleep(0.001)
                 except Exception as e:
                     print(f"Error sending message: {e}")
