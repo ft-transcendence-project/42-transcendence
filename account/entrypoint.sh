@@ -1,6 +1,11 @@
 #!/bin/sh
 
-cd /usr/src/app/account
+if [ $ENVIRONMENT = "development" ]
+then
+    cd /usr/src/app/account/
+else
+    cd /usr/src/app/
+fi
 
 python manage.py makemigrations --noinput
 python manage.py migrate --noinput

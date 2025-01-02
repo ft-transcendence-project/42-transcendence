@@ -1,6 +1,11 @@
 #!/bin/sh
 
-cd /usr/src/app/tournament
+if [ $ENVIRONMENT = "development" ]
+then
+    cd /usr/src/app/tournament/
+else
+    cd /usr/src/app/
+fi
 
 python manage.py makemigrations --noinput
 python manage.py migrate --noinput
