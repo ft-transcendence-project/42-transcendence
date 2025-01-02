@@ -16,5 +16,5 @@ if [ $ENVIRONMENT = "development" ]
 then
     python manage.py runserver 0.0.0.0:8002
 else
-    gunicorn -b 0.0.0.0 -p 8002 core.wsgi:application
+    gunicorn --bind 0.0.0.0:8002 core.wsgi:application
 fi
