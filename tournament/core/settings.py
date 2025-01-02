@@ -168,6 +168,11 @@ LOGGING = {
             "handlers": ["console"],
             "propagate": True,
         },
+        "tournament": {
+            "handlers": ["console", "logstash"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
     },
 }
 

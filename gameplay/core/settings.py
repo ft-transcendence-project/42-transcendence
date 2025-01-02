@@ -184,6 +184,16 @@ LOGGING = {
             "handlers": ["console"],
             "propagate": True,
         },
+        'gamesetting': {
+            'handlers': ['console', 'logstash'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'ponglogic': {
+            'handlers': ['console', 'logstash'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
     },
 }
 
