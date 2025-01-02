@@ -4,7 +4,6 @@
 
 services:
   account:
-    # todo: env.prodを追加
     volumes: !reset []
     entrypoint: !override "/usr/src/app/entrypoint.sh"
     environment: !override
@@ -13,7 +12,14 @@ services:
     ports: !reset []
 
   gameplay:
-    # todo: env.prodを追加
+    volumes: !reset []
+    entrypoint: !override "/usr/src/app/entrypoint.sh"
+    environment: !override
+      - ENVIRONMENT=production
+    development: !reset []
+    ports: !reset []
+
+  tournament:
     volumes: !reset []
     entrypoint: !override "/usr/src/app/entrypoint.sh"
     environment: !override
