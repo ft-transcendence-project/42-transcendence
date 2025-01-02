@@ -1,4 +1,4 @@
-name: docker-compose-prod-test
+name: dev-build-test
 
 on:
   push:
@@ -41,19 +41,19 @@ jobs:
 
       - name: Build and run Docker Compose
         run: |
-          mv .env.prod_template .env
-          docker compose -f compose.yaml -f compose.prod.yaml up -d --build
+          mv .env_template .env
+          docker compose up -d --build --wait
 
       - name: Wait for services to be healthy
         run: |
-          ./wait-for-it.sh localhost:8443 --timeout=60 --strict -- echo "Web service is up"
+          ./wait-for-it.sh localhost:3000 --timeout=60 --strict -- echo "Frontend service is up"
 
       - name: Run Django tests
         run: |
-          docker compose -f compose.yaml -f compose.prod.yaml exec -T account python3 /usr/src/app/manage.py test
-          docker compose -f compose.yaml -f compose.prod.yaml exec -T gameplay python3 /usr/src/app/manage.py test
-          docker compose -f compose.yaml -f compose.prod.yaml exec -T tournament python3 /usr/src/app/manage.py test
+          docker compose exec -T account python3 account/manage.py test account
+          docker compose exec -T gameplay python3 gameplay/manage.py test gameplay
+          docker compose exec -T tournament python3 tournament/manage.py test tournament
 
       - name: Tear down Docker Compose
         run: |
-          docker compose -f compose.yaml -f compose.prod.yaml down
+          docker compose down
