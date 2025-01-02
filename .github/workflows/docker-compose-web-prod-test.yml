@@ -51,6 +51,8 @@ jobs:
       - name: Run Django tests
         run: |
           docker compose -f compose.yaml -f compose.prod.yaml exec -T account python3 /usr/src/app/manage.py test
+          docker compose -f compose.yaml -f compose.prod.yaml exec -T gameplay python3 /usr/src/app/manage.py test
+          docker compose -f compose.yaml -f compose.prod.yaml exec -T tournament python3 /usr/src/app/manage.py test
 
       - name: Tear down Docker Compose
         run: |
