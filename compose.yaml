@@ -1,10 +1,10 @@
 services:
   account:
-    build: ./account
+    build: ./backend-services/account
     container_name: account
     entrypoint: "account/entrypoint.sh"
     volumes:
-      - .:/usr/src/app
+      - ./backend-services:/usr/src/app
     env_file: .env
     environment:
       - ENVIRONMENT=development
@@ -16,7 +16,7 @@ services:
     develop:
       watch:
         - action: rebuild
-          path: ./account/requirements.txt
+          path: ./backend-services/account/requirements.txt
     healthcheck:
       test: ["CMD", "curl", "-f", "localhost:8000/health/"]
       interval: 30s
@@ -25,11 +25,11 @@ services:
       start_period: 30s
 
   gameplay:
-    build: ./gameplay
+    build: ./backend-services/gameplay
     container_name: gameplay
     entrypoint: "gameplay/entrypoint.sh"
     volumes:
-      - .:/usr/src/app
+      - ./backend-services:/usr/src/app
     env_file: .env
     environment:
       - ENVIRONMENT=development
@@ -43,7 +43,7 @@ services:
     develop:
       watch:
         - action: rebuild
-          path: ./gameplay/requirements.txt
+          path: ./backend-services/gameplay/requirements.txt
     healthcheck:
       test: ["CMD", "curl", "-f", "localhost:8001/health/"]
       interval: 30s
@@ -52,11 +52,11 @@ services:
       start_period: 30s
 
   tournament:
-    build: ./tournament
+    build: ./backend-services/tournament
     container_name: tournament
     entrypoint: "tournament/entrypoint.sh"
     volumes:
-      - .:/usr/src/app
+      - ./backend-services:/usr/src/app
     env_file: .env
     environment:
       - ENVIRONMENT=development
@@ -68,7 +68,7 @@ services:
     develop:
       watch:
         - action: rebuild
-          path: ./tournament/requirements.txt
+          path: ./backend-services/tournament/requirements.txt
     healthcheck:
       test: ["CMD", "curl", "-f", "localhost:8002/health/"]
       interval: 30s
