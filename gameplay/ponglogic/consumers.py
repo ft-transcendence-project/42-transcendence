@@ -65,8 +65,6 @@ class PongLogic(AsyncWebsocketConsumer):
                     self.pong_info.ball.angle = Utils.normalize_angle(self.pong_info.ball.angle)
                     turn_count += 1
                     Utils.set_direction(self.pong_info.ball)
-                logger.debug("angle: ", self.ball.angle)
-                logger.debug("direction: ", self.ball.direction["facing_up"], self.ball.direction["facing_down"], self.ball.direction["facing_right"], self.ball.direction["facing_left"])
             await self.rendering()
             await self.update_pos()
             await self.check_game_state()
