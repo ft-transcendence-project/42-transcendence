@@ -63,8 +63,6 @@ services:
     ports:
       - "8002:8002"
     depends_on:
-      redis:
-        condition: service_healthy
       db:
         condition: service_healthy
     develop:
