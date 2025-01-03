@@ -2,7 +2,7 @@ import { updateContent } from "../../utils/i18n.js";
 
 const SignUp = {
   render: async () => {
-    return (await fetch("/views/templates/signup.html")).text();
+    return (await fetch("/views/templates/SignUp.html")).text();
   },
 
   after_render: async () => {
