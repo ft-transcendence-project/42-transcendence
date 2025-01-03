@@ -80,10 +80,15 @@ services:
     image: postgres
     container_name: db
     volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./data/db:/var/lib/postgresql/data
     env_file: .env
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "dbuser", "-d", "djangodb"]
+      test: >
+        /bin/sh -c 'pg_isready -U $${POSTGRES_USER} &&
+        pg_isready -U $${POSTGRES_USER} -d $${ACCOUNT_DB_NAME} &&
+        pg_isready -U $${POSTGRES_USER} -d $${GAMEPLAY_DB_NAME} &&
+        pg_isready -U $${POSTGRES_USER} -d $${TOURNAMENT_DB_NAME}'
       interval: 30s
       timeout: 30s
       retries: 5

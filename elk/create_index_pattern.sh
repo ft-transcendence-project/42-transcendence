@@ -11,7 +11,24 @@ cat <<EOF > index-pattern.json
   "data_view": {
     "name": "${INDEX_PATTERN_NAME}",
     "title": "${INDEX_PATTERN_TITLE}",
-    "timeFieldName": "@timestamp"
+    "timeFieldName": "@timestamp",
+    "fields": {
+      "tags": {
+        "name": "tags",
+        "type": "keyword",
+        "aggregatable": true
+      },
+      "message_type": {
+        "name": "message_type",
+        "type": "keyword",
+        "aggregatable": true
+      },
+      "level": {
+        "name": "level",
+        "type": "keyword",
+        "aggregatable": true
+      }
+    }
   }
 }
 EOF
