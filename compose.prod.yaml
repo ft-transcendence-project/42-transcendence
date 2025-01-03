@@ -10,6 +10,7 @@ services:
       - ENVIRONMENT=production
     development: !reset []
     ports: !reset []
+    restart: unless-stopped
 
   gameplay:
     volumes: !reset []
@@ -18,6 +19,7 @@ services:
       - ENVIRONMENT=production
     development: !reset []
     ports: !reset []
+    restart: unless-stopped
 
   tournament:
     volumes: !reset []
@@ -26,10 +28,12 @@ services:
       - ENVIRONMENT=production
     development: !reset []
     ports: !reset []
+    restart: unless-stopped
 
   db:
     volumes: !override
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
 
   frontend:
     environment: !override
@@ -38,6 +42,7 @@ services:
       - GAMEPLAY_WS_HOST=wss://localhost:8443/gameplay.ws
       - TOURNAMENT_HOST=https://localhost:8443/42pong.api/tournament
     ports: !reset []
+    restart: unless-stopped
 
   web:
     build:
@@ -54,6 +59,7 @@ services:
       frontend:
         condition: service_healthy
     command: ["nginx", "-g", "daemon off;"]
+    restart: unless-stopped
 
 include:
   - ./elk/elk-services.yml
