@@ -80,6 +80,7 @@ services:
     image: postgres
     container_name: db
     volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./data/db:/var/lib/postgresql/data
     env_file: .env
     healthcheck:

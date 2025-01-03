@@ -28,7 +28,8 @@ services:
     ports: !reset []
 
   db:
-    volumes: !reset []
+    volumes: !override
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
   frontend:
     environment: !override
