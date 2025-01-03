@@ -9,9 +9,6 @@ fi
 
 python manage.py makemigrations --noinput
 python manage.py migrate --noinput
-# todo: 入れる(staticディレクトリを作る)
-# python manage.py collectstatic --noinput
-
 python manage.py flush --noinput
 python manage.py loaddata fixtures/users.json
 
