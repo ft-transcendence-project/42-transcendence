@@ -15,49 +15,19 @@ class PongLogic(AsyncWebsocketConsumer):
 
     # PongLogic
     async def game_loop(self):
-        turn_count = 0
         try:
             from gamesetting.models import GameSetting
             game_setting = await sync_to_async(GameSetting.objects.get)(id=self.pong_info.setting_id)
-            ball_size_choise = game_setting.ball_size
-            ball_v_choise = game_setting.ball_velocity
-            map_choise = game_setting.map
-            print(f"map: {map_choise}, ball_size: {ball_size_choise}, ball_v: {ball_v_choise}")
-            if ball_size_choise == "big":
-                self.pong_info.ball.radius = 20
-            elif ball_size_choise == "normal":
-                self.pong_info.ball.radius = 10
-            elif ball_size_choise == "small":
-                self.pong_info.ball.radius = 5
-            if ball_v_choise == "fast":
-                self.pong_info.ball.velocity = 7
-            elif ball_v_choise == "normal":
-                self.pong_info.ball.velocity = 5
-            elif ball_v_choise == "slow":
-                self.pong_info.ball.velocity = 3
-            if map_choise == "b":
-                self.pong_info.is_obstacle_exist = True
-                self.pong_info.obstacle1.width = 500
-                self.pong_info.obstacle1.height = 30
-                self.pong_info.obstacle2.width = 500
-                self.pong_info.obstacle2.height = 30
-            elif map_choise == "c":
-                self.pong_info.blind.width = 300
-                self.pong_info.blind.height = 600
-            print(f"map: {map_choise}, ball_size: {self.pong_info.ball.radius}, ball_v: {self.pong_info.ball.velocity}")
+            Utils.set_game_setting(self.pong_info, game_setting)
         except Exception as e:
             print(f"Error retrieving for GameSetting: {e}")
         await self.send_pos(True)
+        turn_count = 0
         while self.pong_info.score.left < 15 and self.pong_info.score.right < 15:
             async with self.pong_info.lock:
                 if self.pong_info.state == "stop":
-                    self.pong_info.ball.reset_position()
-                    self.pong_info.ball.reset_angle()
-                    if turn_count % 2 == 0:
-                        self.pong_info.ball.angle += math.pi
-                    self.pong_info.ball.angle = Utils.normalize_angle(self.pong_info.ball.angle)
+                    self.pong_info.ball.reset(turn_count)
                     turn_count += 1
-                    Utils.set_direction(self.pong_info.ball)
             await self.rendering()
             await self.update_pos()
             await self.check_game_state()
@@ -84,7 +54,7 @@ class PongLogic(AsyncWebsocketConsumer):
                 ball_velocity["y"] *= -1
                 self.pong_info.ball.angle = 2 * math.pi - self.pong_info.ball.angle
                 self.pong_info.ball.angle = Utils.normalize_angle(self.pong_info.ball.angle)
-                Utils.set_direction(self.pong_info.ball)
+                self.pong_info.ball.set_direction()
 
             # 左パドル衝突判定
             if (
@@ -147,7 +117,7 @@ class PongLogic(AsyncWebsocketConsumer):
                     ball_velocity["y"] *= -1
                     self.pong_info.ball.angle = 2 * math.pi - self.pong_info.ball.angle
                     self.pong_info.ball.angle = Utils.normalize_angle(self.pong_info.ball.angle)
-                    Utils.set_direction(self.pong_info.ball)
+                    self.pong_info.ball.set_direction()
                 if (
                     Utils.has_collided_with_obstacles_left_or_right(self.pong_info.ball, self.pong_info.obstacle1)
                     == True
@@ -158,10 +128,10 @@ class PongLogic(AsyncWebsocketConsumer):
                     ball_velocity["x"] *= -1
                     self.pong_info.ball.angle = math.pi - self.pong_info.ball.angle
                     self.pong_info.ball.angle = Utils.normalize_angle(self.pong_info.ball.angle)
-                    Utils.set_direction(self.pong_info.ball)
+                    self.pong_info.ball.set_direction()
 
             self.pong_info.ball.angle = Utils.normalize_angle(self.pong_info.ball.angle)
-            Utils.set_direction(self.pong_info.ball)
+            self.pong_info.ball.set_direction()
             Utils.adjust_ball_position(
                 self.pong_info.ball, self.pong_info.paddle, ball_velocity, self.pong_info.game_window, self.pong_info.is_obstacle_exist, self.pong_info.obstacle1, self.pong_info.obstacle2
             )

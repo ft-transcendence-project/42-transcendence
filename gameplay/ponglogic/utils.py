@@ -3,25 +3,37 @@ import math
 
 class Utils:
     @staticmethod
-    def normalize_angle(angle):
-        return angle % (2 * math.pi)
+    def set_game_setting(pong_info, game_setting):
+        ball_size_choise = game_setting.ball_size
+        ball_v_choise = game_setting.ball_velocity
+        map_choise = game_setting.map
+        print(f"map: {map_choise}, ball_size: {ball_size_choise}, ball_v: {ball_v_choise}")
+        if ball_size_choise == "big":
+            pong_info.ball.radius = 20
+        elif ball_size_choise == "normal":
+            pong_info.ball.radius = 10
+        elif ball_size_choise == "small":
+            pong_info.ball.radius = 5
+        if ball_v_choise == "fast":
+            pong_info.ball.velocity = 7
+        elif ball_v_choise == "normal":
+            pong_info.ball.velocity = 5
+        elif ball_v_choise == "slow":
+            pong_info.ball.velocity = 3
+        if map_choise == "b":
+            pong_info.is_obstacle_exist = True
+            pong_info.obstacle1.width = 500
+            pong_info.obstacle1.height = 30
+            pong_info.obstacle2.width = 500
+            pong_info.obstacle2.height = 30
+        elif map_choise == "c":
+            pong_info.blind.width = 300
+            pong_info.blind.height = 600
+        print(f"map: {map_choise}, ball_size: {pong_info.ball.radius}, ball_v: {pong_info.ball.velocity}")
 
     @staticmethod
-    def set_direction(ball):
-        if math.pi <= ball.angle and ball.angle <= math.pi * 2:
-            ball.direction["facing_up"] = True
-            ball.direction["facing_down"] = False
-        else:
-            ball.direction["facing_up"] = False
-            ball.direction["facing_down"] = True
-        if (math.pi / 2) <= ball.angle and ball.angle <= (math.pi * 3 / 2):
-            ball.direction["facing_left"] = True
-            ball.direction["facing_right"] = False
-        else:
-            ball.direction["facing_left"] = False
-            ball.direction["facing_right"] = True
-
-        # print("ball.direction_left: ", ball.direction["facing_left"])
+    def normalize_angle(angle):
+        return angle % (2 * math.pi)
 
     @staticmethod
     def has_collided_with_wall(ball, game_window):

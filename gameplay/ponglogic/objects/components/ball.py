@@ -1,5 +1,6 @@
 import math
 import random
+from ponglogic.utils import Utils
 
 class Ball:
     def __init__(self):
@@ -29,3 +30,25 @@ class Ball:
         self.angle = random.uniform(
             self.bound_angle["right_bottom"], self.bound_angle["right_top"]
         )
+
+    def set_direction(self):
+        if math.pi <= self.angle and self.angle <= math.pi * 2:
+            self.direction["facing_up"] = True
+            self.direction["facing_down"] = False
+        else:
+            self.direction["facing_up"] = False
+            self.direction["facing_down"] = True
+        if (math.pi / 2) <= self.angle and self.angle <= (math.pi * 3 / 2):
+            self.direction["facing_left"] = True
+            self.direction["facing_right"] = False
+        else:
+            self.direction["facing_left"] = False
+            self.direction["facing_right"] = True
+
+    def reset(self, turn_count=0):
+        self.reset_position()
+        self.reset_angle()
+        if turn_count % 2 == 0:
+            self.angle += math.pi
+        self.angle = Utils.normalize_angle(self.angle)
+        self.set_direction()
