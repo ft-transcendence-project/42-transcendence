@@ -155,10 +155,7 @@ class PongLogic(AsyncWebsocketConsumer):
         await self.accept()
         await self.channel_layer.group_add(group_name, self.channel_name)
         if setting_id not in self.pong_info_map:
-            self.pong_info = PongInfo()
-            self.pong_info.setting_id = setting_id
-            self.pong_info.group_name = group_name
-            self.pong_info_map[setting_id] = self.pong_info
+            self.pong_info_map[setting_id] = self.pong_info = PongInfo(setting_id, group_name)
             try:
                 self.pong_info.task["game_loop"] = asyncio.create_task(self.game_loop())
             except Exception as e:
