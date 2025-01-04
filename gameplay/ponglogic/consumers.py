@@ -22,10 +22,10 @@ class PongLogic(AsyncWebsocketConsumer):
         turn_count = 0
         try:
             from gamesetting.models import GameSetting
-            setting = await sync_to_async(GameSetting.objects.get)(id=self.pong_info.setting_id)
-            ball_size_choise = setting.ball_size
-            ball_v_choise = setting.ball_velocity
-            map_choise = setting.map
+            game_setting = await sync_to_async(GameSetting.objects.get)(id=self.pong_info.setting_id)
+            ball_size_choise = game_setting.ball_size
+            ball_v_choise = game_setting.ball_velocity
+            map_choise = game_setting.map
             print(f"map: {map_choise}, ball_size: {ball_size_choise}, ball_v: {ball_v_choise}")
             if ball_size_choise == "big":
                 self.pong_info.ball.radius = 20
@@ -40,7 +40,7 @@ class PongLogic(AsyncWebsocketConsumer):
             elif ball_v_choise == "slow":
                 self.pong_info.ball.velocity = 3
             if map_choise == "b":
-                self.pong_info.obstacle_exist = True
+                self.pong_info.is_obstacle_exist = True
                 self.pong_info.obstacle1.width = 500
                 self.pong_info.obstacle1.height = 30
                 self.pong_info.obstacle2.width = 500
@@ -79,7 +79,7 @@ class PongLogic(AsyncWebsocketConsumer):
     async def update_pos(self):
         async with self.pong_info.lock:
             # self.ball.angle = math.pi / 3 #test用
-            velocity = {
+            ball_velocity = {
                 "x": self.pong_info.ball.velocity * math.cos(self.pong_info.ball.angle),
                 "y": self.pong_info.ball.velocity * math.sin(self.pong_info.ball.angle),
             }
@@ -88,7 +88,7 @@ class PongLogic(AsyncWebsocketConsumer):
                 Utils.has_collided_with_wall(self.pong_info.ball, self.pong_info.game_window)
                 == True
             ):
-                velocity["y"] *= -1
+                ball_velocity["y"] *= -1
                 self.pong_info.ball.angle = 2 * math.pi - self.pong_info.ball.angle
                 self.pong_info.ball.angle = Utils.normalize_angle(self.pong_info.ball.angle)
                 Utils.set_direction(self.pong_info.ball)
@@ -114,8 +114,8 @@ class PongLogic(AsyncWebsocketConsumer):
                 Utils.update_ball_angle(
                     self.pong_info.ball, self.pong_info.paddle, is_left, is_top
                 )
-                velocity["x"], velocity["y"] = Utils.update_ball_velocity(
-                    is_top, velocity
+                ball_velocity["x"], ball_velocity["y"] = Utils.update_ball_velocity(
+                    is_top, ball_velocity
                 )
             # 右パドル衝突判定
             elif (
@@ -138,12 +138,12 @@ class PongLogic(AsyncWebsocketConsumer):
                 Utils.update_ball_angle(
                     self.pong_info.ball, self.pong_info.paddle, is_left, is_top
                 )
-                velocity["x"], velocity["y"] = Utils.update_ball_velocity(
-                    is_top, velocity
+                ball_velocity["x"], ball_velocity["y"] = Utils.update_ball_velocity(
+                    is_top, ball_velocity
                 )
 
             # 障害物衝突判定
-            if (self.pong_info.obstacle_exist == True):
+            if (self.pong_info.is_obstacle_exist == True):
                 if (
                     Utils.has_collided_with_obstacles_top_or_bottom(self.pong_info.ball, self.pong_info.obstacle1)
                     == True
@@ -151,7 +151,7 @@ class PongLogic(AsyncWebsocketConsumer):
                     Utils.has_collided_with_obstacles_top_or_bottom(self.pong_info.ball, self.pong_info.obstacle2)
                     == True
                 ):
-                    velocity["y"] *= -1
+                    ball_velocity["y"] *= -1
                     self.pong_info.ball.angle = 2 * math.pi - self.pong_info.ball.angle
                     self.pong_info.ball.angle = Utils.normalize_angle(self.pong_info.ball.angle)
                     Utils.set_direction(self.pong_info.ball)
@@ -162,15 +162,15 @@ class PongLogic(AsyncWebsocketConsumer):
                     Utils.has_collided_with_obstacles_left_or_right(self.pong_info.ball, self.pong_info.obstacle2)
                     == True
                 ):
-                    velocity["x"] *= -1
+                    ball_velocity["x"] *= -1
                     self.pong_info.ball.angle = math.pi - self.pong_info.ball.angle
                     self.pong_info.ball.angle = Utils.normalize_angle(self.pong_info.ball.angle)
                     Utils.set_direction(self.pong_info.ball)
-            
+
             self.pong_info.ball.angle = Utils.normalize_angle(self.pong_info.ball.angle)
             Utils.set_direction(self.pong_info.ball)
             Utils.adjust_ball_position(
-                self.pong_info.ball, self.pong_info.paddle, velocity, self.pong_info.game_window, self.pong_info.obstacle_exist, self.pong_info.obstacle1, self.pong_info.obstacle2
+                self.pong_info.ball, self.pong_info.paddle, ball_velocity, self.pong_info.game_window, self.pong_info.is_obstacle_exist, self.pong_info.obstacle1, self.pong_info.obstacle2
             )
 
     async def check_game_state(self):
@@ -191,16 +191,6 @@ class PongLogic(AsyncWebsocketConsumer):
         group_name = f"game_{setting_id}"
         await self.accept()
         await self.channel_layer.group_add(group_name, self.channel_name)
-        # # channel_layerの全属性を取得
-        # attributes = dir(self.channel_layer)
-        # print("Channel Layer Attributes:")
-        # for attr in attributes:
-        #     try:
-        #         value = getattr(self.channel_layer, attr)
-        #         print(f"{attr}: {value}")
-        #     except:
-        #         print(f"{attr}: <unable to get value>")
-
         if setting_id not in self.pong_info_map:
             self.pong_info = PongInfo()
             self.pong_info.setting_id = setting_id
