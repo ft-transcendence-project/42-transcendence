@@ -10,6 +10,7 @@ import select
 import time
 import ssl
 from dotenv import load_dotenv
+import logging
 
 load_dotenv()
 CERT_PATH = os.getenv('CERT_PATH')
@@ -29,23 +30,22 @@ def handle_sigint(sig, frame):
     exit(0)
 
 def read_key_nonblocking():
-    return sys.stdin.read(1)
+    key = sys.stdin.read(1)
+    return key
 
 async def websocket_communication_loop():
     pre_key = None
     key_hold_start = None
     try:
+        # logging.basicConfig(level=logging.DEBUG)
         context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
-        context.load_verify_locations("./cert.pem")
+        # 認証を無効にする
         context.check_hostname = False
         context.verify_mode = ssl.CERT_NONE
         input_uri = input("Enter WebSocket server URI > ")
-        if input_uri.lower() == "exit":
-            print("bye👋")
-            return
 
         # async withブロックを抜けると、接続が自動的に閉じる。
-        async with websockets.connect(input_uri, ssl=context) as websocket:
+        async with websockets.connect(input_uri, ssl=context, ping_interval=30, ping_timeout=120) as websocket:
             print("Connected to WebSocket server.")
             print("> ")
              # 端末の設定を変更.ノンブロッキングでキー入力を読む
@@ -68,10 +68,10 @@ async def websocket_communication_loop():
                         elif key == 'k':
                             await websocket.send(json.dumps({"action": "pressed", "key": "K"}))
                         pre_key = key.upper()
-                    await asyncio.sleep(0.001)
+                    await asyncio.sleep(0.01)
                 except Exception as e:
                     print(f"Error sending message: {e}")
-                    continue
+                    break
     except websockets.InvalidURI:
         print("Error: Invalid WebSocket URI")
     except websockets.InvalidHandshake:
