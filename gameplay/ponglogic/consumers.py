@@ -5,7 +5,7 @@ import asyncio
 # import random
 import math
 from .utils import Utils
-from .pong_info import PongInfo
+from .objects.pong_info import PongInfo
 
 # from channels.db import database_sync_to_async
 # from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
