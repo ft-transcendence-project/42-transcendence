@@ -256,3 +256,32 @@ class Utils:
             obstacle.y += obstacle.velocity
         else:
             obstacle.velocity *= -1
+
+    @staticmethod
+    def generate_pong_data(pong_info, first):
+        pong_data = {
+            "id": pong_info.setting_id,
+            "left_paddle_y": pong_info.paddle.left_y,
+            "right_paddle_y": pong_info.paddle.right_y,
+            "ball_x": pong_info.ball.x,
+            "ball_y": pong_info.ball.y,
+            "ball_radius": pong_info.ball.radius,
+            "left_score": pong_info.score.left,
+            "right_score": pong_info.score.right,
+        }
+        if (first):
+            pong_data.update({
+                "obstacle1_x": pong_info.obstacle1.x,
+                "obstacle1_y": pong_info.obstacle1.y,
+                "obstacle1_width": pong_info.obstacle1.width,
+                "obstacle1_height": pong_info.obstacle1.height,
+                "obstacle2_x": pong_info.obstacle2.x,
+                "obstacle2_y": pong_info.obstacle2.y,
+                "obstacle2_width": pong_info.obstacle2.width,
+                "obstacle2_height": pong_info.obstacle2.height,
+                "blind_x": pong_info.blind.x,
+                "blind_y": pong_info.blind.y,
+                "blind_width": pong_info.blind.width,
+                "blind_height": pong_info.blind.height,
+            })
+        return pong_data

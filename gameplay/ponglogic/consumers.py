@@ -21,7 +21,7 @@ class PongLogic(AsyncWebsocketConsumer):
             Utils.set_game_setting(self.pong_info, game_setting)
         except Exception as e:
             print(f"Error retrieving for GameSetting: {e}")
-        await self.send_pos(True)
+        await self.send_pong_data(True)
         turn_count = 0
         while self.pong_info.score.left < 15 and self.pong_info.score.right < 15:
             async with self.pong_info.lock:
@@ -31,10 +31,10 @@ class PongLogic(AsyncWebsocketConsumer):
             await self.rendering()
             await self.update_pos()
             await self.check_game_state()
-        await self.send_pos()
+        await self.send_pong_data()
 
     async def rendering(self):
-        await self.send_pos()
+        await self.send_pong_data()
         await asyncio.sleep(0.005)
         if self.pong_info.state == "stop":
             await asyncio.sleep(2)
@@ -193,7 +193,7 @@ class PongLogic(AsyncWebsocketConsumer):
                 pong_info.paddle.right_y -= 3
 
         if pong_info.state == "stop":
-            await self.send_pos()
+            await self.send_pong_data()
 
     async def handle_other_message(self, message):
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
@@ -209,53 +209,17 @@ class PongLogic(AsyncWebsocketConsumer):
             },
         )
 
-    async def send_pos(self, first=False):
+    async def send_pong_data(self, first=False):
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
         pong_info = self.pong_info_map[setting_id]
-        if (first):
-            response_message = {
-                "id": pong_info.setting_id,
-                "left_paddle_y": pong_info.paddle.left_y,
-                "right_paddle_y": pong_info.paddle.right_y,
-                "ball_x": pong_info.ball.x,
-                "ball_y": pong_info.ball.y,
-                "ball_radius": pong_info.ball.radius,
-                "obstacle1_x": pong_info.obstacle1.x,
-                "obstacle1_y": pong_info.obstacle1.y,
-                "obstacle1_width": pong_info.obstacle1.width,
-                "obstacle1_height": pong_info.obstacle1.height,
-                "obstacle2_x": pong_info.obstacle2.x,
-                "obstacle2_y": pong_info.obstacle2.y,
-                "obstacle2_width": pong_info.obstacle2.width,
-                "obstacle2_height": pong_info.obstacle2.height,
-                "blind_x": pong_info.blind.x,
-                "blind_y": pong_info.blind.y,
-                "blind_width": pong_info.blind.width,
-                "blind_height": pong_info.blind.height,
-                "left_score": pong_info.score.left,
-                "right_score": pong_info.score.right,
-            }
-        else:
-            response_message = {
-                "id": pong_info.setting_id,
-                "left_paddle_y": pong_info.paddle.left_y,
-                "right_paddle_y": pong_info.paddle.right_y,
-                "ball_x": pong_info.ball.x,
-                "ball_y": pong_info.ball.y,
-                "left_score": pong_info.score.left,
-                "right_score": pong_info.score.right,
-            }
         await self.channel_layer.group_send(
             pong_info.group_name,
             {
                 "type": "send_message",
-                "content": response_message,
+                "content": Utils.generate_pong_data(pong_info, first),
             },
         )
 
     async def send_message(self, event):
-        # print("sened_message")
-        # contentの中にある辞書を取り出し
-        message = event["content"]
-        # 辞書をjson型にする
-        await self.send(text_data=json.dumps(message))
+        pong_data = event["content"]
+        await self.send(text_data=json.dumps(pong_data))
