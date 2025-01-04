@@ -1,4 +1,5 @@
 import math
+import random
 
 class Ball:
     def __init__(self):
@@ -19,3 +20,12 @@ class Ball:
             "right_top": math.pi * 5 / 4,
             "right_bottom": math.pi * 3 / 4,
         }
+
+    def reset_position(self):
+        self.x = 500
+        self.y = 300
+
+    def reset_angle(self):
+        self.angle = random.uniform(
+            self.bound_angle["right_bottom"], self.bound_angle["right_top"]
+        )

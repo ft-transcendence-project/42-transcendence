@@ -1,4 +1,3 @@
-import random
 import asyncio
 from .components import Ball, Paddle, Score, Obstacle, Blind, GameWindow
 
@@ -17,12 +16,3 @@ class PongInfo:
         self.obstacle1 = Obstacle(1)
         self.obstacle2 = Obstacle(2)
         self.blind = Blind()
-
-    def reset_ball_position(self):
-        self.ball.x = 500
-        self.ball.y = 300
-
-    def reset_ball_angle(self):
-        self.ball.angle = random.uniform(
-            self.ball.bound_angle["right_bottom"], self.ball.bound_angle["right_top"]
-        )

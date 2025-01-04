@@ -7,10 +7,6 @@ import math
 from .utils import Utils
 from .objects.pong_info import PongInfo
 
-# from channels.db import database_sync_to_async
-# from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
-# from websocket.serializers import GameStateSerializer
-
 class PongLogic(AsyncWebsocketConsumer):
     pong_info_map = {}
 
@@ -55,15 +51,13 @@ class PongLogic(AsyncWebsocketConsumer):
         while self.pong_info.score.left < 15 and self.pong_info.score.right < 15:
             async with self.pong_info.lock:
                 if self.pong_info.state == "stop":
-                    self.pong_info.reset_ball_position()
-                    self.pong_info.reset_ball_angle()
+                    self.pong_info.ball.reset_position()
+                    self.pong_info.ball.reset_angle()
                     if turn_count % 2 == 0:
                         self.pong_info.ball.angle += math.pi
                     self.pong_info.ball.angle = Utils.normalize_angle(self.pong_info.ball.angle)
                     turn_count += 1
                     Utils.set_direction(self.pong_info.ball)
-                # print("angle: ", self.ball.angle)
-                # print("direction: ", self.ball.direction["facing_up"], self.ball.direction["facing_down"], self.ball.direction["facing_right"], self.ball.direction["facing_left"])
             await self.rendering()
             await self.update_pos()
             await self.check_game_state()
@@ -78,7 +72,6 @@ class PongLogic(AsyncWebsocketConsumer):
 
     async def update_pos(self):
         async with self.pong_info.lock:
-            # self.ball.angle = math.pi / 3 #test用
             ball_velocity = {
                 "x": self.pong_info.ball.velocity * math.cos(self.pong_info.ball.angle),
                 "y": self.pong_info.ball.velocity * math.sin(self.pong_info.ball.angle),
