@@ -11,6 +11,7 @@ class PongLogic(AsyncWebsocketConsumer):
     pong_info_map = {}
 
     def __init__(self, *args, **kwargs):
+        self.group_name = None
         super().__init__(*args, **kwargs)
 
     # PongLogic
@@ -152,19 +153,23 @@ class PongLogic(AsyncWebsocketConsumer):
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
         print(f"setting_id: {setting_id}")
         group_name = f"game_{setting_id}"
+        self.group_name = group_name
         await self.accept()
         await self.channel_layer.group_add(group_name, self.channel_name)
         if setting_id not in self.pong_info_map:
-            self.pong_info_map[setting_id] = self.pong_info = PongInfo(setting_id, group_name)
+            self.pong_info_map[setting_id] = self.pong_info = PongInfo(setting_id, group_name, self.channel_name)
             try:
                 self.pong_info.task["game_loop"] = asyncio.create_task(self.game_loop())
             except Exception as e:
                 print(f"Error creating game_loop task: {e}")
 
     async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(self.pong_info.group_name, self.channel_name)
-        self.pong_info.task["game_loop"].cancel()
-        del self.pong_info_map[self.pong_info.setting_id]
+        setting_id = self.scope["url_route"]["kwargs"]["settingid"]
+        await self.channel_layer.group_discard(self.group_name, self.channel_name)
+        if setting_id in self.pong_info_map:
+            if self.pong_info_map[setting_id].channel_name == self.channel_name:
+                self.pong_info.task["game_loop"].cancel()
+                del self.pong_info_map[self.pong_info.setting_id]
 
     async def receive(self, text_data=None):
         data = json.loads(text_data)
