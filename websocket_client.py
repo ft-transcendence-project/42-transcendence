@@ -30,17 +30,19 @@ def handle_sigint(sig, frame):
     exit(0)
 
 def read_key_nonblocking():
-    key = sys.stdin.read(1)
+    try:
+        key = sys.stdin.read(1)
+    except IOError:
+        key = None
     return key
 
 async def websocket_communication_loop():
-    pre_key = None
-    key_hold_start = None
     try:
         # logging.basicConfig(level=logging.DEBUG)
         context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
-        # 認証を無効にする
+        # 証明書のCN(42pong.com)の検証を無効にする
         context.check_hostname = False
+        # ssl.CERT_REQUIREDにすると[SSL: CERTIFICATE_VERIFY_FAILED]になる
         context.verify_mode = ssl.CERT_NONE
         input_uri = input("Enter WebSocket server URI > ")
 
@@ -56,8 +58,6 @@ async def websocket_communication_loop():
                 try:
                     key = read_key_nonblocking()
                     if key:
-                        pre_key = key.upper()
-                        key_hold_start = time.time()
                         print(f"Key pressed: {key}")
                         if key == 'e':
                             await websocket.send(json.dumps({"action": "pressed", "key": "E"}))
@@ -67,7 +67,6 @@ async def websocket_communication_loop():
                             await websocket.send(json.dumps({"action": "pressed", "key": "I"}))
                         elif key == 'k':
                             await websocket.send(json.dumps({"action": "pressed", "key": "K"}))
-                        pre_key = key.upper()
                     await asyncio.sleep(0.01)
                 except Exception as e:
                     print(f"Error sending message: {e}")
