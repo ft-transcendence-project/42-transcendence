@@ -1,88 +1,80 @@
 import json
-
+from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 import asyncio
+
 import math
 from .utils import Utils
 from .shared import SharedState
 
-from channels.db import database_sync_to_async
-from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
-from websocket.serializers import GameStateSerializer
 
-TASKS = {}
-class GameStateConsumer(SharedState, GenericAsyncAPIConsumer):
-    from websocket.models import GameState
-
-    queryset = GameState.objects.all()
-    serializer_class = GameStateSerializer
-
-    # POST
-    async def receive_json(self, content, **kwargs):
-        action = content.get("action")
-        async with SharedState.lock:
-            if action == "move_up":
-                player = content.get("player")
-                if player == "right":
-                    SharedState.Paddle.right_y -= 3
-                elif player == "left":
-                    SharedState.Paddle.left_y -= 3
-            elif action == "move_down":
-                player = content.get("player")
-                if player == "right":
-                    SharedState.Paddle.right_y += 3
-                elif player == "left":
-                    SharedState.Paddle.left_y += 3
-            elif action == "game_init":
-                SharedState.init()
-            elif action == "game_pause":
-                pong = PongLogic()
-                TASKS["game_loop"].cancel()
-                return
-            # DBに保管,gameloop止める
-            elif action == "game_resume":
-                pong = PongLogic()
-                TASKS["game_loop"] = asyncio.create_task(Utils.game_start(pong.game_loop()))
-                return
-            response_message = Utils.create_game_update_message(SharedState.Ball, SharedState.Paddle, SharedState.Score)
-            await self.channel_layer.group_send(
-                "sendmessage",
-                {
-                    "type": "send_message",
-                    "content": response_message
-                }
-            )
-            if action == "game_init":
-                await asyncio.sleep(2)
-
-    # GET
 class PongLogic(SharedState, AsyncWebsocketConsumer):
-    def __new__(cls, *args, **kwargs):
-        if not hasattr(cls, '_instance'):
-            cls._instance = super().__new__(cls, *args, **kwargs)
-            cls._instance.state = "stop" 
-        return cls._instance
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.state = "stop"
+        # self.tasks = {}
+        self.group_name = None
+        self.lock = asyncio.Lock()
 
-    # TASKS = {}
     # PongLogic
     async def game_loop(self):
         turn_count = 0
+        # try:
+        # from gameplay.models import GameSetting
+        # setting = await sync_to_async(GameSetting.objects.get)(id=self.setting_id)
+        #     ball_size_choise = setting.ball_size
+        #     ball_v_choise = setting.ball_velocity
+        #     map_choise = setting.map
+        #     print(f"map: {map_choise}, ball_size: {ball_size_choise}, ball_v: {ball_v_choise}")
+        #     if ball_size_choise == "big":
+        #         SharedState.Ball.radius = 20
+        #     elif ball_size_choise == "normal":
+        #         SharedState.Ball.radius = 10
+        #     elif ball_size_choise == "small":
+        #         SharedState.Ball.radius = 5
+        #     if ball_v_choise == "fast":
+        #         SharedState.Ball.velocity = 7
+        #     elif ball_v_choise == "normal":
+        #         SharedState.Ball.velocity = 5
+        #     elif ball_v_choise == "slow":
+        #         SharedState.Ball.velocity = 3
+        #     if map_choise == "a":
+        #         SharedState.Obstacle.width = 0
+        #         SharedState.Obstacle.height = 0
+        #         SharedState.blind.width = 0
+        #         SharedState.blind.height = 0
+        #     elif map_choise == "b":
+        #         SharedState.Obstacle.width = 500
+        #         SharedState.Obstacle.height = 30
+        #         SharedState.blind.width = 0
+        #         SharedState.blind.height = 0
+        #     elif map_choise == "c":
+        #         SharedState.Obstacle.width = 0
+        #         SharedState.Obstacle.height = 0
+        #         SharedState.blind.width = 300
+        #         SharedState.blind.height = 600
+        #     print(f"map: {map_choise}, ball_size: {SharedState.Ball.radius}, ball_v: {SharedState.Ball.velocity}")
+        # except Exception as e:
+        #     print(f"Error retrieving for GameSetting: {e}")
         while SharedState.Score.left < 15 and SharedState.Score.right < 15:
-            async with SharedState.lock:
+            async with self.lock:
                 if self.state == "stop":
                     SharedState.reset_ball_position()
                     SharedState.reset_ball_angle()
                     if turn_count % 2 == 0:
                         SharedState.Ball.angle += math.pi
-                    SharedState.Ball.angle = Utils.normalize_angle(SharedState.Ball.angle)
+                    SharedState.Ball.angle = Utils.normalize_angle(
+                        SharedState.Ball.angle
+                    )
                     turn_count += 1
                     Utils.set_direction(SharedState.Ball)
-                    # print("angle: ", self.ball.angle)
-                    # print("direction: ", self.ball.direction["facing_up"], self.ball.direction["facing_down"], self.ball.direction["facing_right"], self.ball.direction["facing_left"])
+                # print("angle: ", self.ball.angle)
+                # print("direction: ", self.ball.direction["facing_up"], self.ball.direction["facing_down"], self.ball.direction["facing_right"], self.ball.direction["facing_left"])
             await self.rendering()
             await self.update_pos()
             await self.check_game_state()
         await self.send_pos()
+        self.state = "end"
 
     async def rendering(self):
         await self.send_pos()
@@ -90,11 +82,9 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
         if self.state == "stop":
             await asyncio.sleep(2)
             self.state = "running"
-        # else:
-        #     await asyncio.sleep(0.005)
 
     async def update_pos(self):
-        async with SharedState.lock:
+        # async with self.lock:
             # self.ball.angle = math.pi / 3 #test用
             velocity = {
                 "x": SharedState.Ball.velocity * math.cos(SharedState.Ball.angle),
@@ -163,9 +153,10 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
             Utils.adjust_ball_position(
                 SharedState.Ball, SharedState.Paddle, velocity, SharedState.GameWindow
             )
+            Utils.update_obstacle_position(SharedState.Obstacle, SharedState.GameWindow)
 
     async def check_game_state(self):
-        async with SharedState.lock:
+        # async with self.lock:
             if (
                 SharedState.Ball.x - SharedState.Ball.radius
                 > SharedState.GameWindow.width
@@ -177,54 +168,90 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
                 self.state = "stop"
 
     async def connect(self):
-        if "game_loop" in TASKS:
-            TASKS["game_loop"].cancel()
-        await self.channel_layer.group_add("sendmessage", self.channel_name)
-        print("Websocket connected")
+        # self.setting_id = self.scope["url_route"]["kwargs"]["settingid"]
+        # print(f"setting_id: {self.setting_id}")
+        # self.group_name = f"game_{self.setting_id}"
+        print ("state",self.state)
+        self.group_name = "send_message"
+        if "game_loop" in SharedState.tasks and self.state == "end":
+            SharedState.tasks["game_loop"].cancel()
+        await self.channel_layer.group_add(self.group_name, self.channel_name)
+        print(f"Websocket connected to group: {self.group_name}")
         await self.accept()
-        self.state = "stop"
-        TASKS["game_loop"] = asyncio.create_task(Utils.game_start(self.game_loop()))
+        if "game_loop" not in SharedState.tasks:
+            SharedState.tasks["game_loop"] = asyncio.create_task(self.game_loop())
 
     async def disconnect(self, close_code):
-        if "game_loop" in TASKS:
+        if "game_loop" in SharedState.tasks and self.state == "end":
             SharedState.init()
-            TASKS["game_loop"].cancel()
-        await self.channel_layer.group_discard("sendmessage", self.channel_name)
-        print("Websocket disconnected")
+            SharedState.tasks["game_loop"].cancel()
+        await self.channel_layer.group_discard(self.group_name, self.channel_name)
+        print(f"Websocket disconnected from group: {self.group_name}")
 
     async def receive(self, text_data=None):
-        data = json.loads(text_data)
-        key = data.get("key")
-        action = data.get("action")
+        try:
+            data = json.loads(text_data)
+            key = data.get("key")
+            action = data.get("action")
+            player = data.get("player")
+            if await self.is_valid_action(action) == False:
+               await self.send_error_message("Invalid action")
+               return
+            if await self.is_valid_player(action, player) == False:
+               await self.send_error_message("Invalid player")
+               return
+            async with self.lock:
+                if (key == "D" and action == "pressed") or (action == "move_down" and player == "left"):
+                    if (
+                        SharedState.Paddle.left_y + 3
+                        <= SharedState.GameWindow.height - SharedState.Paddle.height
+                    ):
+                        SharedState.Paddle.left_y += 3
+                elif key == "E" and action == "pressed" or (action == "move_up" and player == "left"):
+                    if SharedState.Paddle.left_y - 3 >= 0:
+                        SharedState.Paddle.left_y -= 3
+                elif key == "K" and action == "pressed" or (action == "move_down" and player == "right"):
+                    if (
+                        SharedState.Paddle.right_y + 3
+                        <= SharedState.GameWindow.height - SharedState.Paddle.height
+                    ):
+                        SharedState.Paddle.right_y += 3
+                elif key == "I" and action == "pressed" or (action == "move_up" and player == "right"):
+                    if SharedState.Paddle.right_y - 3 >= 0:
+                        SharedState.Paddle.right_y -= 3
 
-        async with SharedState.lock:
-            if key == "D" and action == "pressed":
-                if (
-                    SharedState.Paddle.left_y + 3
-                    <= SharedState.GameWindow.height - SharedState.Paddle.height
-                ):
-                    SharedState.Paddle.left_y += 3
-            elif key == "E" and action == "pressed":
-                if SharedState.Paddle.left_y - 3 >= 0:
-                    SharedState.Paddle.left_y -= 3
-            elif key == "K" and action == "pressed":
-                if (
-                    SharedState.Paddle.right_y + 3
-                    <= SharedState.GameWindow.height - SharedState.Paddle.height
-                ):
-                    SharedState.Paddle.right_y += 3
-            elif key == "I" and action == "pressed":
-                if SharedState.Paddle.right_y - 3 >= 0:
-                    SharedState.Paddle.right_y -= 3
-        if self.state == "stop":
-            await self.send_pos()
+                if self.state == "stop":
+                    await self.send_pos()
+        except json.JSONDecodeError as e:
+            await self.send_error_message(f"Error from endpoint: {e}")
+
+    async def send_error_message(self, error_message):
+        await self.channel_layer.send(
+            self.channel_name,
+            {
+                "type": "send_message",
+                "content": {"error": error_message}
+            }
+        )
+
+    async def is_valid_action(self,action):
+        if action != "pressed" and action != "move_up" and action != "move_down":
+            return False
+        return True
+
+    async def is_valid_player(self,action, player):
+        if action == "move_up" or action == "move_down":
+            if player != "right" and player != "left":
+                return False
+        return True
+
 
     async def handle_other_message(self, message):
         # その他のメッセージに対応する処理
         print(f"Other message received: {message}")
         response_message = {"message": f"Received: {message}"}
         await self.channel_layer.group_send(
-            "sendmessage",
+            self.group_name,
             {
                 "type": "send_message",
                 "content": response_message,
@@ -232,9 +259,23 @@ class PongLogic(SharedState, AsyncWebsocketConsumer):
         )
 
     async def send_pos(self):
-        response_message = Utils.create_game_update_message(SharedState.Ball, SharedState.Paddle, SharedState.Score)
+        response_message = {
+            "left_paddle_y": SharedState.Paddle.left_y,
+            "right_paddle_y": SharedState.Paddle.right_y,
+            "ball_x": SharedState.Ball.x,
+            "ball_y": SharedState.Ball.y,
+            "ball_radius": SharedState.Ball.radius,
+            # "obstacle_x": SharedState.Obstacle.x,
+            # "obstacle_y": SharedState.Obstacle.y,
+            # "obstacle_width": SharedState.Obstacle.width,
+            # "obstacle_height": SharedState.Obstacle.height,
+            # "blind_width": SharedState.blind.width,
+            # "blind_height": SharedState.blind.height,
+            "left_score": SharedState.Score.left,
+            "right_score": SharedState.Score.right,
+        }
         await self.channel_layer.group_send(
-            "sendmessage",
+            self.group_name,
             {
                 "type": "send_message",
                 "content": response_message,

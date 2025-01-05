@@ -3,6 +3,15 @@ const Gameplay = {
 		return (await fetch("/views/templates/Gameplay.html")).text();
 	},
 
+	keyStates: {
+		left: false,
+		right: false,
+	},
+	leftInterval: null,
+	rightInterval: null,
+	keydownListener: null,
+	keyupListener: null,
+
 	after_render: async () => {
         const player1 = sessionStorage.getItem("player1");
         if (player1) {
@@ -21,46 +30,49 @@ const Gameplay = {
 		gameCanvas.width = 1000;
 		gameCanvas.height = 600;
 
+		let first = true;
 		const center_x = gameCanvas.width / 2;
 		const center_y = gameCanvas.height / 2;
-		const paddle_h = 120;
-		const paddle_w = 15;
-		const paddle = {
+		let paddle_h = 120;
+		let paddle_w = 15;
+		let paddle = {
 			left_x: 0,
 			right_x: gameCanvas.width,
 			left_y: center_y - paddle_h / 2,
 			right_y: center_y - paddle_h / 2,
 		};
-		const ball = {
+		let ball = {
 			x: center_x,
 			y: center_y,
 			radius: 10,
 		};
-		const obstacle = {
+		let obstacle1 = {
 			x: center_x,
 			y: center_y,
 			width: 0,
 			height: 0,
 		};
-		const blind = {
-			x: 350,
+		let obstacle2 = {
+			x: center_x,
+			y: center_y,
+			width: 0,
+			height: 0,
+		};
+		let blind = {
+			x: 0,
 			y: 0,
 			width: 0,
 			height: 0,
 		};
-		const score = {
+		let score = {
 			left: 0,
 			right: 0,
 		};
 
 		let animationFrameId = null;
-		const keyStates = {
-			left: false,
-			right: false,
-		};
 
 		// Websocket
-		const url = `${window.env.BACKEND_WS_HOST}/gameplay/${sessionStorage.getItem('settingId')}/`;
+		const url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${sessionStorage.getItem('settingId')}/`;
 		window.ws = new WebSocket(url);
 		console.log(url + " WebSocket created");
 
@@ -133,6 +145,8 @@ const Gameplay = {
 		}
 
 		window.ws.onmessage = (e) => {
+			if (window.ws === null || window.ws.readyState !== WebSocket.OPEN)
+				return;
 			const data = JSON.parse(e.data);
             if (data.type === "game_over") {
                 gameOver(data);
@@ -144,65 +158,77 @@ const Gameplay = {
 			paddle.right_y = data.right_paddle_y;
 			ball.x = data.ball_x;
 			ball.y = data.ball_y;
-			ball.radius = data.ball_radius;
-			obstacle.x = data.obstacle_x;
-			obstacle.y = data.obstacle_y;
-			obstacle.width = data.obstacle_width;
-			obstacle.height = data.obstacle_height;
-			blind.width = data.blind_width;
-			blind.height = data.blind_height;
+			if (first) {
+				ball.radius = data.ball_radius;
+				obstacle1.x = data.obstacle1_x;
+				obstacle1.y = data.obstacle1_y;
+				obstacle1.width = data.obstacle1_width;
+				obstacle1.height = data.obstacle1_height;
+				obstacle2.x = data.obstacle2_x;
+				obstacle2.y = data.obstacle2_y;
+				obstacle2.width = data.obstacle2_width;
+				obstacle2.height = data.obstacle2_height;
+				blind.x = data.blind_x;
+				blind.y = data.blind_y;
+				blind.width = data.blind_width;
+				blind.height = data.blind_height;
+				first = false;
+			}
 		};
 
 		function sendMessage(message) {
+			if (window.ws === null || window.ws.readyState !== WebSocket.OPEN)
+				return;
 			window.ws.send(JSON.stringify(message));
 		}
 
+		Gameplay.keydownListener = (event) => {
+			let message = null;
+			if (event.key === "D" || event.key === "d") {
+				message = { key: "D", action: "pressed", paddle: "left" };
+			} else if (event.key === "E" || event.key === "e") {
+				message = { key: "E", action: "pressed", paddle: "left" };
+			} else if (event.key === "I" || event.key === "i") {
+				message = { key: "I", action: "pressed", paddle: "right" };
+			} else if (event.key === "K" || event.key === "k") {
+				message = { key: "K", action: "pressed", paddle: "right" };
+			}
+		
+			if (message && message.paddle === "left" && !Gameplay.keyStates.left) {
+				Gameplay.keyStates.left = true;
+				Gameplay.leftInterval = setInterval(function () {
+					sendMessage(message);
+				}, 1);
+			}
+			if (message && message.paddle === "right" && !Gameplay.keyStates.right) {
+				Gameplay.keyStates.right = true;
+				Gameplay.rightInterval = setInterval(function () {
+					sendMessage(message);
+				}, 1);
+			}
+		};
+		Gameplay.keyupListener = (event) => {
+			if ( event.key === "E" ||
+				event.key === "e" ||
+				event.key === "D" ||
+				event.key === "d" )
+			{
+				clearInterval(Gameplay.leftInterval); // メッセージ送信の間隔を止める
+				Gameplay.keyStates.left = false;
+			}
+			else if ( event.key === "I" ||
+				event.key === "i" ||
+				event.key === "K" ||
+				event.key === "k" )
+			{
+				clearInterval(Gameplay.rightInterval); // メッセージ送信の間隔を止める
+				Gameplay.keyStates.right = false;
+			}
+		};
+
 		if (!window.keydownListenerAdded) {
-			let leftInterval = null;
-			let rightInterval = null;
-			document.addEventListener('keydown', function (event) {
-				let message = null;
-				if (event.key === "D" || event.key === "d") {
-					message = { key: "D", action: "pressed", paddle: "left" };
-				} else if (event.key === "E" || event.key === "e") {
-					message = { key: "E", action: "pressed", paddle: "left" };
-				} else if (event.key === "I" || event.key === "i") {
-					message = { key: "I", action: "pressed", paddle: "right" };
-				} else if (event.key === "K" || event.key === "k") {
-					message = { key: "K", action: "pressed", paddle: "right" };
-				}
-			
-				if (message && message.paddle === "left" && !keyStates.left) {
-					keyStates.left = true;
-					leftInterval = setInterval(function () {
-						sendMessage(message);
-					}, 1);
-				}
-				if (message && message.paddle === "right" && !keyStates.right) {
-					keyStates.right = true;
-					rightInterval = setInterval(function () {
-						sendMessage(message);
-					}, 1);
-				}
-			});
-			document.addEventListener('keyup', function (event) {
-				if ( event.key === "E" ||
-					event.key === "e" ||
-					event.key === "D" ||
-					event.key === "d" )
-				{
-					clearInterval(leftInterval); // メッセージ送信の間隔を止める
-					keyStates.left = false;
-				}
-				else if ( event.key === "I" ||
-					event.key === "i" ||
-					event.key === "K" ||
-					event.key === "k" )
-				{
-					clearInterval(rightInterval); // メッセージ送信の間隔を止める
-					keyStates.right = false;
-				}
-			});
+			document.addEventListener("keydown", Gameplay.keydownListener);
+			document.addEventListener("keyup", Gameplay.keyupListener);
 			window.keydownListenerAdded = true;
 		}
 
@@ -218,15 +244,18 @@ const Gameplay = {
 			ctx.fillRect(paddle.left_x, paddle.left_y, paddle_w, paddle_h);
 			ctx.fillRect(paddle.right_x - paddle_w, 0 + paddle.right_y, paddle_w, paddle_h);
 			ctx.fillRect(ball.x - ball.radius, ball.y - ball.radius, 2 * ball.radius, 2 * ball.radius);
-			ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-
-			ctx.fillStyle = "red";
-			ctx.fillRect(blind.x, blind.y, blind.width, blind.height);
 
 			ctx.fillStyle = "white";
 			ctx.font = "50px Arial";
 			ctx.fillText(score.left, center_x - 50, 50);
 			ctx.fillText(score.right, center_x + 50, 50);
+
+			ctx.fillStyle = "red";
+			ctx.fillRect(blind.x, blind.y, blind.width, blind.height);
+
+			ctx.fillStyle = "yellow";
+			ctx.fillRect(obstacle1.x, obstacle1.y, obstacle1.width, obstacle1.height);
+			ctx.fillRect(obstacle2.x, obstacle2.y, obstacle2.width, obstacle2.height);
 		}
 
 		function update() {
@@ -239,6 +268,9 @@ const Gameplay = {
 
 	cleanup: async () => {
 		if (window.ws) {
+		  document.removeEventListener("keydown", Gameplay.keydownListener);
+		  document.removeEventListener("keyup", Gameplay.keyupListener);
+		  window.keydownListenerAdded = false;
 		  window.ws.close();
 		  window.ws = null;
 		  console.log("WebSocket closed");
@@ -246,7 +278,7 @@ const Gameplay = {
 	
 		if (sessionStorage.getItem('settingId') && sessionStorage.getItem("isTournament") !== "true") {
 		  try {
-			const response = await fetch(`${window.env.BACKEND_HOST}/gameplay/api/gamesetting/${sessionStorage.getItem('settingId')}/`, {
+			const response = await fetch(`${window.env.GAMEPLAY_HOST}/gamesetting/api/${window.sessionStorage.getItem('settingId')}/`, {
 			  method: "DELETE",
 			});
 	

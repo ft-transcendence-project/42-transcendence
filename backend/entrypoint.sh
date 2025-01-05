@@ -8,12 +8,12 @@ python manage.py migrate --noinput
 # python manage.py collectstatic --noinput
 
 python manage.py flush --noinput
-python manage.py loaddata fixtures/users.json fixtures/defaultGameSetting.json
+python manage.py loaddata fixtures/users.json
 
 # 環境変数のENVIRONMENTの値がdevelopmentの時はrunserverを、productionの時はdaphneを実行
 if [ $ENVIRONMENT = "development" ]
 then
     python manage.py runserver 0.0.0.0:8000
 else
-    daphne -b 0.0.0.0 -p 8000 core.asgi:application
+    gunicorn -b 0.0.0.0 -p 8000 core.wsgi:application
 fi
