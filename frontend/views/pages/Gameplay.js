@@ -1,5 +1,3 @@
-import { updateContent } from "../../utils/i18n.js";
-
 const Gameplay = {
 	render: async () => {
 		return (await fetch("/views/templates/Gameplay.html")).text();
@@ -14,9 +12,7 @@ const Gameplay = {
 	keydownListener: null,
 	keyupListener: null,
 
-	after_render: async () => {
-		updateContent();
-	
+	after_render: async () => {	
         const player1 = sessionStorage.getItem("player1");
         if (player1) {
             document.getElementById("player1").textContent = player1;

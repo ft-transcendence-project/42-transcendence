@@ -1,13 +1,9 @@
-import { updateContent } from "../../utils/i18n.js";
-
 const Tournament = {
   render: async () => {
     return (await fetch("/views/templates/Tournament.html")).text();
   },
 
   after_render: async () => {
-    updateContent();
-
     sessionStorage.setItem("isTournament", "true");
     sessionStorage.removeItem("winner");
 

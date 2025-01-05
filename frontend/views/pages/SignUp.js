@@ -1,13 +1,9 @@
-import { updateContent } from "../../utils/i18n.js";
-
 const SignUp = {
   render: async () => {
     return (await fetch("/views/templates/SignUp.html")).text();
   },
 
   after_render: async () => {
-    updateContent();
-
     const signupForm = document.getElementById("signup-form");
 
     signupForm.addEventListener("submit", async (event) => {
