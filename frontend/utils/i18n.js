@@ -28,8 +28,15 @@ export function updateContent() {
         el.setAttribute(attr, i18next.t(translationKey));
       }
     } else {
-      // 通常のテキスト翻訳
-      el.textContent = i18next.t(key);
+      if (el.children.length > 0) {
+        // 子要素を持つ場合
+        const childElements = Array.from(el.children).map(child => child.outerHTML);
+        const translatedText = i18next.t(key);
+        el.innerHTML = translatedText + childElements.join('');
+      } else {
+        // 通常のテキスト翻訳
+        el.textContent = i18next.t(key);
+      }
     }
   });
 }
