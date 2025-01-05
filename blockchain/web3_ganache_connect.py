@@ -75,23 +75,49 @@ class TournamentContract:
         tx_hash = self.web3.eth.send_raw_transaction(signed_txn.raw_transaction)
         return self.web3.eth.wait_for_transaction_receipt(tx_hash)
 
-    # コントラクト操作関数
-    def record_match(self, winner_id, winner_score, loser_id, loser_score):
-        receipt = self.send_transaction(
-            self.contract.functions.recordMatch(winner_id, winner_score, loser_id, loser_score)
+    def record_match(self, tournament_id, round, match_number, timestamp, player1_id, player2_id, player1_score, player2_score):
+            receipt = self.send_transaction(
+                self.contract.functions.recordMatch(
+                    tournament_id,
+                    round,
+                    match_number,
+                    timestamp,
+                    player1_id,
+                    player2_id,
+                    player1_score,
+                    player2_score
+                )
+            )
+            return receipt
+
+    def get_match(self, tournament_id, match_number):
+        return self.contract.functions.getMatch(tournament_id, match_number).call()
+
+def record_match_on_blockchain(tournament_id, round, match_number, timestamp, player1_id, player2_id, player1_score, player2_score):
+    try:
+        tournament_contract = TournamentContract()
+        receipt = tournament_contract.record_match(
+            tournament_id=tournament_id,
+            round=round,
+            match_number=match_number,
+            timestamp=timestamp,
+            player1_id=player1_id,
+            player2_id=player2_id,
+            player1_score=player1_score,
+            player2_score=player2_score
         )
+        print(f"Transaction receipt: {receipt}")
         return receipt
+    except Exception as e:
+        print(f"An error occurred while recording match on blockchain: {e}")
+        raise
 
-    def get_match(self, match_number):
-        return self.contract.functions.getMatch(match_number).call()
-
-    # メイン処理
-def main():
-    tournament = TournamentContract()
-    tournament.record_match(1, 10, 2, 5)
-    tournament.record_match(3, 8, 4, 3)
-    match_data = tournament.get_match(1)
-    print(f"Match data: {match_data}")
-
-if __name__ == "__main__":
-    main()
+def get_match_from_blockchain(tournament_id, match_number):
+    try:
+        tournament_contract = TournamentContract()
+        match_details = tournament_contract.get_match(tournament_id, match_number)
+        print(f"Match details: {match_details}")
+        return match_details
+    except Exception as e:
+        print(f"An error occurred while retrieving match from blockchain: {e}")
+        raise
