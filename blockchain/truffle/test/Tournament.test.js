@@ -1,54 +1,121 @@
 const Tournament = artifacts.require("Tournament");
 
 contract("Tournament", (accounts) => {
-    let tournament;
+    let tournamentInstance;
     const owner = accounts[0];
     const nonOwner = accounts[1];
 
     beforeEach(async () => {
-        tournament = await Tournament.new({ from: owner });
+        tournamentInstance = await Tournament.new({ from: owner });
     });
 
-    // 試合結果を記録できるかどうかのテスト
-    it("should record a match", async () => {
-        const winnerId = 1;
-        const winnerScore = 10;
-        const loserId = 2;
-        const loserScore = 8;
+    it("should create a player", async () => {
+        const playerName = "Player1";
+        await tournamentInstance.createPlayer(playerName, { from: owner });
+        const player = await tournamentInstance.players(1);
+        assert.equal(player.name, playerName, "Player name should be recorded correctly");
+    });
 
-        await tournament.recordMatch(
-            winnerId,
-            winnerScore,
-            loserId,
-            loserScore,
+    it("should create a tournament", async () => {
+        const tournamentName = "Tournament1";
+        const date = Date.now();
+        await tournamentInstance.createTournament(tournamentName, date, { from: owner });
+        const tournamentData = await tournamentInstance.tournaments(1);
+        assert.equal(tournamentData.name, tournamentName, "Tournament name should be recorded correctly");
+        assert.equal(tournamentData.date.toNumber(), date, "Tournament date should be recorded correctly");
+    });
+
+    it("should record a match by owner", async () => {
+        const round = 1;
+        const matchNumber = 1;
+        const timestamp = Date.now();
+        const player1Id = 1;
+        const player2Id = 2;
+        const player1Score = 10;
+        const player2Score = 8;
+
+        await tournamentInstance.createPlayer("Player1", { from: owner });
+        await tournamentInstance.createPlayer("Player2", { from: owner });
+        await tournamentInstance.createTournament("Tournament1", timestamp, { from: owner });
+
+        await tournamentInstance.recordMatch(
+            1,
+            round,
+            matchNumber,
+            timestamp,
+            player1Id,
+            player2Id,
+            player1Score,
+            player2Score,
             { from: owner }
         );
 
-        const match = await tournament.getMatch(1);
-        assert.equal(match.winnerId, winnerId, "Winner ID should be recorded correctly");
-        assert.equal(match.winnerScore, winnerScore, "Winner score should be recorded correctly");
-        assert.equal(match.loserId, loserId, "Loser ID should be recorded correctly");
-        assert.equal(match.loserScore, loserScore, "Loser score should be recorded correctly");
+        const match = await tournamentInstance.getMatch(1, matchNumber);
+        assert.equal(match.round, round, "Round should be recorded correctly");
+        assert.equal(match.player1Id, player1Id, "Player 1 ID should be recorded correctly");
+        assert.equal(match.player2Id, player2Id, "Player 2 ID should be recorded correctly");
+        assert.equal(match.player1Score, player1Score, "Player 1 score should be recorded correctly");
+        assert.equal(match.player2Score, player2Score, "Player 2 score should be recorded correctly");
     });
 
-    // 所有者以外が試合結果を記録しようとした場合のテスト
     it("should not allow non-owner to record a match", async () => {
         try {
-            await tournament.recordMatch(1, 10, 2, 8, { from: nonOwner });
+            await tournamentInstance.recordMatch(1, 1, 1, Date.now(), 1, 2, 10, 8, { from: nonOwner });
             assert.fail("Non-owner should not be able to record a match");
         } catch (error) {
             assert(error.message.includes("Caller is not the owner"), "Expected 'Caller is not the owner' error");
         }
     });
 
-    // 複数の試合結果を連続して記録できるかどうかのテスト
-    it("should record multiple matches", async () => {
-        for (let i = 1; i <= 5; i++) {
-            await tournament.recordMatch(i, 10 + i, i + 1, 8 + i, { from: owner });
-            const match = await tournament.getMatch(i);
-            assert.equal(match.winnerId, i, `Match ${i}: Winner ID should be recorded correctly`);
-        }
-        const matchCount = await tournament.matchCount();
-        assert.equal(matchCount.toNumber(), 5, "Match count should be 5");
+    it("should emit MatchRecorded event when a match is recorded", async () => {
+        const round = 1;
+        const matchNumber = 1;
+        const timestamp = Date.now();
+        const player1Id = 1;
+        const player2Id = 2;
+        const player1Score = 10;
+        const player2Score = 8;
+
+        await tournamentInstance.createPlayer("Player1", { from: owner });
+        await tournamentInstance.createPlayer("Player2", { from: owner });
+        await tournamentInstance.createTournament("Tournament1", timestamp, { from: owner });
+
+        const result = await tournamentInstance.recordMatch(
+            1,
+            round,
+            matchNumber,
+            timestamp,
+            player1Id,
+            player2Id,
+            player1Score,
+            player2Score,
+            { from: owner }
+        );
+
+        assert.equal(result.logs.length, 1, "One event should have been emitted");
+        assert.equal(result.logs[0].event, "MatchRecorded", "Event should be 'MatchRecorded'");
+        assert.equal(result.logs[0].args.round, round, "Round should be correct in event");
+        assert.equal(result.logs[0].args.matchNumber, matchNumber, "Match number should be correct in event");
+        assert.equal(result.logs[0].args.player1Id, player1Id, "Player 1 ID should be correct in event");
+        assert.equal(result.logs[0].args.player2Id, player2Id, "Player 2 ID should be correct in event");
+        assert.equal(result.logs[0].args.player1Score, player1Score, "Player 1 score should be correct in event");
+        assert.equal(result.logs[0].args.player2Score, player2Score, "Player 2 score should be correct in event");
+    });
+
+    it("should increment matchCount when a match is recorded", async () => {
+        const initialMatchCount = await tournamentInstance.matchCount();
+        assert.equal(initialMatchCount.toNumber(), 0, "Initial match count should be 0");
+
+        await tournamentInstance.createPlayer("Player1", { from: owner });
+        await tournamentInstance.createPlayer("Player2", { from: owner });
+        await tournamentInstance.createTournament("Tournament1", Date.now(), { from: owner });
+
+        await tournamentInstance.recordMatch(1, 1, 1, Date.now(), 1, 2, 10, 8, { from: owner });
+        const newMatchCount = await tournamentInstance.matchCount();
+        assert.equal(newMatchCount.toNumber(), 1, "Match count should be incremented to 1");
+
+        await tournamentInstance.recordMatch(1, 1, 2, Date.now(), 1, 2, 10, 8, { from: owner });
+        const finalMatchCount = await tournamentInstance.matchCount();
+        assert.equal(finalMatchCount.toNumber(), 2, "Match count should be incremented to 2");
     });
 });
