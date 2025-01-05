@@ -9,13 +9,12 @@ import os
 import select
 import time
 import ssl
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 import logging
 
-load_dotenv()
-CERT_PATH = os.getenv('CERT_PATH')
-fd = sys.stdin.fileno()
+
 # fdの端末属性を取得.後でdefaultに戻す
+fd = sys.stdin.fileno()
 default_setting = termios.tcgetattr(fd)
 new_setting = termios.tcgetattr(fd)
 
@@ -37,6 +36,12 @@ def read_key_nonblocking():
     return key
 
 async def websocket_communication_loop():
+    # cert.pemファイルのパスを指定
+    cert_file_path = './cert.pem'
+    # ファイルを読み込み、内容を出力
+    with open(cert_file_path, 'r') as cert_file:
+        cert_content = cert_file.read()
+        print(cert_content)
     try:
         # logging.basicConfig(level=logging.DEBUG)
         context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
@@ -44,6 +49,7 @@ async def websocket_communication_loop():
         context.check_hostname = False
         # ssl.CERT_REQUIREDにすると[SSL: CERTIFICATE_VERIFY_FAILED]になる
         context.verify_mode = ssl.CERT_NONE
+        context.load_verify_locations(cert_file_path)
         input_uri = input("Enter WebSocket server URI > ")
 
         # async withブロックを抜けると、接続が自動的に閉じる。
