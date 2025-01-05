@@ -1,0 +1,6 @@
+{
+    "title": "设置双重认证",
+    "show_qr_code": "请使用验证器应用扫描二维码：",
+    "enter_secret_key": "或输入以下密钥：",
+    "complete_setup": "完成设置"
+}

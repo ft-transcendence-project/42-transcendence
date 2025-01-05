@@ -1,9 +1,13 @@
+import { updateContent } from "../../utils/i18n.js";
+
 const VerifyOtp = {
   render: async () => {
     return (await fetch("/views/templates/VerifyOtp.html")).text();
   },
 
   after_render: async () => {
+    updateContent();
+
     const form = document.getElementById("verify-otp-form");
 
     form.addEventListener("submit", async (e) => {

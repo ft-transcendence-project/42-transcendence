@@ -4,7 +4,8 @@ i18next
   .init({
     fallbackLng: 'en', // ブラウザの言語が取得できない場合のデフォルト言語
     debug: false,
-    ns: ['navbar', 'home', 'login', 'signup', 'tournament', 'matches', 'gamesetting'], // 翻訳キーの名前空間
+    ns: ['navbar', 'home', 'login', 'signup', 'tournament', 'matches', 'gamesetting', 
+      'logout', 'setupotp', 'verifyotp'], // 翻訳キーの名前空間
     backend: {
       loadPath: './utils/locales/{{lng}}/{{ns}}.json', // 見つからない場合fallbackLngを参照
     },

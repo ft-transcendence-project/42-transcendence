@@ -1,3 +1,5 @@
+import { updateContent } from "../../utils/i18n.js";
+
 const Logout = {
   render: async () => {
     try {
@@ -12,6 +14,8 @@ const Logout = {
   },
 
   after_render: async () => {
+    updateContent();
+
     const logoutButton = document.getElementById("navbar:logout");
     if (logoutButton) {
       logoutButton.setAttribute("href", "#/login");

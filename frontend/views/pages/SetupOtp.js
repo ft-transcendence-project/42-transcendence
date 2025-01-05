@@ -1,3 +1,5 @@
+import { updateContent } from "../../utils/i18n.js";
+
 const SetupOtp = {
   render: async () => {
     const template = await fetch("/views/templates/SetupOtp.html").then(
@@ -32,6 +34,8 @@ const SetupOtp = {
   },
 
   after_render: async () => {
+    updateContent();
+
     document
       .getElementById("setup-otp-form")
       .addEventListener("submit", async (e) => {
