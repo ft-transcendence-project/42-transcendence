@@ -94,7 +94,7 @@ const Gameplay = {
 
             if (sessionStorage.getItem("isTournament") === "true") {
                 try {
-                    const response = await fetch(`${window.env.BACKEND_HOST}/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`);
+                    const response = await fetch(`${window.env.TOURNAMENT_HOST}/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`);
     
                     if (!response.ok) {
                         const errorData = await response.json();
@@ -115,7 +115,7 @@ const Gameplay = {
                         currentMatch.winner = winner;
 						console.log("currentMatch", currentMatch);
 
-                        const postResponse = await fetch(`${window.env.BACKEND_HOST}/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`, {
+                        const postResponse = await fetch(`${window.env.TOURNAMENT_HOST}/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`, {
                             method: "PUT",
                             headers: {
                                 "Content-Type": "application/json",

@@ -182,9 +182,30 @@ class PongLogic(AsyncWebsocketConsumer):
             ):
                 self.pong_info.score.left += 1
                 self.pong_info.state = "stop"
+                if self.pong_info.score.left >= 15:
+                    await self.send_game_over("left")
             elif self.pong_info.ball.x + self.pong_info.ball.radius < 0:
                 self.pong_info.score.right += 1
                 self.pong_info.state = "stop"
+                if self.pong_info.score.right >= 15:
+                    await self.send_game_over("right")
+
+    async def send_game_over(self, winner):
+        setting_id = self.scope["url_route"]["kwargs"]["settingid"]
+        pong_info = self.pong_info_map[setting_id]
+        response_message = {
+            "type": "game_over",
+            "winner": winner,
+            "left_score": self.pong_info.score.left,
+            "right_score": self.pong_info.score.right
+        }
+        await self.channel_layer.group_send(
+            pong_info.group_name,
+            {
+                "type": "send_message",
+                "content": response_message,
+            },
+        )
 
     async def connect(self):
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
