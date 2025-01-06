@@ -20,7 +20,7 @@ const VerifyOtp = {
         const user = sessionStorage.getItem("user");
         const otp_token = document.getElementById("id_otp_token").value;
         const response = await fetch(
-          `${window.env.BACKEND_HOST}/accounts/api/verify-otp/`,
+          `${window.env.ACCOUNT_HOST}/accounts/api/verify-otp/`,
           {
             method: "POST",
             headers: {
