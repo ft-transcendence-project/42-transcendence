@@ -14,6 +14,8 @@ logger = logging.getLogger('ponglogic')
 # from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
 # from websocket.serializers import GameStateSerializer
 
+SCORE_TO_WIN = 15
+
 class PongLogic(AsyncWebsocketConsumer):
     pong_info_map = {}
 
@@ -31,7 +33,7 @@ class PongLogic(AsyncWebsocketConsumer):
             logger.error(f"Error retrieving for GameSetting: {e}")
         await self.send_pong_data(True)
         turn_count = 0
-        while self.pong_info.score.left < 15 and self.pong_info.score.right < 15:
+        while self.pong_info.score.left < SCORE_TO_WIN and self.pong_info.score.right < SCORE_TO_WIN:
             async with self.pong_info.lock:
                 if self.pong_info.state == "stop":
                     self.pong_info.ball.reset(turn_count)
@@ -72,12 +74,12 @@ class PongLogic(AsyncWebsocketConsumer):
             ):
                 self.pong_info.score.left += 1
                 self.pong_info.state = "stop"
-                if self.pong_info.score.left >= 15:
+                if self.pong_info.score.left >= SCORE_TO_WIN:
                     await self.send_game_over_message("left")
             elif self.pong_info.ball.x + self.pong_info.ball.radius < 0:
                 self.pong_info.score.right += 1
                 self.pong_info.state = "stop"
-                if self.pong_info.score.right >= 15:
+                if self.pong_info.score.right >= SCORE_TO_WIN:
                     await self.send_game_over_message("right")
 
     async def connect(self):
@@ -111,22 +113,22 @@ class PongLogic(AsyncWebsocketConsumer):
 
         if key == "D" and action == "pressed":
             if (
-                pong_info.paddle.left_y + 3
+                pong_info.paddle.left_y + pong_info.paddle.velocity
                 <= pong_info.game_window.height - pong_info.paddle.height
             ):
-                pong_info.paddle.left_y += 3
+                pong_info.paddle.left_y += pong_info.paddle.velocity
         elif key == "E" and action == "pressed":
-            if pong_info.paddle.left_y - 3 >= 0:
-                pong_info.paddle.left_y -= 3
+            if pong_info.paddle.left_y - pong_info.paddle.velocity >= 0:
+                pong_info.paddle.left_y -= pong_info.paddle.velocity
         elif key == "K" and action == "pressed":
             if (
-                pong_info.paddle.right_y + 3
+                pong_info.paddle.right_y + pong_info.paddle.velocity
                 <= pong_info.game_window.height - pong_info.paddle.height
             ):
-                pong_info.paddle.right_y += 3
+                pong_info.paddle.right_y += pong_info.paddle.velocity
         elif key == "I" and action == "pressed":
-            if pong_info.paddle.right_y - 3 >= 0:
-                pong_info.paddle.right_y -= 3
+            if pong_info.paddle.right_y - pong_info.paddle.velocity >= 0:
+                pong_info.paddle.right_y -= pong_info.paddle.velocity
 
         if pong_info.state == "stop":
             await self.send_pong_data()
