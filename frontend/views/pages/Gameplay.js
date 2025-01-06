@@ -3,7 +3,7 @@ const Gameplay = {
 		return (await fetch("/views/templates/Gameplay.html")).text();
 	},
 
-	keyStates: {
+	isPaddleMoving: {
 		left: false,
 		right: false,
 	},
@@ -183,46 +183,46 @@ const Gameplay = {
 		}
 
 		Gameplay.keydownListener = (event) => {
-			let message = null;
+			let paddle_instruction = null;
 			if (event.key === "D" || event.key === "d") {
-				message = { key: "D", action: "pressed", paddle: "left" };
+				paddle_instruction = { move_direction: "down", action: "start", side: "left" };
 			} else if (event.key === "E" || event.key === "e") {
-				message = { key: "E", action: "pressed", paddle: "left" };
+				paddle_instruction = { move_direction: "up", action: "start", side: "left" };
 			} else if (event.key === "I" || event.key === "i") {
-				message = { key: "I", action: "pressed", paddle: "right" };
+				paddle_instruction = { move_direction: "up", action: "start", side: "right" };
 			} else if (event.key === "K" || event.key === "k") {
-				message = { key: "K", action: "pressed", paddle: "right" };
+				paddle_instruction = { move_direction: "down", action: "start", side: "right" };
 			}
 		
-			if (message && message.paddle === "left" && !Gameplay.keyStates.left) {
-				Gameplay.keyStates.left = true;
-				Gameplay.leftInterval = setInterval(function () {
-					sendMessage(message);
-				}, 1);
+			if (paddle_instruction && paddle_instruction.side === "left" && !Gameplay.isPaddleMoving.left) {
+				Gameplay.isPaddleMoving.left = true;
+				sendMessage(paddle_instruction);
 			}
-			if (message && message.paddle === "right" && !Gameplay.keyStates.right) {
-				Gameplay.keyStates.right = true;
-				Gameplay.rightInterval = setInterval(function () {
-					sendMessage(message);
-				}, 1);
+			if (paddle_instruction && paddle_instruction.side === "right" && !Gameplay.isPaddleMoving.right) {
+				Gameplay.isPaddleMoving.right = true;
+				sendMessage(paddle_instruction);
 			}
 		};
+
 		Gameplay.keyupListener = (event) => {
-			if ( event.key === "E" ||
-				event.key === "e" ||
-				event.key === "D" ||
-				event.key === "d" )
-			{
-				clearInterval(Gameplay.leftInterval); // メッセージ送信の間隔を止める
-				Gameplay.keyStates.left = false;
+			let paddle_instruction = null;
+			if (event.key === "D" || event.key === "d") {
+				paddle_instruction = { move_direction: "down", action: "stop", side: "left" };
+			} else if (event.key === "E" || event.key === "e") {
+				paddle_instruction = { move_direction: "up", action: "stop", side: "left" };
+			} else if (event.key === "I" || event.key === "i") {
+				paddle_instruction = { move_direction: "up", action: "stop", side: "right" };
+			} else if (event.key === "K" || event.key === "k") {
+				paddle_instruction = { move_direction: "down", action: "stop", side: "right" };
 			}
-			else if ( event.key === "I" ||
-				event.key === "i" ||
-				event.key === "K" ||
-				event.key === "k" )
-			{
-				clearInterval(Gameplay.rightInterval); // メッセージ送信の間隔を止める
-				Gameplay.keyStates.right = false;
+		
+			if (paddle_instruction && paddle_instruction.side === "left" && Gameplay.isPaddleMoving.left) {
+				Gameplay.isPaddleMoving.left = false;
+				sendMessage(paddle_instruction);
+			}
+			if (paddle_instruction && paddle_instruction.side === "right" && Gameplay.isPaddleMoving.right) {
+				Gameplay.isPaddleMoving.right = false;
+				sendMessage(paddle_instruction);
 			}
 		};
 
