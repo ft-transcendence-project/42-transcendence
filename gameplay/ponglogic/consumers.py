@@ -54,90 +54,10 @@ class PongLogic(AsyncWebsocketConsumer):
                 "x": self.pong_info.ball.velocity * math.cos(self.pong_info.ball.angle),
                 "y": self.pong_info.ball.velocity * math.sin(self.pong_info.ball.angle),
             }
-            # 上下の壁衝突判定
-            if (
-                Utils.has_collided_with_wall(self.pong_info.ball, self.pong_info.game_window)
-                == True
-            ):
-                ball_velocity["y"] *= -1
-                self.pong_info.ball.angle = 2 * math.pi - self.pong_info.ball.angle
-                self.pong_info.ball.angle = Utils.normalize_angle(self.pong_info.ball.angle)
-                self.pong_info.ball.set_direction()
 
-            # 左パドル衝突判定
-            if (
-                Utils.has_collided_with_paddle_left(
-                    self.pong_info.ball, self.pong_info.paddle
-                )
-                == True
-            ):
-                is_left = True
-                # 左パドル上部の衝突判定
-                if (
-                    Utils.has_collided_with_paddle_top(
-                        self.pong_info.ball, self.pong_info.paddle, is_left
-                    )
-                    == True
-                ):
-                    is_top = True
-                else:
-                    is_top = False
-                Utils.update_ball_angle(
-                    self.pong_info.ball, self.pong_info.paddle, is_left, is_top
-                )
-                ball_velocity["x"], ball_velocity["y"] = Utils.update_ball_velocity(
-                    is_top, ball_velocity
-                )
-            # 右パドル衝突判定
-            elif (
-                Utils.has_collided_with_paddle_right(
-                    self.pong_info.ball, self.pong_info.paddle, self.pong_info.game_window
-                )
-                == True
-            ):
-                is_left = False
-                # 右パドル上部衝突判定
-                if (
-                    Utils.has_collided_with_paddle_top(
-                        self.pong_info.ball, self.pong_info.paddle, is_left
-                    )
-                    == True
-                ):
-                    is_top = True
-                else:
-                    is_top = False
-                Utils.update_ball_angle(
-                    self.pong_info.ball, self.pong_info.paddle, is_left, is_top
-                )
-                ball_velocity["x"], ball_velocity["y"] = Utils.update_ball_velocity(
-                    is_top, ball_velocity
-                )
-
-            # 障害物衝突判定
-            if (self.pong_info.is_obstacle_exist == True):
-                if (
-                    Utils.has_collided_with_obstacles_top_or_bottom(self.pong_info.ball, self.pong_info.obstacle1)
-                    == True
-                    or
-                    Utils.has_collided_with_obstacles_top_or_bottom(self.pong_info.ball, self.pong_info.obstacle2)
-                    == True
-                ):
-                    ball_velocity["y"] *= -1
-                    self.pong_info.ball.angle = 2 * math.pi - self.pong_info.ball.angle
-                    self.pong_info.ball.angle = Utils.normalize_angle(self.pong_info.ball.angle)
-                    self.pong_info.ball.set_direction()
-                if (
-                    Utils.has_collided_with_obstacles_left_or_right(self.pong_info.ball, self.pong_info.obstacle1)
-                    == True
-                    or
-                    Utils.has_collided_with_obstacles_left_or_right(self.pong_info.ball, self.pong_info.obstacle2)
-                    == True
-                ):
-                    ball_velocity["x"] *= -1
-                    self.pong_info.ball.angle = math.pi - self.pong_info.ball.angle
-                    self.pong_info.ball.angle = Utils.normalize_angle(self.pong_info.ball.angle)
-                    self.pong_info.ball.set_direction()
-
+            Utils.walls_collision(ball_velocity, self.pong_info)
+            Utils.paddles_collision(ball_velocity, self.pong_info)
+            Utils.obstacles_collision(ball_velocity, self.pong_info)
             self.pong_info.ball.angle = Utils.normalize_angle(self.pong_info.ball.angle)
             self.pong_info.ball.set_direction()
             Utils.adjust_ball_position(
