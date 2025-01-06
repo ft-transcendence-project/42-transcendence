@@ -52,11 +52,11 @@ class PongLogic(AsyncWebsocketConsumer):
 
     async def update_pos(self):
         async with self.pong_info.lock:
+            self.pong_info.paddle.update_position(self.pong_info.game_window)
             ball_velocity = {
                 "x": self.pong_info.ball.velocity * math.cos(self.pong_info.ball.angle),
                 "y": self.pong_info.ball.velocity * math.sin(self.pong_info.ball.angle),
             }
-
             Utils.walls_collision(ball_velocity, self.pong_info)
             Utils.paddles_collision(ball_velocity, self.pong_info)
             Utils.obstacles_collision(ball_velocity, self.pong_info)
@@ -106,13 +106,9 @@ class PongLogic(AsyncWebsocketConsumer):
 
     async def receive(self, text_data=None):
         data = json.loads(text_data)
-        user_input = Utils.extract_to_dict(data)
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
         pong_info = self.pong_info_map[setting_id]
-
-        Utils.apply_user_input_to_paddle(user_input, pong_info)
-        if pong_info.state == "stop":
-            await self.send_pong_data()
+        pong_info.paddle.set_instruction(data)
 
     async def handle_other_message(self, message):
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]

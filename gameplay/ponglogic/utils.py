@@ -355,34 +355,6 @@ class Utils:
             obstacle.velocity *= -1
 
     @staticmethod
-    def extract_to_dict(data):
-        data_dict = {}
-        data_dict["key"] = data.get("key")
-        data_dict["action"] = data.get("action")
-        return data_dict
-
-    @staticmethod
-    def apply_user_input_to_paddle(user_input, pong_info):
-        if user_input["key"] == "D" and user_input["action"] == "pressed":
-            if (
-                pong_info.paddle.left_y + pong_info.paddle.velocity
-                <= pong_info.game_window.height - pong_info.paddle.height
-            ):
-                pong_info.paddle.left_y += pong_info.paddle.velocity
-        elif user_input["key"] == "E" and user_input["action"] == "pressed":
-            if pong_info.paddle.left_y - pong_info.paddle.velocity >= 0:
-                pong_info.paddle.left_y -= pong_info.paddle.velocity
-        elif user_input["key"] == "K" and user_input["action"] == "pressed":
-            if (
-                pong_info.paddle.right_y + pong_info.paddle.velocity
-                <= pong_info.game_window.height - pong_info.paddle.height
-            ):
-                pong_info.paddle.right_y += pong_info.paddle.velocity
-        elif user_input["key"] == "I" and user_input["action"] == "pressed":
-            if pong_info.paddle.right_y - pong_info.paddle.velocity >= 0:
-                pong_info.paddle.right_y -= pong_info.paddle.velocity
-
-    @staticmethod
     def generate_pong_data(pong_info, first):
         pong_data = {
             "id": pong_info.setting_id,
