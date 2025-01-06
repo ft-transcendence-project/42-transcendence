@@ -4,7 +4,7 @@ class Paddle:
         self.height = 120
         self.left_y = 240
         self.right_y = 240
-        self.velocity = 3
+        self.velocity = 13
         self.left_instruction = { "move_direction": "down",
                                  "action": "stop" }
         self.right_instruction = { "move_direction": "down",

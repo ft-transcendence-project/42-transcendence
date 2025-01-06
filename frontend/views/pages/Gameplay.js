@@ -259,7 +259,7 @@ const Gameplay = {
 		}
 
 		let lastUpdateTime = 0;
-		const FPS = 30;
+		const FPS = 60;
 		function update(timestamp) {
 			if (timestamp - lastUpdateTime >= (1000 / FPS)) {
 				lastUpdateTime += (1000 / FPS);
