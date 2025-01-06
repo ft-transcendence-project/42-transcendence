@@ -4,7 +4,6 @@
 
 services:
   account:
-    # todo: env.prodを追加
     volumes: !reset []
     entrypoint: !override "/usr/src/app/entrypoint.sh"
     environment: !override
@@ -13,7 +12,14 @@ services:
     ports: !reset []
 
   gameplay:
-    # todo: env.prodを追加
+    volumes: !reset []
+    entrypoint: !override "/usr/src/app/entrypoint.sh"
+    environment: !override
+      - ENVIRONMENT=production
+    development: !reset []
+    ports: !reset []
+
+  tournament:
     volumes: !reset []
     entrypoint: !override "/usr/src/app/entrypoint.sh"
     environment: !override
@@ -26,9 +32,10 @@ services:
 
   frontend:
     environment: !override
-      - ACCOUNT_HOST=https://localhost:8443/account
-      - GAMEPLAY_HOST=https://localhost:8443/gameplay
+      - ACCOUNT_HOST=https://localhost:8443/42pong.api/account
+      - GAMEPLAY_HOST=https://localhost:8443/42pong.api/gameplay
       - GAMEPLAY_WS_HOST=wss://localhost:8443/gameplay.ws
+      - TOURNAMENT_HOST=https://localhost:8443/42pong.api/tournament
     ports: !reset []
 
   web:
