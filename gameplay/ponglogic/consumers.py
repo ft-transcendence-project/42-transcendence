@@ -3,9 +3,12 @@ from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 import asyncio
 # import random
+import logging
 import math
 from .utils import Utils
 from .pong_info import PongInfo
+
+logger = logging.getLogger('ponglogic')
 
 # from channels.db import database_sync_to_async
 # from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
@@ -27,7 +30,7 @@ class PongLogic(AsyncWebsocketConsumer):
             ball_size_choise = setting.ball_size
             ball_v_choise = setting.ball_velocity
             map_choise = setting.map
-            print(f"map: {map_choise}, ball_size: {ball_size_choise}, ball_v: {ball_v_choise}")
+            logger.info(f"map: {map_choise}, ball_size: {ball_size_choise}, ball_v: {ball_v_choise}")
             if ball_size_choise == "big":
                 self.pong_info.ball.radius = 20
             elif ball_size_choise == "normal":
@@ -49,9 +52,9 @@ class PongLogic(AsyncWebsocketConsumer):
             elif map_choise == "c":
                 self.pong_info.blind.width = 300
                 self.pong_info.blind.height = 600
-            print(f"map: {map_choise}, ball_size: {self.pong_info.ball.radius}, ball_v: {self.pong_info.ball.velocity}")
+            logger.info(f"map: {map_choise}, ball_size: {self.pong_info.ball.radius}, ball_v: {self.pong_info.ball.velocity}")
         except Exception as e:
-            print(f"Error retrieving for GameSetting: {e}")
+            logger.error(f"Error retrieving for GameSetting: {e}")
         await self.send_pos(True)
         while self.pong_info.score.left < 15 and self.pong_info.score.right < 15:
             async with self.pong_info.lock:
@@ -63,8 +66,6 @@ class PongLogic(AsyncWebsocketConsumer):
                     self.pong_info.ball.angle = Utils.normalize_angle(self.pong_info.ball.angle)
                     turn_count += 1
                     Utils.set_direction(self.pong_info.ball)
-                # print("angle: ", self.ball.angle)
-                # print("direction: ", self.ball.direction["facing_up"], self.ball.direction["facing_down"], self.ball.direction["facing_right"], self.ball.direction["facing_left"])
             await self.rendering()
             await self.update_pos()
             await self.check_game_state()
@@ -209,7 +210,7 @@ class PongLogic(AsyncWebsocketConsumer):
 
     async def connect(self):
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
-        print(f"setting_id: {setting_id}")
+        logger.info(f"setting_id: {setting_id}")
         group_name = f"game_{setting_id}"
         self.group_name = group_name
         await self.accept()
@@ -233,7 +234,7 @@ class PongLogic(AsyncWebsocketConsumer):
             try:
                 self.pong_info.task["game_loop"] = asyncio.create_task(self.game_loop())
             except Exception as e:
-                print(f"Error creating game_loop task: {e}")
+                logger.error(f"Error creating game_loop task: {e}")
 
     async def disconnect(self, close_code):
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
@@ -275,8 +276,8 @@ class PongLogic(AsyncWebsocketConsumer):
     async def handle_other_message(self, message):
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
         pong_info = self.pong_info_map[setting_id]
+        logger.info(f"Other message received: {message}")
         # その他のメッセージに対応する処理
-        print(f"Other message received: {message}")
         response_message = {"message": f"Received: {message}"}
         await self.channel_layer.group_send(
             pong_info.group_name,

@@ -182,6 +182,16 @@ LOGGING = {
             "handlers": ["console"],
             "propagate": True,
         },
+        "accounts": {
+            "handlers": ["console", "logstash"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+        "oauth": {
+            "handlers": ["console", "logstash"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
     },
 }
 

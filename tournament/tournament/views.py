@@ -1,3 +1,4 @@
+import logging
 import random
 
 from django.utils import timezone
@@ -8,11 +9,15 @@ from rest_framework.views import APIView
 from .models import Match, Player, Tournament
 from .serializers import MatchDetailSerializer, TournamentDetailSerializer
 
+logger = logging.getLogger("tournament")
+
 
 class TournamentRegisterView(APIView):
     def post(self, request):
+        logger.info("Attempting to create new tournament with players")
         player_names = request.data
         if len(player_names) != 8:
+            logger.error(f"Invalid number of players: {len(player_names)}")
             return Response(
                 {"error": "Require 8 players"}, status=status.HTTP_400_BAD_REQUEST
             )
@@ -38,9 +43,13 @@ class TournamentRegisterView(APIView):
                 )
 
             serializer = TournamentDetailSerializer(tournament)
+            logger.info(
+                f"Successfully created tournament {tournament.id} with {len(players)} players"
+            )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         except Exception as e:
+            logger.error(f"Failed to create tournament: {str(e)}")
             return Response(
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
@@ -48,18 +57,23 @@ class TournamentRegisterView(APIView):
 
 class SaveDataView(APIView):
     def get(self, request, pk=None):
+        logger.info(f"Retrieving tournament data for id: {pk}")
         try:
             latest_tournament = Tournament.objects.get(id=pk)
             serializer = TournamentDetailSerializer(latest_tournament)
+            logger.info(f"Successfully retrieved tournament {pk}")
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Tournament.DoesNotExist:
+            logger.error(f"Tournament not found with id: {pk}")
             return Response(
                 {"error": "No tournament found"}, status=status.HTTP_404_NOT_FOUND
             )
 
     def put(self, request, pk=None):
+        logger.info(f"Updating match data for tournament {pk}")
         match_data = request.data.get("currentMatch")
         if not match_data:
+            logger.error("No match data provided in request")
             return Response(
                 {"error": "No match data provided"}, status=status.HTTP_400_BAD_REQUEST
             )
@@ -87,10 +101,18 @@ class SaveDataView(APIView):
                 round=match.round,
             )
 
+            logger.info(
+                f"Successfully updated match {match.match_number} in tournament {pk}"
+            )
+
             if all(m.winner for m in current_round_matches):
                 if len(current_round_matches) >= 2:
+                    logger.info(f"Creating next round matches for tournament {pk}")
                     self.create_next_matches(pk, current_round_matches, match.round)
                 else:
+                    logger.info(
+                        f"Tournament {pk} completed. Winner: {match.winner.name}"
+                    )
                     tournament = Tournament.objects.get(id=pk)
                     tournament.is_over = True
                     tournament.winner = match.winner
@@ -108,12 +130,16 @@ class SaveDataView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         except Match.DoesNotExist:
+            logger.error(f"Match not found in tournament {pk}")
             return Response(
                 {"error": "Match not found"}, status=status.HTTP_404_NOT_FOUND
             )
 
     def create_next_matches(self, tournament_id, current_round_matches, current_round):
         # (round, match_number) = (1, 1), (1, 2) , ... ,(3, 1)
+        logger.info(
+            f"Creating next round matches for tournament {tournament_id}, round {current_round + 1}"
+        )
         next_match_number = 1
 
         for i in range(0, len(current_round_matches), 2):
