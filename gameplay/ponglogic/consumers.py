@@ -106,30 +106,11 @@ class PongLogic(AsyncWebsocketConsumer):
 
     async def receive(self, text_data=None):
         data = json.loads(text_data)
-        key = data.get("key")
-        action = data.get("action")
+        user_input = Utils.extract_to_dict(data)
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
         pong_info = self.pong_info_map[setting_id]
 
-        if key == "D" and action == "pressed":
-            if (
-                pong_info.paddle.left_y + pong_info.paddle.velocity
-                <= pong_info.game_window.height - pong_info.paddle.height
-            ):
-                pong_info.paddle.left_y += pong_info.paddle.velocity
-        elif key == "E" and action == "pressed":
-            if pong_info.paddle.left_y - pong_info.paddle.velocity >= 0:
-                pong_info.paddle.left_y -= pong_info.paddle.velocity
-        elif key == "K" and action == "pressed":
-            if (
-                pong_info.paddle.right_y + pong_info.paddle.velocity
-                <= pong_info.game_window.height - pong_info.paddle.height
-            ):
-                pong_info.paddle.right_y += pong_info.paddle.velocity
-        elif key == "I" and action == "pressed":
-            if pong_info.paddle.right_y - pong_info.paddle.velocity >= 0:
-                pong_info.paddle.right_y -= pong_info.paddle.velocity
-
+        Utils.apply_user_input_to_paddle(user_input, pong_info)
         if pong_info.state == "stop":
             await self.send_pong_data()
 
