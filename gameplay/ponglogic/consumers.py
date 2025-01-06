@@ -17,7 +17,7 @@ logger = logging.getLogger('ponglogic')
 
 SCORE_TO_WIN = 15
 RESET_DURATION = 2
-FRAME_RATE = 200
+UPDATE_RATE_HZ = 60
 
 class PongLogic(AsyncWebsocketConsumer):
     pong_info_map = {}
@@ -48,13 +48,13 @@ class PongLogic(AsyncWebsocketConsumer):
 
     async def rendering(self):
         await self.send_pong_data()
-        await asyncio.sleep(1 / FRAME_RATE)
+        await asyncio.sleep(1 / UPDATE_RATE_HZ)
         start_time = datetime.now()
         if self.pong_info.state == "stop":
             while (datetime.now() - start_time).total_seconds() < RESET_DURATION:
                 self.pong_info.paddle.update_position(self.pong_info.game_window)
                 await self.send_pong_data()
-                await asyncio.sleep(1 / FRAME_RATE)
+                await asyncio.sleep(1 / UPDATE_RATE_HZ)
             self.pong_info.state = "running"
 
     async def update_pos(self):

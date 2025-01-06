@@ -258,8 +258,13 @@ const Gameplay = {
 			ctx.fillRect(obstacle2.x, obstacle2.y, obstacle2.width, obstacle2.height);
 		}
 
-		function update() {
-			draw();
+		let lastUpdateTime = 0;
+		const FPS = 30;
+		function update(timestamp) {
+			if (timestamp - lastUpdateTime >= (1000 / FPS)) {
+				lastUpdateTime += (1000 / FPS);
+				draw();
+			}
 			animationFrameId = requestAnimationFrame(update);
 		}
 
