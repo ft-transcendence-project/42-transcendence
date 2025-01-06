@@ -5,6 +5,7 @@ import asyncio
 # import random
 import logging
 import math
+from datetime import datetime
 from .utils import Utils
 from .objects.pong_info import PongInfo
 
@@ -15,6 +16,8 @@ logger = logging.getLogger('ponglogic')
 # from websocket.serializers import GameStateSerializer
 
 SCORE_TO_WIN = 15
+RESET_DURATION = 2
+FRAME_RATE = 200
 
 class PongLogic(AsyncWebsocketConsumer):
     pong_info_map = {}
@@ -45,9 +48,13 @@ class PongLogic(AsyncWebsocketConsumer):
 
     async def rendering(self):
         await self.send_pong_data()
-        await asyncio.sleep(0.005)
+        await asyncio.sleep(1 / FRAME_RATE)
+        start_time = datetime.now()
         if self.pong_info.state == "stop":
-            await asyncio.sleep(2)
+            while (datetime.now() - start_time).total_seconds() < RESET_DURATION:
+                self.pong_info.paddle.update_position(self.pong_info.game_window)
+                await self.send_pong_data()
+                await asyncio.sleep(1 / FRAME_RATE)
             self.pong_info.state = "running"
 
     async def update_pos(self):
