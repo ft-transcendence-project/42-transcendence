@@ -287,3 +287,13 @@ class Utils:
                 "blind_height": pong_info.blind.height,
             })
         return pong_data
+    
+    @staticmethod
+    def generate_game_over_message(pong_info, winner):
+        game_over_message = {
+            "type": "game_over",
+            "winner": winner,
+            "left_score": pong_info.score.left,
+            "right_score": pong_info.score.right
+        }
+        return game_over_message
