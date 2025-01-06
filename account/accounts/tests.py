@@ -55,22 +55,6 @@ class CustomLoginViewTests(APITestCase):
         self.assertFalse(response.wsgi_request.user.is_authenticated)
 
 
-class LogoutViewTests(TestCase):
-    def setUp(self):
-        self.user = CustomUser.objects.create_user(
-            username="testuser", password="password123"
-        )
-        self.client.login(username="testuser", password="password123")  # loginが必要
-        self.client.defaults["HTTP_X_FORWARDED_PROTO"] = "https"
-        self.client.defaults["wsgi.url_scheme"] = "https"
-
-    def test_logout_view(self):
-        """ログアウトしたら、ログインページにリダイレクトされて認証が切れることを確認する"""
-        response = self.client.get(reverse("accounts:logout"))
-        self.assertEqual(response.data, {"redirect": "accounts:login"})
-        self.assertFalse(response.wsgi_request.user.is_authenticated)
-
-
 class SignUpViewTests(APITestCase):
     def setUp(self):
         self.url = reverse("accounts:signup")

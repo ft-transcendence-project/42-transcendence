@@ -3,7 +3,7 @@
 # https://docs.docker.com/reference/compose-file/merge/
 
 services:
-  backend:
+  account:
     # todo: env.prodを追加
     volumes: !reset []
     entrypoint: !override "/usr/src/app/entrypoint.sh"
@@ -26,7 +26,7 @@ services:
 
   frontend:
     environment: !override
-      - BACKEND_HOST=https://localhost:8443/backend
+      - ACCOUNT_HOST=https://localhost:8443/account
       - GAMEPLAY_HOST=https://localhost:8443/gameplay
       - GAMEPLAY_WS_HOST=wss://localhost:8443/gameplay.ws
     ports: !reset []
@@ -39,7 +39,7 @@ services:
     ports:
       - "8443:443"
     depends_on:
-      backend:
+      account:
         condition: service_healthy
       gameplay:
         condition: service_healthy

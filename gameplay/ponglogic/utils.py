@@ -1,5 +1,7 @@
 import math
+import logging
 
+logger = logging.getLogger('ponglogic')
 
 class Utils:
     @staticmethod
@@ -7,7 +9,7 @@ class Utils:
         ball_size_choise = game_setting.ball_size
         ball_v_choise = game_setting.ball_velocity
         map_choise = game_setting.map
-        print(f"map: {map_choise}, ball_size: {ball_size_choise}, ball_v: {ball_v_choise}")
+        logger.info(f"map: {map_choise}, ball_size: {ball_size_choise}, ball_v: {ball_v_choise}")
         if ball_size_choise == "big":
             pong_info.ball.radius = 20
         elif ball_size_choise == "normal":
@@ -29,7 +31,7 @@ class Utils:
         elif map_choise == "c":
             pong_info.blind.width = 300
             pong_info.blind.height = 600
-        print(f"map: {map_choise}, ball_size: {pong_info.ball.radius}, ball_v: {pong_info.ball.velocity}")
+        logger.info(f"map: {map_choise}, ball_size: {pong_info.ball.radius}, ball_v: {pong_info.ball.velocity}")
 
     @staticmethod
     def normalize_angle(angle):

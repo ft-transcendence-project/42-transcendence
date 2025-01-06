@@ -33,7 +33,7 @@ const SignUp = {
 
       try {
         const response = await fetch(
-          `${window.env.BACKEND_HOST}/accounts/api/signup/`,
+          `${window.env.ACCOUNT_HOST}/accounts/api/signup/`,
           {
             method: "POST",
             headers: {
