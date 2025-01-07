@@ -112,10 +112,10 @@ class PongLogic(AsyncWebsocketConsumer):
                 del self.pong_info_map[self.pong_info.setting_id]
 
     async def receive(self, text_data=None):
-        data = json.loads(text_data)
+        paddle_instruction = json.loads(text_data)
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
         pong_info = self.pong_info_map[setting_id]
-        pong_info.paddle.set_instruction(data)
+        pong_info.paddle.set_instruction(paddle_instruction)
 
     async def handle_other_message(self, message):
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]

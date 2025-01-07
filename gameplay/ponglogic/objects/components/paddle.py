@@ -1,3 +1,7 @@
+import logging
+
+logger = logging.getLogger('ponglogic')
+
 class Paddle:
     def __init__(self):
         self.width = 15
@@ -9,15 +13,31 @@ class Paddle:
                                  "action": "stop" }
         self.right_instruction = { "move_direction": "down",
                                   "action": "stop" }
+    @staticmethod
+    def is_paddle_instruction_valid(paddle_instruction):
+        side = paddle_instruction.get("side")
+        move_direction = paddle_instruction.get("move_direction")
+        action = paddle_instruction.get("action")
+        if side in ["left", "right"] and move_direction in ["up", "down"] and action in ["start", "stop"]:
+            return True
+        logger.error(f"Invalid paddle instruction: {paddle_instruction}")
+        return False
 
-    def set_instruction(self, data):
-        side = data.get("side")
-        if side == "left":
-            self.left_instruction["move_direction"] = data.get("move_direction")
-            self.left_instruction["action"] = data.get("action")
-        else:
-            self.right_instruction["move_direction"] = data.get("move_direction")
-            self.right_instruction["action"] = data.get("action")
+    def set_instruction(self, paddle_instruction):
+        side = paddle_instruction.get("side")
+        move_direction = paddle_instruction.get("move_direction")
+        action = paddle_instruction.get("action")
+        side = paddle_instruction.get("side")
+        move_direction = paddle_instruction.get("move_direction")
+        action = paddle_instruction.get("action")
+
+        if Paddle.is_paddle_instruction_valid(paddle_instruction) == True:
+            if side == "left":
+                self.left_instruction["move_direction"] = move_direction
+                self.left_instruction["action"] = action
+            else:
+                self.right_instruction["move_direction"] = move_direction
+                self.right_instruction["action"] = action
 
     def update_position(self, game_window):
         if self.left_instruction["action"] == "start":
