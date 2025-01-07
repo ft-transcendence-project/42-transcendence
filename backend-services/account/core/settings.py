@@ -87,7 +87,7 @@ import os
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("POSTGRES_NAME"),
+        "NAME": os.environ.get("ACCOUNT_DB_NAME"),
         "USER": os.environ.get("POSTGRES_USER"),
         "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
         "HOST": os.environ.get("POSTGRES_HOST"),
@@ -133,9 +133,9 @@ USE_TZ = True
 STATIC_URL = "static/"
 
 
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
+# STATICFILES_DIRS = [
+#     BASE_DIR / "static",
+# ]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -169,7 +169,7 @@ LOGGING = {
             "version": 1,  # Version of logstash event schema. Default value: 0 (for backward compatibility of the library)
             "message_type": "django",  # 'type' field in logstash message. Default value: 'logstash'.
             "fqdn": False,  # Fully qualified domain name. Default value: false.
-            "tags": ["django"],  # list of tags. Default: None.
+            "tags": ["account-service", "backend"],  # list of tags. Default: None.
         },
     },
     "loggers": {
