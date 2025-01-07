@@ -12,7 +12,7 @@ const Gameplay = {
 	keydownListener: null,
 	keyupListener: null,
 
-	after_render: async () => {
+	after_render: async () => {	
         const player1 = sessionStorage.getItem("player1");
         if (player1) {
             document.getElementById("player1").textContent = player1;

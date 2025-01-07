@@ -1,13 +1,9 @@
-import { updateContent } from "../../utils/i18n.js";
-
 const Login = {
   render: async () => {
     return (await fetch("/views/templates/Login.html")).text();
   },
 
   after_render: async () => {
-    updateContent();
-
     const loginForm = document.getElementById("login-form");
 
     loginForm.addEventListener("submit", async (event) => {
