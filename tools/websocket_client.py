@@ -6,7 +6,7 @@ import tty
 import termios
 import select
 
-url = "wss://localhost:8443/gameplay.ws/ponglogic/1/"
+base_url = "wss://localhost:8443/gameplay.ws/ponglogic/"
 def print_colored_message(color, message):
     if color == "white":
         print(message)
@@ -122,16 +122,22 @@ def create_ws_app(url, controller):
     )
 
 def main():
+    print_colored_message("green", "Welcome to Pong Game!!!\n")
+    print_colored_message("green", "Please type game id you want to play. ")
+    while (True):
+        game_id = sys.stdin.readline().strip()
+        if game_id.isnumeric():
+            url = base_url + game_id + "/"
+            break
+        else:
+            print_colored_message("red", "Invalid input. Please type a number. ")
+
+    print_colored_message("yellow", f"\nOK. The Game id is \n\n\" ----- " + game_id + " ----- \"\n")
+
     print_colored_message("green", "Which paddle do you want to control?\nType D(Left) or K(Right)")
 
     while (True):
-        fd = sys.stdin.fileno()
-        old_settings = termios.tcgetattr(fd)
-        try:
-            tty.setraw(sys.stdin.fileno())
-            user_input = sys.stdin.read(1)
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        user_input = sys.stdin.readline().strip()
         print(user_input)
         if user_input in ['D', 'd']:
             paddle_side = 'left'
@@ -142,7 +148,7 @@ def main():
         else:
             print_colored_message("red", "Invalid input. Please type D(Left) or K(Right).")
         
-    print_colored_message("green", "\nOK. You control \n\n\" ----- " + ("Left" if paddle_side == "left" else "Right") + " ----- \"\n")
+    print_colored_message("yellow", "\nOK. You control \n\n\" ----- " + ("Left" if paddle_side == "left" else "Right") + " ----- \"\n")
 
     print_colored_message("white", "Connecting to: ")
     print_colored_message("yellow", url + "\n")
