@@ -1,13 +1,9 @@
-import { updateContent } from "../../utils/i18n.js";
-
 const SignUp = {
   render: async () => {
-    return (await fetch("/views/templates/signup.html")).text();
+    return (await fetch("/views/templates/SignUp.html")).text();
   },
 
   after_render: async () => {
-    updateContent();
-
     const signupForm = document.getElementById("signup-form");
 
     signupForm.addEventListener("submit", async (event) => {
@@ -33,7 +29,7 @@ const SignUp = {
 
       try {
         const response = await fetch(
-          `${window.env.BACKEND_HOST}/accounts/api/signup/`,
+          `${window.env.ACCOUNT_HOST}/accounts/api/signup/`,
           {
             method: "POST",
             headers: {

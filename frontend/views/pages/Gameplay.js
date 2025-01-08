@@ -12,7 +12,7 @@ const Gameplay = {
 	keydownListener: null,
 	keyupListener: null,
 
-	after_render: async () => {
+	after_render: async () => {	
         const player1 = sessionStorage.getItem("player1");
         if (player1) {
             document.getElementById("player1").textContent = player1;
@@ -94,7 +94,7 @@ const Gameplay = {
 
             if (sessionStorage.getItem("isTournament") === "true") {
                 try {
-                    const response = await fetch(`${window.env.BACKEND_HOST}/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`);
+                    const response = await fetch(`${window.env.TOURNAMENT_HOST}/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`);
     
                     if (!response.ok) {
                         const errorData = await response.json();
@@ -115,7 +115,7 @@ const Gameplay = {
                         currentMatch.winner = winner;
 						console.log("currentMatch", currentMatch);
 
-                        const postResponse = await fetch(`${window.env.BACKEND_HOST}/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`, {
+                        const postResponse = await fetch(`${window.env.TOURNAMENT_HOST}/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`, {
                             method: "PUT",
                             headers: {
                                 "Content-Type": "application/json",

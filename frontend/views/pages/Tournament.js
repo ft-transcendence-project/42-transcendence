@@ -1,13 +1,9 @@
-import { updateContent } from "../../utils/i18n.js";
-
 const Tournament = {
   render: async () => {
     return (await fetch("/views/templates/Tournament.html")).text();
   },
 
   after_render: async () => {
-    updateContent();
-
     sessionStorage.setItem("isTournament", "true");
     sessionStorage.removeItem("winner");
 
@@ -15,7 +11,7 @@ const Tournament = {
     try {
       const response = await fetch(
         `${
-          window.env.BACKEND_HOST
+          window.env.TOURNAMENT_HOST
         }/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`
       );
 
@@ -53,7 +49,7 @@ const Tournament = {
 
         try {
           const response = await fetch(
-            `${window.env.BACKEND_HOST}/tournament/api/register/`,
+            `${window.env.TOURNAMENT_HOST}/tournament/api/register/`,
             {
               method: "POST",
               headers: {

@@ -3,33 +3,46 @@
 # https://docs.docker.com/reference/compose-file/merge/
 
 services:
-  backend:
-    # todo: env.prodを追加
+  account:
     volumes: !reset []
     entrypoint: !override "/usr/src/app/entrypoint.sh"
     environment: !override
       - ENVIRONMENT=production
     development: !reset []
     ports: !reset []
+    restart: unless-stopped
 
   gameplay:
-    # todo: env.prodを追加
     volumes: !reset []
     entrypoint: !override "/usr/src/app/entrypoint.sh"
     environment: !override
       - ENVIRONMENT=production
     development: !reset []
     ports: !reset []
+    restart: unless-stopped
+
+  tournament:
+    volumes: !reset []
+    entrypoint: !override "/usr/src/app/entrypoint.sh"
+    environment: !override
+      - ENVIRONMENT=production
+    development: !reset []
+    ports: !reset []
+    restart: unless-stopped
 
   db:
-    volumes: !reset []
+    volumes: !override
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
 
   frontend:
     environment: !override
-      - BACKEND_HOST=https://localhost:8443/backend
-      - GAMEPLAY_HOST=https://localhost:8443/gameplay
+      - ACCOUNT_HOST=https://localhost:8443/42pong.api/account
+      - GAMEPLAY_HOST=https://localhost:8443/42pong.api/gameplay
       - GAMEPLAY_WS_HOST=wss://localhost:8443/gameplay.ws
+      - TOURNAMENT_HOST=https://localhost:8443/42pong.api/tournament
     ports: !reset []
+    restart: unless-stopped
 
   web:
     build:
@@ -39,13 +52,14 @@ services:
     ports:
       - "8443:443"
     depends_on:
-      backend:
+      account:
         condition: service_healthy
       gameplay:
         condition: service_healthy
       frontend:
         condition: service_healthy
     command: ["nginx", "-g", "daemon off;"]
+    restart: unless-stopped
 
 include:
   - ./elk/elk-services.yml

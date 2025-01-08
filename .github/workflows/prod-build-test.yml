@@ -1,0 +1,59 @@
+name: prod-build-test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker and Docker Compose
+        # https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository
+        run: |
+          for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done
+
+          sudo apt-get update
+          sudo apt-get install -y ca-certificates curl
+
+          sudo install -m 0755 -d /etc/apt/keyrings
+          sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+          sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+          echo \
+            "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+            $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+            sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+            sudo apt-get update
+
+          sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+      - name: Download wait-for-it.sh
+        run: |
+          curl -o wait-for-it.sh https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh
+          chmod +x wait-for-it.sh
+
+      - name: Build and run Docker Compose
+        run: |
+          mv .env.prod_template .env
+          docker compose -f compose.yaml -f compose.prod.yaml up -d --build
+
+      - name: Wait for services to be healthy
+        run: |
+          ./wait-for-it.sh localhost:8443 --timeout=60 --strict -- echo "Web service is up"
+
+      - name: Run Django tests
+        run: |
+          docker compose -f compose.yaml -f compose.prod.yaml exec -T account python3 /usr/src/app/manage.py test
+          docker compose -f compose.yaml -f compose.prod.yaml exec -T gameplay python3 /usr/src/app/manage.py test
+          docker compose -f compose.yaml -f compose.prod.yaml exec -T tournament python3 /usr/src/app/manage.py test
+
+      - name: Tear down Docker Compose
+        run: |
+          docker compose -f compose.yaml -f compose.prod.yaml down
