@@ -1,0 +1,6 @@
+{
+    "title": "Setup OTP",
+    "show_qr_code": "Scan the QR code with your OTP app:",
+    "enter_secret_key": "Or enter this secret key:",
+    "complete_setup": "Complete Setup"
+}

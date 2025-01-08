@@ -82,7 +82,7 @@ import os
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("POSTGRES_NAME"),
+        "NAME": os.environ.get("TOURNAMENT_DB_NAME"),
         "USER": os.environ.get("POSTGRES_USER"),
         "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
         "HOST": os.environ.get("POSTGRES_HOST"),
@@ -155,7 +155,7 @@ LOGGING = {
             "version": 1,  # Version of logstash event schema. Default value: 0 (for backward compatibility of the library)
             "message_type": "django",  # 'type' field in logstash message. Default value: 'logstash'.
             "fqdn": False,  # Fully qualified domain name. Default value: false.
-            "tags": ["django"],  # list of tags. Default: None.
+            "tags": ["tournament-service", "backend"],  # list of tags. Default: None.
         },
     },
     "loggers": {
@@ -188,6 +188,6 @@ if ENVIRONMENT == "production":
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_SECONDS = 31536000
-    SECURE_REDIRECT_EXEMPT = []
+    SECURE_REDIRECT_EXEMPT = [r'^health/$']
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")

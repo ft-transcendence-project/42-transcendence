@@ -1,0 +1,6 @@
+{
+    "title": "OTP設定",
+    "show_qr_code": "OTPアプリでQRコードをスキャンしてください：",
+    "enter_secret_key": "または、この秘密鍵を入力してください：",
+    "complete_setup": "設定を完了"
+}
