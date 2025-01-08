@@ -1,13 +1,9 @@
-import { updateContent } from "../../utils/i18n.js";
-
 const Login = {
   render: async () => {
     return (await fetch("/views/templates/Login.html")).text();
   },
 
   after_render: async () => {
-    updateContent();
-
     const loginForm = document.getElementById("login-form");
 
     loginForm.addEventListener("submit", async (event) => {
@@ -33,7 +29,7 @@ const Login = {
 
       try {
         const response = await fetch(
-          `${window.env.BACKEND_HOST}/accounts/api/login/`,
+          `${window.env.ACCOUNT_HOST}/accounts/api/login/`,
           {
             method: "POST",
             headers: {
@@ -72,7 +68,7 @@ const Login = {
       .getElementById("oauth-login")
       .addEventListener("click", async (event) => {
         event.preventDefault();
-        window.location.href = `${window.env.BACKEND_HOST}/oauth/`;
+        window.location.href = `${window.env.ACCOUNT_HOST}/oauth/`;
       });
 
     document

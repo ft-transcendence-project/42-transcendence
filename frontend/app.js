@@ -13,6 +13,8 @@ import Tournament from "./views/pages/Tournament.js";
 import Matches from "./views/pages/Matches.js";
 import WinnerPage from "./views/pages/Winner.js";
 
+import { updateContent } from "./utils/i18n.js";
+
 const routes = {
   "/": Home,
   "/login": Login,
@@ -84,6 +86,7 @@ const router = async () => {
 
   body.innerHTML = await page.render();
   await page.after_render();
+  updateContent();
 };
 
 window.addEventListener("hashchange", router);

@@ -1,12 +1,8 @@
-import { updateContent } from "../../utils/i18n.js";
-
 const Home = {
   render: async () => {
-		return (await fetch("/views/templates/Home.html")).text();
+    return (await fetch("/views/templates/Home.html")).text();
   },
-  after_render: async () => {
-    updateContent();
-  },
+  after_render: async () => {},
 };
 
 export default Home;
