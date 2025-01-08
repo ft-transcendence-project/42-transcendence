@@ -1,10 +1,10 @@
 services:
   account:
-    build: ./account
+    build: ./backend-services/account
     container_name: account
     entrypoint: "account/entrypoint.sh"
     volumes:
-      - .:/usr/src/app
+      - ./backend-services:/usr/src/app
     env_file: .env
     environment:
       - ENVIRONMENT=development
@@ -16,7 +16,7 @@ services:
     develop:
       watch:
         - action: rebuild
-          path: ./account/requirements.txt
+          path: ./backend-services/account/requirements.txt
     healthcheck:
       test: ["CMD", "curl", "-f", "localhost:8000/health/"]
       interval: 30s
@@ -25,11 +25,11 @@ services:
       start_period: 30s
 
   gameplay:
-    build: ./gameplay
+    build: ./backend-services/gameplay
     container_name: gameplay
     entrypoint: "gameplay/entrypoint.sh"
     volumes:
-      - .:/usr/src/app
+      - ./backend-services:/usr/src/app
     env_file: .env
     environment:
       - ENVIRONMENT=development
@@ -43,7 +43,7 @@ services:
     develop:
       watch:
         - action: rebuild
-          path: ./gameplay/requirements.txt
+          path: ./backend-services/gameplay/requirements.txt
     healthcheck:
       test: ["CMD", "curl", "-f", "localhost:8001/health/"]
       interval: 30s
@@ -52,25 +52,23 @@ services:
       start_period: 30s
 
   tournament:
-    build: ./tournament
+    build: ./backend-services/tournament
     container_name: tournament
     entrypoint: "tournament/entrypoint.sh"
     volumes:
-      - .:/usr/src/app
+      - ./backend-services:/usr/src/app
     env_file: .env
     environment:
       - ENVIRONMENT=development
     ports:
       - "8002:8002"
     depends_on:
-      redis:
-        condition: service_healthy
       db:
         condition: service_healthy
     develop:
       watch:
         - action: rebuild
-          path: ./tournament/requirements.txt
+          path: ./backend-services/tournament/requirements.txt
     healthcheck:
       test: ["CMD", "curl", "-f", "localhost:8002/health/"]
       interval: 30s
@@ -82,10 +80,15 @@ services:
     image: postgres
     container_name: db
     volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./data/db:/var/lib/postgresql/data
     env_file: .env
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "dbuser", "-d", "djangodb"]
+      test: >
+        /bin/sh -c 'pg_isready -U $${POSTGRES_USER} &&
+        pg_isready -U $${POSTGRES_USER} -d $${ACCOUNT_DB_NAME} &&
+        pg_isready -U $${POSTGRES_USER} -d $${GAMEPLAY_DB_NAME} &&
+        pg_isready -U $${POSTGRES_USER} -d $${TOURNAMENT_DB_NAME}'
       interval: 30s
       timeout: 30s
       retries: 5

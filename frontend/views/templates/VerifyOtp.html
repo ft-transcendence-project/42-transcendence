@@ -1,11 +1,26 @@
-<main class="form-signin d-flex flex-column justify-content-center align-items-center vh-100">
-  <h1>Two-Factor Authentication</h1>
+<main
+  class="form-signin d-flex flex-column justify-content-center align-items-center vh-100"
+>
+  <h1 data-i18n="verifyotp:title">Two-Factor Authentication</h1>
 
   <form id="verify-otp-form" class="needs-validation" novalidate>
     <div class="mb-3">
-      <label for="id_otp_token" class="form-label">Enter OTP Token</label>
-      <input type="text" name="otp_token" id="id_otp_token" class="form-control" required />
+      <label
+        for="id_otp_token"
+        class="form-label"
+        data-i18n="verifyotp:enter_otp"
+        >Enter OTP Token</label
+      >
+      <input
+        type="text"
+        name="otp_token"
+        id="id_otp_token"
+        class="form-control"
+        required
+      />
     </div>
-    <button type="submit" class="btn btn-primary">Verify</button>
+    <button type="submit" class="btn btn-primary" data-i18n="verifyotp:button">
+      Verify
+    </button>
   </form>
 </main>
