@@ -4,7 +4,8 @@ i18next
   .init({
     fallbackLng: 'en', // ブラウザの言語が取得できない場合のデフォルト言語
     debug: false,
-    ns: ['navbar', 'home', 'login', 'signup', 'tournament', 'matches', 'gamesetting'], // 翻訳キーの名前空間
+    ns: ['navbar', 'home', 'login', 'signup', 'tournament', 'matches', 'gamesetting', 
+    'logout', 'setupotp', 'verifyotp', 'gameplay', 'winner'], // 翻訳キーの名前空間
     backend: {
       loadPath: './utils/locales/{{lng}}/{{ns}}.json', // 見つからない場合fallbackLngを参照
     },
@@ -27,8 +28,15 @@ export function updateContent() {
         el.setAttribute(attr, i18next.t(translationKey));
       }
     } else {
-      // 通常のテキスト翻訳
-      el.textContent = i18next.t(key);
+      if (el.children.length > 0) {
+        // 子要素を持つ場合
+        const childElements = Array.from(el.children).map(child => child.outerHTML);
+        const translatedText = i18next.t(key);
+        el.innerHTML = translatedText + childElements.join('');
+      } else {
+        // 通常のテキスト翻訳
+        el.textContent = i18next.t(key);
+      }
     }
   });
 }
