@@ -11,7 +11,7 @@ import time
 import ssl
 # from dotenv import load_dotenv
 import logging
-
+import requests
 
 # fdの端末属性を取得.後でdefaultに戻す
 fd = sys.stdin.fileno()
@@ -46,10 +46,13 @@ async def websocket_communication_loop():
         # logging.basicConfig(level=logging.DEBUG)
         context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
         # 証明書のCN(42pong.com)の検証を無効にする
-        context.check_hostname = False
+        context.check_hostname = True
         # ssl.CERT_REQUIREDにすると[SSL: CERTIFICATE_VERIFY_FAILED]になる
-        context.verify_mode = ssl.CERT_NONE
+        context.verify_mode = ssl.CERT_REQUIRED
         context.load_verify_locations(cert_file_path)
+        # requestsライブラリを使用してHTTPSリクエストを送信
+        # response = requests.get('https://localhost:8443', verify=cert_file_path)
+        # print(response.text)
         input_uri = input("Enter WebSocket server URI > ")
 
         # async withブロックを抜けると、接続が自動的に閉じる。
