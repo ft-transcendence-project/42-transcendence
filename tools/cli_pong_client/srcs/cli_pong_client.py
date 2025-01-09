@@ -19,6 +19,8 @@ class PaddleControl:
         self.url = ""
         self.running = True
         self.paddle_side = ""
+        self.down_key = ""
+        self.up_key = ""
         self.threads = []  # アクティブなスレッドを追跡
         
     def get_key(self):
@@ -39,7 +41,7 @@ class PaddleControl:
             # print(key)
 
             if key == '':
-                self.send_delayed_message(ws, 'down', 'stop', 'left')
+                self.send_delayed_message(ws, 'down', 'stop', self.paddle_side)
 
             # 終了条件
             if key == 'q':
@@ -47,25 +49,21 @@ class PaddleControl:
                 ws.close()
                 break
 
-            if self.paddle_side == 'left':
-                if key in ['d']:
-                    self.send_delayed_message(ws, 'down', 'start', 'left')
-    
-                if key in ['e']:
-                    self.send_delayed_message(ws, 'up', 'start', 'left')
+            if key == self.down_key:
+                self.send_delayed_message(ws, 'down', 'start', self.paddle_side)
 
-            if self.paddle_side == 'right':
-                if key in ['k']:
-                    self.send_delayed_message(ws, 'down', 'start', 'right')
-    
-                if key in ['i']:
-                    self.send_delayed_message(ws, 'up', 'start', 'right')
+            if key == self.up_key:
+                self.send_delayed_message(ws, 'up', 'start', self.paddle_side)
 
     def start(self, ws):
         if self.paddle_side == 'left':
             Utils.print_colored_message("white", "Controls: D - down, E - up, Q - Quit")
+            self.down_key = 'd'
+            self.up_key = 'e'
         elif self.paddle_side == 'right':
             Utils.print_colored_message("white", "Controls: K - down, I - up, Q - Quit")
+            self.down_key = 'k'
+            self.up_key = 'i'
         try:
             self.handle_input(ws)
         except KeyboardInterrupt:
