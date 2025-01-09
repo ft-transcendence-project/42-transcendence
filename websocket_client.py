@@ -13,22 +13,30 @@ import ssl
 import logging
 import subprocess
 
-def verify_certificate():
+# Dockerコンテナから証明書を取得し、それを使用してSSLコンテキストを生成。
+def verify_certificate() -> ssl.SSLContext:
     try:
-        subprocess.run(['docker', 'cp', "web:/etc/ssl/certs/cert.pem", "."], check=True)
-        # cert.pemファイルのパスを指定
-        cert_file_path = './cert.pem'
-        # logging.basicConfig(level=logging.DEBUG)
+        subprocess.run(["docker", "cp", "web:/etc/ssl/certs/cert.pem", "."], check=True)
+        cert_file_path = "./cert.pem"
         context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
-        # 証明書のCN(42pong.com)の検証を無効にする
         context.check_hostname = True
-        # ssl.CERT_REQUIREDにすると[SSL: CERTIFICATE_VERIFY_FAILED]になる
         context.verify_mode = ssl.CERT_REQUIRED
-        context.load_verify_locations(cert_file_path)
+        try:
+            context.load_verify_locations(cert_file_path)
+        except ssl.SSLError as e:
+            print(f"load_verify_locations failed: {e}")
+            return None
         return context
+    # check=Trueの時にCalledProcessErrorが発生する
+    except subprocess.CalledProcessError as e:
+        print(f"Docker cp failed: {e}")
+        return None
     except Exception as e:
         print(f"Error sending message: {e}")
-
+        return None
+    finally:
+        if os.path.exists(cert_file_path):
+            os.remove(cert_file_path)
 
 # fdの端末属性を取得.後でdefaultに戻す
 fd = sys.stdin.fileno()
@@ -54,11 +62,11 @@ def read_key_nonblocking():
 
 async def websocket_communication_loop():
     try:
+        input_uri = input("Enter WebSocket server URI > ")
         context = verify_certificate()
         if context is None:
             print("Error: Certificate verification failed")
             return
-        input_uri = input("Enter WebSocket server URI > ")
         # async withブロックを抜けると、接続が自動的に閉じる。
         async with websockets.connect(input_uri, ssl=context, ping_interval=30, ping_timeout=120) as websocket:
             print("Connected to WebSocket server.")
