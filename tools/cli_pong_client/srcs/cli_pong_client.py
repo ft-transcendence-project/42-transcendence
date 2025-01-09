@@ -9,7 +9,7 @@ import select
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from utils import Utils
+from .utils import Utils
 
 base_url = "wss://localhost:8443/gameplay.ws/ponglogic/"
 
