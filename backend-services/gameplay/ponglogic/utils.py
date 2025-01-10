@@ -1,27 +1,41 @@
 import math
+import logging
 
+logger = logging.getLogger('ponglogic')
 
 class Utils:
     @staticmethod
-    def normalize_angle(angle):
-        return angle % (2 * math.pi)
+    def set_game_setting(pong_info, game_setting):
+        ball_size_choise = game_setting.ball_size
+        ball_v_choise = game_setting.ball_velocity
+        map_choise = game_setting.map
+        logger.info(f"map: {map_choise}, ball_size: {ball_size_choise}, ball_v: {ball_v_choise}")
+        if ball_size_choise == "big":
+            pong_info.ball.radius = 20
+        elif ball_size_choise == "normal":
+            pong_info.ball.radius = 10
+        elif ball_size_choise == "small":
+            pong_info.ball.radius = 5
+        if ball_v_choise == "fast":
+            pong_info.ball.velocity = 7
+        elif ball_v_choise == "normal":
+            pong_info.ball.velocity = 5
+        elif ball_v_choise == "slow":
+            pong_info.ball.velocity = 3
+        if map_choise == "b":
+            pong_info.is_obstacle_exist = True
+            pong_info.obstacle1.width = 500
+            pong_info.obstacle1.height = 30
+            pong_info.obstacle2.width = 500
+            pong_info.obstacle2.height = 30
+        elif map_choise == "c":
+            pong_info.blind.width = 300
+            pong_info.blind.height = 600
+        logger.info(f"map: {map_choise}, ball_size: {pong_info.ball.radius}, ball_v: {pong_info.ball.velocity}")
 
     @staticmethod
-    def set_direction(ball):
-        if math.pi <= ball.angle and ball.angle <= math.pi * 2:
-            ball.direction["facing_up"] = True
-            ball.direction["facing_down"] = False
-        else:
-            ball.direction["facing_up"] = False
-            ball.direction["facing_down"] = True
-        if (math.pi / 2) <= ball.angle and ball.angle <= (math.pi * 3 / 2):
-            ball.direction["facing_left"] = True
-            ball.direction["facing_right"] = False
-        else:
-            ball.direction["facing_left"] = False
-            ball.direction["facing_right"] = True
-
-        # print("ball.direction_left: ", ball.direction["facing_left"])
+    def normalize_angle(angle):
+        return angle % (2 * math.pi)
 
     @staticmethod
     def has_collided_with_wall(ball, game_window):
@@ -36,6 +50,17 @@ class Utils:
             return True
         else:
             return False
+
+    @staticmethod
+    def walls_collision(ball_velocity, pong_info):
+        if (
+            Utils.has_collided_with_wall(pong_info.ball, pong_info.game_window)
+            == True
+        ):
+            ball_velocity["y"] *= -1
+            pong_info.ball.angle = 2 * math.pi - pong_info.ball.angle
+            pong_info.ball.angle = Utils.normalize_angle(pong_info.ball.angle)
+            pong_info.ball.set_direction()
 
     @staticmethod
     def has_collided_with_paddle_left(ball, paddle):
@@ -101,18 +126,102 @@ class Utils:
                 return True
             else:
                 return False
-            
+
     @staticmethod
-    def has_collided_with_obstacles_top_or_bottom(ball, obstacle):
+    def left_paddle_collision(ball_velocity, pong_info):
+        if (
+            Utils.has_collided_with_paddle_left(
+                pong_info.ball, pong_info.paddle
+            )
+            == True
+        ):
+            is_left = True
+            # 左パドル上部の衝突判定
+            if (
+                Utils.has_collided_with_paddle_top(
+                    pong_info.ball, pong_info.paddle, is_left
+                )
+                == True
+            ):
+                is_top = True
+            else:
+                is_top = False
+            Utils.update_ball_angle(
+                pong_info.ball, pong_info.paddle, is_left, is_top
+            )
+            ball_velocity["x"], ball_velocity["y"] = Utils.update_ball_velocity(
+                is_top, ball_velocity
+            )
+
+    @staticmethod
+    def right_paddle_collision(ball_velocity, pong_info):
+        # 右パドル衝突判定
+        if (
+            Utils.has_collided_with_paddle_right(
+                pong_info.ball, pong_info.paddle, pong_info.game_window
+            )
+            == True
+        ):
+            is_left = False
+            # 右パドル上部衝突判定
+            if (
+                Utils.has_collided_with_paddle_top(
+                    pong_info.ball, pong_info.paddle, is_left
+                )
+                == True
+            ):
+                is_top = True
+            else:
+                is_top = False
+            Utils.update_ball_angle(
+                pong_info.ball, pong_info.paddle, is_left, is_top
+            )
+            ball_velocity["x"], ball_velocity["y"] = Utils.update_ball_velocity(
+                is_top, ball_velocity
+            )
+
+    @staticmethod
+    def paddles_collision(ball_velocity, pong_info):
+        Utils.left_paddle_collision(ball_velocity, pong_info)
+        Utils.right_paddle_collision(ball_velocity, pong_info)
+
+    @staticmethod
+    def has_collided_with_obstacle_top_or_bottom(ball, obstacle):
         if ((ball.x + ball.radius > obstacle.x and ball.x - ball.radius < obstacle.x + obstacle.width)
             and (ball.y + ball.radius == obstacle.y or ball.y - ball.radius == obstacle.y + obstacle.height)):
             return True
         
     @staticmethod
-    def has_collided_with_obstacles_left_or_right(ball, obstacle):
+    def has_collided_with_obstacle_left_or_right(ball, obstacle):
         if ((ball.x + ball.radius == obstacle.x or ball.x - ball.radius == obstacle.x + obstacle.width)
             and ball.y + ball.radius >= obstacle.y and ball.y - ball.radius <= obstacle.y + obstacle.height):
             return True
+
+    @staticmethod
+    def obstacles_collision(ball_velocity, pong_info):
+        if (pong_info.is_obstacle_exist == True):
+            if (
+                Utils.has_collided_with_obstacle_top_or_bottom(pong_info.ball, pong_info.obstacle1)
+                == True
+                or
+                Utils.has_collided_with_obstacle_top_or_bottom(pong_info.ball, pong_info.obstacle2)
+                == True
+            ):
+                ball_velocity["y"] *= -1
+                pong_info.ball.angle = 2 * math.pi - pong_info.ball.angle
+                pong_info.ball.angle = Utils.normalize_angle(pong_info.ball.angle)
+                pong_info.ball.set_direction()
+            if (
+                Utils.has_collided_with_obstacle_left_or_right(pong_info.ball, pong_info.obstacle1)
+                == True
+                or
+                Utils.has_collided_with_obstacle_left_or_right(pong_info.ball, pong_info.obstacle2)
+                == True
+            ):
+                ball_velocity["x"] *= -1
+                pong_info.ball.angle = math.pi - pong_info.ball.angle
+                pong_info.ball.angle = Utils.normalize_angle(pong_info.ball.angle)
+                pong_info.ball.set_direction()
 
     @staticmethod
     def update_ball_angle(ball, paddle, is_left, is_top):
@@ -244,3 +353,70 @@ class Utils:
             obstacle.y += obstacle.velocity
         else:
             obstacle.velocity *= -1
+
+    @staticmethod
+    def extract_to_dict(data):
+        data_dict = {}
+        data_dict["key"] = data.get("key")
+        data_dict["action"] = data.get("action")
+        return data_dict
+
+    @staticmethod
+    def apply_user_input_to_paddle(user_input, pong_info):
+        if user_input["key"] == "D" and user_input["action"] == "pressed":
+            if (
+                pong_info.paddle.left_y + pong_info.paddle.velocity
+                <= pong_info.game_window.height - pong_info.paddle.height
+            ):
+                pong_info.paddle.left_y += pong_info.paddle.velocity
+        elif user_input["key"] == "E" and user_input["action"] == "pressed":
+            if pong_info.paddle.left_y - pong_info.paddle.velocity >= 0:
+                pong_info.paddle.left_y -= pong_info.paddle.velocity
+        elif user_input["key"] == "K" and user_input["action"] == "pressed":
+            if (
+                pong_info.paddle.right_y + pong_info.paddle.velocity
+                <= pong_info.game_window.height - pong_info.paddle.height
+            ):
+                pong_info.paddle.right_y += pong_info.paddle.velocity
+        elif user_input["key"] == "I" and user_input["action"] == "pressed":
+            if pong_info.paddle.right_y - pong_info.paddle.velocity >= 0:
+                pong_info.paddle.right_y -= pong_info.paddle.velocity
+
+    @staticmethod
+    def generate_pong_data(pong_info, first):
+        pong_data = {
+            "id": pong_info.setting_id,
+            "left_paddle_y": pong_info.paddle.left_y,
+            "right_paddle_y": pong_info.paddle.right_y,
+            "ball_x": pong_info.ball.x,
+            "ball_y": pong_info.ball.y,
+            "ball_radius": pong_info.ball.radius,
+            "left_score": pong_info.score.left,
+            "right_score": pong_info.score.right,
+        }
+        if (first):
+            pong_data.update({
+                "obstacle1_x": pong_info.obstacle1.x,
+                "obstacle1_y": pong_info.obstacle1.y,
+                "obstacle1_width": pong_info.obstacle1.width,
+                "obstacle1_height": pong_info.obstacle1.height,
+                "obstacle2_x": pong_info.obstacle2.x,
+                "obstacle2_y": pong_info.obstacle2.y,
+                "obstacle2_width": pong_info.obstacle2.width,
+                "obstacle2_height": pong_info.obstacle2.height,
+                "blind_x": pong_info.blind.x,
+                "blind_y": pong_info.blind.y,
+                "blind_width": pong_info.blind.width,
+                "blind_height": pong_info.blind.height,
+            })
+        return pong_data
+    
+    @staticmethod
+    def generate_game_over_message(pong_info, winner):
+        game_over_message = {
+            "type": "game_over",
+            "winner": winner,
+            "left_score": pong_info.score.left,
+            "right_score": pong_info.score.right
+        }
+        return game_over_message
