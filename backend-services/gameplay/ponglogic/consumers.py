@@ -6,13 +6,15 @@ import asyncio
 import logging
 import math
 from .utils import Utils
-from .pong_info import PongInfo
+from .objects.pong_info import PongInfo
 
 logger = logging.getLogger('ponglogic')
 
 # from channels.db import database_sync_to_async
 # from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
 # from websocket.serializers import GameStateSerializer
+
+SCORE_TO_WIN = 15
 
 class PongLogic(AsyncWebsocketConsumer):
     pong_info_map = {}
@@ -23,56 +25,26 @@ class PongLogic(AsyncWebsocketConsumer):
 
     # PongLogic
     async def game_loop(self):
-        turn_count = 0
         try:
             from gamesetting.models import GameSetting
-            setting = await sync_to_async(GameSetting.objects.get)(id=self.pong_info.setting_id)
-            ball_size_choise = setting.ball_size
-            ball_v_choise = setting.ball_velocity
-            map_choise = setting.map
-            logger.info(f"map: {map_choise}, ball_size: {ball_size_choise}, ball_v: {ball_v_choise}")
-            if ball_size_choise == "big":
-                self.pong_info.ball.radius = 20
-            elif ball_size_choise == "normal":
-                self.pong_info.ball.radius = 10
-            elif ball_size_choise == "small":
-                self.pong_info.ball.radius = 5
-            if ball_v_choise == "fast":
-                self.pong_info.ball.velocity = 7
-            elif ball_v_choise == "normal":
-                self.pong_info.ball.velocity = 5
-            elif ball_v_choise == "slow":
-                self.pong_info.ball.velocity = 3
-            if map_choise == "b":
-                self.pong_info.obstacle_exist = True
-                self.pong_info.obstacle1.width = 500
-                self.pong_info.obstacle1.height = 30
-                self.pong_info.obstacle2.width = 500
-                self.pong_info.obstacle2.height = 30
-            elif map_choise == "c":
-                self.pong_info.blind.width = 300
-                self.pong_info.blind.height = 600
-            logger.info(f"map: {map_choise}, ball_size: {self.pong_info.ball.radius}, ball_v: {self.pong_info.ball.velocity}")
+            game_setting = await sync_to_async(GameSetting.objects.get)(id=self.pong_info.setting_id)
+            Utils.set_game_setting(self.pong_info, game_setting)
         except Exception as e:
             logger.error(f"Error retrieving for GameSetting: {e}")
-        await self.send_pos(True)
-        while self.pong_info.score.left < 15 and self.pong_info.score.right < 15:
+        await self.send_pong_data(True)
+        turn_count = 0
+        while self.pong_info.score.left < SCORE_TO_WIN and self.pong_info.score.right < SCORE_TO_WIN:
             async with self.pong_info.lock:
                 if self.pong_info.state == "stop":
-                    self.pong_info.reset_ball_position()
-                    self.pong_info.reset_ball_angle()
-                    if turn_count % 2 == 0:
-                        self.pong_info.ball.angle += math.pi
-                    self.pong_info.ball.angle = Utils.normalize_angle(self.pong_info.ball.angle)
+                    self.pong_info.ball.reset(turn_count)
                     turn_count += 1
-                    Utils.set_direction(self.pong_info.ball)
             await self.rendering()
             await self.update_pos()
             await self.check_game_state()
-        await self.send_pos()
+        await self.send_pong_data()
 
     async def rendering(self):
-        await self.send_pos()
+        await self.send_pong_data()
         await asyncio.sleep(0.005)
         if self.pong_info.state == "stop":
             await asyncio.sleep(2)
@@ -80,99 +52,18 @@ class PongLogic(AsyncWebsocketConsumer):
 
     async def update_pos(self):
         async with self.pong_info.lock:
-            # self.ball.angle = math.pi / 3 #test用
-            velocity = {
+            ball_velocity = {
                 "x": self.pong_info.ball.velocity * math.cos(self.pong_info.ball.angle),
                 "y": self.pong_info.ball.velocity * math.sin(self.pong_info.ball.angle),
             }
-            # 上下の壁衝突判定
-            if (
-                Utils.has_collided_with_wall(self.pong_info.ball, self.pong_info.game_window)
-                == True
-            ):
-                velocity["y"] *= -1
-                self.pong_info.ball.angle = 2 * math.pi - self.pong_info.ball.angle
-                self.pong_info.ball.angle = Utils.normalize_angle(self.pong_info.ball.angle)
-                Utils.set_direction(self.pong_info.ball)
 
-            # 左パドル衝突判定
-            if (
-                Utils.has_collided_with_paddle_left(
-                    self.pong_info.ball, self.pong_info.paddle
-                )
-                == True
-            ):
-                is_left = True
-                # 左パドル上部の衝突判定
-                if (
-                    Utils.has_collided_with_paddle_top(
-                        self.pong_info.ball, self.pong_info.paddle, is_left
-                    )
-                    == True
-                ):
-                    is_top = True
-                else:
-                    is_top = False
-                Utils.update_ball_angle(
-                    self.pong_info.ball, self.pong_info.paddle, is_left, is_top
-                )
-                velocity["x"], velocity["y"] = Utils.update_ball_velocity(
-                    is_top, velocity
-                )
-            # 右パドル衝突判定
-            elif (
-                Utils.has_collided_with_paddle_right(
-                    self.pong_info.ball, self.pong_info.paddle, self.pong_info.game_window
-                )
-                == True
-            ):
-                is_left = False
-                # 右パドル上部衝突判定
-                if (
-                    Utils.has_collided_with_paddle_top(
-                        self.pong_info.ball, self.pong_info.paddle, is_left
-                    )
-                    == True
-                ):
-                    is_top = True
-                else:
-                    is_top = False
-                Utils.update_ball_angle(
-                    self.pong_info.ball, self.pong_info.paddle, is_left, is_top
-                )
-                velocity["x"], velocity["y"] = Utils.update_ball_velocity(
-                    is_top, velocity
-                )
-
-            # 障害物衝突判定
-            if (self.pong_info.obstacle_exist == True):
-                if (
-                    Utils.has_collided_with_obstacles_top_or_bottom(self.pong_info.ball, self.pong_info.obstacle1)
-                    == True
-                    or
-                    Utils.has_collided_with_obstacles_top_or_bottom(self.pong_info.ball, self.pong_info.obstacle2)
-                    == True
-                ):
-                    velocity["y"] *= -1
-                    self.pong_info.ball.angle = 2 * math.pi - self.pong_info.ball.angle
-                    self.pong_info.ball.angle = Utils.normalize_angle(self.pong_info.ball.angle)
-                    Utils.set_direction(self.pong_info.ball)
-                if (
-                    Utils.has_collided_with_obstacles_left_or_right(self.pong_info.ball, self.pong_info.obstacle1)
-                    == True
-                    or
-                    Utils.has_collided_with_obstacles_left_or_right(self.pong_info.ball, self.pong_info.obstacle2)
-                    == True
-                ):
-                    velocity["x"] *= -1
-                    self.pong_info.ball.angle = math.pi - self.pong_info.ball.angle
-                    self.pong_info.ball.angle = Utils.normalize_angle(self.pong_info.ball.angle)
-                    Utils.set_direction(self.pong_info.ball)
-            
+            Utils.walls_collision(ball_velocity, self.pong_info)
+            Utils.paddles_collision(ball_velocity, self.pong_info)
+            Utils.obstacles_collision(ball_velocity, self.pong_info)
             self.pong_info.ball.angle = Utils.normalize_angle(self.pong_info.ball.angle)
-            Utils.set_direction(self.pong_info.ball)
+            self.pong_info.ball.set_direction()
             Utils.adjust_ball_position(
-                self.pong_info.ball, self.pong_info.paddle, velocity, self.pong_info.game_window, self.pong_info.obstacle_exist, self.pong_info.obstacle1, self.pong_info.obstacle2
+                self.pong_info.ball, self.pong_info.paddle, ball_velocity, self.pong_info.game_window, self.pong_info.is_obstacle_exist, self.pong_info.obstacle1, self.pong_info.obstacle2
             )
 
     async def check_game_state(self):
@@ -183,30 +74,13 @@ class PongLogic(AsyncWebsocketConsumer):
             ):
                 self.pong_info.score.left += 1
                 self.pong_info.state = "stop"
-                if self.pong_info.score.left >= 15:
-                    await self.send_game_over("left")
+                if self.pong_info.score.left >= SCORE_TO_WIN:
+                    await self.send_game_over_message("left")
             elif self.pong_info.ball.x + self.pong_info.ball.radius < 0:
                 self.pong_info.score.right += 1
                 self.pong_info.state = "stop"
-                if self.pong_info.score.right >= 15:
-                    await self.send_game_over("right")
-
-    async def send_game_over(self, winner):
-        setting_id = self.scope["url_route"]["kwargs"]["settingid"]
-        pong_info = self.pong_info_map[setting_id]
-        response_message = {
-            "type": "game_over",
-            "winner": winner,
-            "left_score": self.pong_info.score.left,
-            "right_score": self.pong_info.score.right
-        }
-        await self.channel_layer.group_send(
-            pong_info.group_name,
-            {
-                "type": "send_message",
-                "content": response_message,
-            },
-        )
+                if self.pong_info.score.right >= SCORE_TO_WIN:
+                    await self.send_game_over_message("right")
 
     async def connect(self):
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
@@ -215,22 +89,8 @@ class PongLogic(AsyncWebsocketConsumer):
         self.group_name = group_name
         await self.accept()
         await self.channel_layer.group_add(group_name, self.channel_name)
-        # # channel_layerの全属性を取得
-        # attributes = dir(self.channel_layer)
-        # print("Channel Layer Attributes:")
-        # for attr in attributes:
-        #     try:
-        #         value = getattr(self.channel_layer, attr)
-        #         print(f"{attr}: {value}")
-        #     except:
-        #         print(f"{attr}: <unable to get value>")
-
         if setting_id not in self.pong_info_map:
-            self.pong_info = PongInfo()
-            self.pong_info.setting_id = setting_id
-            self.pong_info.group_name = group_name
-            self.pong_info.channel_name = self.channel_name
-            self.pong_info_map[setting_id] = self.pong_info
+            self.pong_info_map[setting_id] = self.pong_info = PongInfo(setting_id, group_name, self.channel_name)
             try:
                 self.pong_info.task["game_loop"] = asyncio.create_task(self.game_loop())
             except Exception as e:
@@ -246,94 +106,36 @@ class PongLogic(AsyncWebsocketConsumer):
 
     async def receive(self, text_data=None):
         data = json.loads(text_data)
-        key = data.get("key")
-        action = data.get("action")
+        user_input = Utils.extract_to_dict(data)
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
         pong_info = self.pong_info_map[setting_id]
 
-        if key == "D" and action == "pressed":
-            if (
-                pong_info.paddle.left_y + 3
-                <= pong_info.game_window.height - pong_info.paddle.height
-            ):
-                pong_info.paddle.left_y += 3
-        elif key == "E" and action == "pressed":
-            if pong_info.paddle.left_y - 3 >= 0:
-                pong_info.paddle.left_y -= 3
-        elif key == "K" and action == "pressed":
-            if (
-                pong_info.paddle.right_y + 3
-                <= pong_info.game_window.height - pong_info.paddle.height
-            ):
-                pong_info.paddle.right_y += 3
-        elif key == "I" and action == "pressed":
-            if pong_info.paddle.right_y - 3 >= 0:
-                pong_info.paddle.right_y -= 3
-
+        Utils.apply_user_input_to_paddle(user_input, pong_info)
         if pong_info.state == "stop":
-            await self.send_pos()
+            await self.send_pong_data()
 
-    async def handle_other_message(self, message):
+    async def send_pong_data(self, first=False):
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
         pong_info = self.pong_info_map[setting_id]
-        logger.info(f"Other message received: {message}")
-        # その他のメッセージに対応する処理
-        response_message = {"message": f"Received: {message}"}
         await self.channel_layer.group_send(
             pong_info.group_name,
             {
                 "type": "send_message",
-                "content": response_message,
+                "content": Utils.generate_pong_data(pong_info, first),
             },
         )
 
-    async def send_pos(self, first=False):
+    async def send_game_over_message(self, winner):
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
         pong_info = self.pong_info_map[setting_id]
-        if (first):
-            response_message = {
-                "id": pong_info.setting_id,
-                "left_paddle_y": pong_info.paddle.left_y,
-                "right_paddle_y": pong_info.paddle.right_y,
-                "ball_x": pong_info.ball.x,
-                "ball_y": pong_info.ball.y,
-                "ball_radius": pong_info.ball.radius,
-                "obstacle1_x": pong_info.obstacle1.x,
-                "obstacle1_y": pong_info.obstacle1.y,
-                "obstacle1_width": pong_info.obstacle1.width,
-                "obstacle1_height": pong_info.obstacle1.height,
-                "obstacle2_x": pong_info.obstacle2.x,
-                "obstacle2_y": pong_info.obstacle2.y,
-                "obstacle2_width": pong_info.obstacle2.width,
-                "obstacle2_height": pong_info.obstacle2.height,
-                "blind_x": pong_info.blind.x,
-                "blind_y": pong_info.blind.y,
-                "blind_width": pong_info.blind.width,
-                "blind_height": pong_info.blind.height,
-                "left_score": pong_info.score.left,
-                "right_score": pong_info.score.right,
-            }
-        else:
-            response_message = {
-                "id": pong_info.setting_id,
-                "left_paddle_y": pong_info.paddle.left_y,
-                "right_paddle_y": pong_info.paddle.right_y,
-                "ball_x": pong_info.ball.x,
-                "ball_y": pong_info.ball.y,
-                "left_score": pong_info.score.left,
-                "right_score": pong_info.score.right,
-            }
         await self.channel_layer.group_send(
             pong_info.group_name,
             {
                 "type": "send_message",
-                "content": response_message,
+                "content": Utils.generate_game_over_message(pong_info, winner),
             },
         )
 
     async def send_message(self, event):
-        # print("sened_message")
-        # contentの中にある辞書を取り出し
-        message = event["content"]
-        # 辞書をjson型にする
-        await self.send(text_data=json.dumps(message))
+        pong_data = event["content"]
+        await self.send(text_data=json.dumps(pong_data))
