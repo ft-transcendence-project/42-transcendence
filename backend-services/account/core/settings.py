@@ -231,4 +231,3 @@ if ENVIRONMENT == "production":
         "http://frontend:3000",
     ]
     CORS_ALLOW_CREDENTIALS = True
-    WS_URL = "wss://localhost:8443/ws/"
