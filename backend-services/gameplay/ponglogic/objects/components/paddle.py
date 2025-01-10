@@ -27,17 +27,16 @@ class Paddle:
         side = paddle_instruction.get("side")
         move_direction = paddle_instruction.get("move_direction")
         action = paddle_instruction.get("action")
-        side = paddle_instruction.get("side")
-        move_direction = paddle_instruction.get("move_direction")
-        action = paddle_instruction.get("action")
 
-        if Paddle.is_paddle_instruction_valid(paddle_instruction) == True:
-            if side == "left":
-                self.left_instruction["move_direction"] = move_direction
-                self.left_instruction["action"] = action
-            else:
-                self.right_instruction["move_direction"] = move_direction
-                self.right_instruction["action"] = action
+        if Paddle.is_paddle_instruction_valid(paddle_instruction) == False:
+            return
+
+        if side == "left":
+            self.left_instruction["move_direction"] = move_direction
+            self.left_instruction["action"] = action
+        else:
+            self.right_instruction["move_direction"] = move_direction
+            self.right_instruction["action"] = action
 
     def update_position(self, game_window):
         if self.left_instruction["action"] == "start":

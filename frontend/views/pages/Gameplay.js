@@ -13,6 +13,7 @@ const Gameplay = {
 	keyupListener: null,
 
 	after_render: async () => {	
+		const settingId = sessionStorage.getItem('settingId')
         const player1 = sessionStorage.getItem("player1");
         if (player1) {
             document.getElementById("player1").textContent = player1;
@@ -22,7 +23,7 @@ const Gameplay = {
             document.getElementById("player2").textContent = player2;
         }
 
-		console.log("SettingId in Gameplay:", sessionStorage.getItem('settingId'));
+		console.log("SettingId in Gameplay:", settingId);
 		document.getElementById('gameId').innerText = `game id = ${sessionStorage.getItem('settingId')}`;
 		const gameCanvas = document.getElementById('gameCanvas');
 		const ctx = gameCanvas.getContext('2d');
@@ -72,7 +73,7 @@ const Gameplay = {
 		let animationFrameId = null;
 
 		// Websocket
-		const url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${sessionStorage.getItem('settingId')}/`;
+		const url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${settingId}/`;
 		window.ws = new WebSocket(url);
 		console.log(url + " WebSocket created");
 
