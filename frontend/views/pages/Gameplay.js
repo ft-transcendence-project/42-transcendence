@@ -246,11 +246,6 @@ const Gameplay = {
 			ctx.fillRect(paddle.right_x - paddle_w, 0 + paddle.right_y, paddle_w, paddle_h);
 			ctx.fillRect(ball.x - ball.radius, ball.y - ball.radius, 2 * ball.radius, 2 * ball.radius);
 
-			ctx.fillStyle = "white";
-			ctx.font = "50px Arial";
-			ctx.fillText(score.left, center_x - 50, 50);
-			ctx.fillText(score.right, center_x + 50, 50);
-
 			ctx.fillStyle = "red";
 			ctx.fillRect(blind.x, blind.y, blind.width, blind.height);
 
