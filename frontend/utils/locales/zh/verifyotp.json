@@ -1,5 +1,9 @@
 {
     "title": "双重认证",
-    "enter_otp": "请输入验证码",
-    "button": "验证"
+    "enter_otp": "请输入OTP令牌",
+    "button": "验证",
+    "errors": {
+        "unknown": "未知错误",
+        "verify": "OTP验证过程中出现错误。请重试。"
+    }
 }

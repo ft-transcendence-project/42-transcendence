@@ -1,5 +1,9 @@
 {
     "title": "Two-Factor Authentication",
     "enter_otp": "Enter OTP Token",
-    "button": "Verify"
+    "button": "Verify",
+    "errors": {
+        "unknown": "Unknown error",
+        "verify": "An error occurred during OTP verification. Please try again."
+    }
 }

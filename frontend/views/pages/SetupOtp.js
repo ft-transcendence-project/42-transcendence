@@ -66,11 +66,11 @@ const SetupOtp = {
             window.location.hash = "#/";
           } else {
             console.error(await response.json());
-            alert("Otp setup failed");
+            alert(i18next.t("setupotp:errors.setup"));
           }
         } catch (error) {
           console.error("Error ", error);
-          alert("Error  occurred while setting up otp");
+          alert(i18next.t("setupotp:errors.unknown"));
         }
       });
   },
