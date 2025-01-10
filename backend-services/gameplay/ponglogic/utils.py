@@ -11,17 +11,17 @@ class Utils:
         map_choise = game_setting.map
         logger.info(f"map: {map_choise}, ball_size: {ball_size_choise}, ball_v: {ball_v_choise}")
         if ball_size_choise == "big":
-            pong_info.ball.radius = pong_info.ball.big_radius
+            pong_info.ball.radius = pong_info.ball.BIG_RADIUS
         elif ball_size_choise == "normal":
-            pong_info.ball.radius = pong_info.ball.normal_radius
+            pong_info.ball.radius = pong_info.ball.NORMAL_RADIUS
         elif ball_size_choise == "small":
-            pong_info.ball.radius = pong_info.ball.small_radius
+            pong_info.ball.radius = pong_info.ball.SMALL_RADIUS
         if ball_v_choise == "fast":
-            pong_info.ball.velocity = pong_info.ball.fast_velocity
+            pong_info.ball.velocity = pong_info.ball.FAST_VELOCITY
         elif ball_v_choise == "normal":
-            pong_info.ball.velocity = pong_info.ball.normal_velocity
+            pong_info.ball.velocity = pong_info.ball.NORMAL_VELOCITY
         elif ball_v_choise == "slow":
-            pong_info.ball.velocity = pong_info.ball.slow_velocity
+            pong_info.ball.velocity = pong_info.ball.SLOW_VELOCITY
         if map_choise == "b":
             pong_info.is_obstacle_exist = True
             pong_info.obstacle1.width = 500

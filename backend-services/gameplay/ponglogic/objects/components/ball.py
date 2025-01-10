@@ -3,13 +3,13 @@ import random
 from ponglogic.utils import Utils
 
 class Ball:
-    fast_velocity = 15
-    normal_velocity = 10
-    slow_velocity = 8
+    FAST_VELOCITY = 15
+    NORMAL_VELOCITY = 10
+    SLOW_VELOCITY = 8
 
-    big_radius = 20
-    normal_radius = 10
-    small_radius = 5
+    BIG_RADIUS = 20
+    NORMAL_RADIUS = 10
+    SMALL_RADIUS = 5
 
     def __init__(self):
         self.radius = 10
