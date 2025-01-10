@@ -32,7 +32,7 @@ def verify_certificate() -> ssl.SSLContext:
         print(f"Docker cp failed: {e}")
         return None
     except Exception as e:
-        print(f"Error sending message: {e}")
+        print(f"Other errors that occurred within verify_certificate: {e}")
         return None
     finally:
         if os.path.exists(cert_file_path):
