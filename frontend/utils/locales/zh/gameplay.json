@@ -1,4 +1,7 @@
 {
-    "next_game_button": "下一场比赛",
-    "back_home_button": "返回主页"
+    "next_game_button": "进入下一场比赛",
+    "back_home_button": "返回首页",
+    "popup": {
+        "game_over": "游戏结束！获胜者:"
+    }
 }

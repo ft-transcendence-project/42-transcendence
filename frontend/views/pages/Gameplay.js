@@ -133,13 +133,13 @@ const Gameplay = {
                         console.log("Tournament data updated successfully:", responseData);
                         }
 
-                    alert(`Game Over! ${winner} wins!`);
+					alert(`${i18next.t("gameplay:popup.game_over")} ${winner}`);
                     document.getElementById('nextGameButton').style.display = 'block';
                 } catch (error) {
                     console.error("Error updating tournament data:", error);
                 }
             } else {
-                alert(`Game Over! ${winner} wins!`);
+				alert(`${i18next.t("gameplay:popup.game_over")} ${winner}`);
                 document.getElementById('gameOverButton').style.display = 'block';
             }
 		}
