@@ -6,6 +6,7 @@ from accounts.models import CustomUser
 from django.conf import settings
 from django.contrib.auth import login
 from django.shortcuts import redirect
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -36,7 +37,7 @@ def oauth_callback_view(request):
                 "error": error,
                 "error_description": request.GET.get("error_description"),
             },
-            status=400,
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
     if code:
@@ -103,5 +104,5 @@ def oauth_callback_view(request):
             "error": "No code provided",
             "error_description": "Authorization code was not provided or is invalid.",
         },
-        status=400,
+        status=status.HTTP_400_BAD_REQUEST,
     )
