@@ -86,11 +86,10 @@ const Gameplay = {
 
 		async function gameOver(data) {
 			let winner = data.winner;
-			let winner_player;
 			if (winner === "left") {
-				winner_player = sessionStorage.getItem("player1");
+				winner = sessionStorage.getItem("player1")? sessionStorage.getItem("player1") : i18next.t("gameplay:popup.left");
 			} else if (winner === "right") {
-				winner_player = sessionStorage.getItem("player2");
+				winner = sessionStorage.getItem("player2")? sessionStorage.getItem("player2") : i18next.t("gameplay:popup.right");
 			}
 
             if (sessionStorage.getItem("isTournament") === "true") {
@@ -134,7 +133,7 @@ const Gameplay = {
                         console.log("Tournament data updated successfully:", responseData);
                         }
 
-					alert(`${i18next.t("gameplay:popup.game_over")} ${winner_player}`);
+					alert(`${i18next.t("gameplay:popup.game_over")} ${winner}`);
                     document.getElementById('nextGameButton').style.display = 'block';
                 } catch (error) {
                     console.error("Error updating tournament data:", error);

@@ -2,6 +2,8 @@
     "next_game_button": "To the next match",
     "back_home_button": "Back to home",
     "popup": {
-        "game_over": "Game Over! winner:"
+        "game_over": "Game Over! winner:",
+        "left": "left",
+        "right": "right"
     }
 }
