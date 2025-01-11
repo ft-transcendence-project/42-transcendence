@@ -25,11 +25,11 @@ class TournamentContract:
             raise ConnectionError("Failed to connect to Ganache")
 
     # ファイル読み込み関数
-    def load_json_file(self, file_path):
-        if not os.path.exists(file_path):
-            raise FileNotFoundError(f"指定されたファイルが見つかりません: {file_path}")
+    def load_json_file(self, abi_path):
+        if not os.path.exists(abi_path):
+            raise FileNotFoundError(f"指定されたファイルが見つかりません: {abi_path}")
         try:
-            with open(file_path, 'r') as file:
+            with open(abi_path, 'r') as file:
                 return json.load(file)
         except json.JSONDecodeError as e:
             raise ValueError(f"JSONの読み込みに失敗しました: {e}")
