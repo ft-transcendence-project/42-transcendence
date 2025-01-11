@@ -7,5 +7,9 @@
     "player6": "玩家6",
     "player7": "玩家7",
     "player8": "玩家8",
-    "submit": "确定"
+    "submit": "提交",
+    "errors": {
+        "unknown": "未知错误",
+        "register": "锦标赛注册失败。"
+    }
 }

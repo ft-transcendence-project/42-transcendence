@@ -87,9 +87,9 @@ const Gameplay = {
 		async function gameOver(data) {
 			let winner = data.winner;
 			if (winner === "left") {
-				winner = sessionStorage.getItem("player1");
+				winner = sessionStorage.getItem("player1")? sessionStorage.getItem("player1") : i18next.t("gameplay:popup.left");
 			} else if (winner === "right") {
-				winner = sessionStorage.getItem("player2");
+				winner = sessionStorage.getItem("player2")? sessionStorage.getItem("player2") : i18next.t("gameplay:popup.right");
 			}
 
             if (sessionStorage.getItem("isTournament") === "true") {
@@ -133,13 +133,13 @@ const Gameplay = {
                         console.log("Tournament data updated successfully:", responseData);
                         }
 
-                    alert(`Game Over! ${winner} wins!`);
+					alert(`${i18next.t("gameplay:popup.game_over")} ${winner}`);
                     document.getElementById('nextGameButton').style.display = 'block';
                 } catch (error) {
                     console.error("Error updating tournament data:", error);
                 }
             } else {
-                alert(`Game Over! ${winner} wins!`);
+				alert(`${i18next.t("gameplay:popup.game_over")} ${winner}`);
                 document.getElementById('gameOverButton').style.display = 'block';
             }
 		}

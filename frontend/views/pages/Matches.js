@@ -13,7 +13,7 @@ const Matches = {
       await this.handleMatchData(currentMatch, storedData);
     } catch (error) {
       console.error("Error handling tournament data:", error);
-      alert("Failed to load tournament data");
+      alert(i18next.t("matches:errors.load"));
       return (window.location.hash = "#/tournament");
     }
   },
@@ -30,7 +30,7 @@ const Matches = {
 
   async handleMatchData(currentMatch, storedData) {
     if (!storedData) {
-      alert("No tournament data found in database.");
+      alert(i18next.t("matches:errors.load"));
       return (window.location.hash = "#/tournament");
     }
 
@@ -50,7 +50,7 @@ const Matches = {
       sessionStorage.setItem("player1", matchData.player1.name);
       sessionStorage.setItem("player2", matchData.player2.name);
     } else {
-      alert("Player information not found");
+      alert(i18next.t("matches:errors.no_player"));
       return (window.location.hash = "#/tournament");
     }
 

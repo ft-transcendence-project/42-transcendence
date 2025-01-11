@@ -2,5 +2,9 @@
     "title": "Setup OTP",
     "show_qr_code": "Scan the QR code with your OTP app:",
     "enter_secret_key": "Or enter this secret key:",
-    "complete_setup": "Complete Setup"
+    "complete_setup": "Complete Setup",
+    "errors": {
+        "unknown": "Unknown error",
+        "setup": "An error occurred during OTP setup. Please try again."
+    }
 }
