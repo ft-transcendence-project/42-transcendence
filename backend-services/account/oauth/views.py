@@ -6,6 +6,7 @@ from accounts.models import CustomUser
 from django.conf import settings
 from django.contrib.auth import login
 from django.shortcuts import redirect
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -16,7 +17,7 @@ logger = logging.getLogger("oauth")
 def oauth_view(request):
     logger.info("Initiating OAuth authorization flow")
     if settings.DEBUG == False:
-        redirect_url = f"https://api.intra.42.fr/oauth/authorize?client_id={os.environ.get('UID')}&redirect_uri=https://localhost:8443/api/oauth/callback/&response_type=code"
+        redirect_url = f"https://api.intra.42.fr/oauth/authorize?client_id={os.environ.get('UID')}&redirect_uri=https://localhost:8443/42pong.api/account/oauth/callback/&response_type=code"
     else:
         redirect_url = f"https://api.intra.42.fr/oauth/authorize?client_id={os.environ.get('UID')}&redirect_uri=http://localhost:8000/oauth/callback/&response_type=code"
     logger.debug(f"Redirecting to: {redirect_url}")
@@ -36,7 +37,7 @@ def oauth_callback_view(request):
                 "error": error,
                 "error_description": request.GET.get("error_description"),
             },
-            status=400,
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
     if code:
@@ -49,7 +50,7 @@ def oauth_callback_view(request):
                     "client_id": os.environ.get("UID"),
                     "client_secret": os.environ.get("SECRET"),
                     "code": code,
-                    "redirect_uri": "https://localhost:8443/api/oauth/callback/",
+                    "redirect_uri": "https://localhost:8443/42pong.api/account/oauth/callback/",
                 },
             )
         else:
@@ -103,5 +104,5 @@ def oauth_callback_view(request):
             "error": "No code provided",
             "error_description": "Authorization code was not provided or is invalid.",
         },
-        status=400,
+        status=status.HTTP_400_BAD_REQUEST,
     )
