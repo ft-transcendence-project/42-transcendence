@@ -1,0 +1,28 @@
+services:
+  ganache:
+    image: trufflesuite/ganache:latest
+    platform: linux/amd64
+    container_name: ganache
+    ports:
+      - "8545:8545"
+    volumes:
+      - ./ganache/ganache-data:/data
+    environment:
+      MNEMONIC: "${MNEMONIC}"
+    command:
+      - --host
+      - "0.0.0.0"
+      - --mnemonic
+      - "${MNEMONIC}"
+
+
+  truffle:
+    build:
+      context: ./truffle
+      dockerfile: Dockerfile
+    container_name: truffle
+    volumes:
+      - ./truffle:/app
+    depends_on:
+      - ganache
+    command: ["sh", "-c", "truffle migrate --network development && tail -f /dev/null"]  

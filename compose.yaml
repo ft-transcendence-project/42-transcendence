@@ -57,6 +57,7 @@ services:
     entrypoint: "tournament/entrypoint.sh"
     volumes:
       - ./backend-services:/usr/src/app
+      - ./blockchain:/usr/src/app/blockchain
     env_file: .env
     environment:
       - ENVIRONMENT=development

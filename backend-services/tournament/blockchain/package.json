@@ -1,0 +1,16 @@
+{
+    "name": "pong-tournament-blockchain",
+    "version": "1.0.0",
+    "description": "Blockchain backend for Pong Tournament",
+    "main": "truffle-config.js",
+    "scripts": {
+      "test": "truffle test",
+      "compile": "truffle compile",
+      "migrate": "truffle migrate",
+      "ganache": "ganache-cli"
+    },
+    "dependencies": {
+      "@openzeppelin/contracts": "^4.9.0",
+      "@truffle/hdwallet-provider": "^2.1.0"
+    }
+}
