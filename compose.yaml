@@ -77,7 +77,7 @@ services:
       start_period: 30s
 
   db:
-    build: 
+    build:
       context: ./db
       dockerfile: Dockerfile
     volumes:
@@ -95,7 +95,9 @@ services:
       start_period: 30s
 
   frontend:
-    image: node:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: frontend
     working_dir: /usr/src/frontend
     command: /bin/sh -c "npm install && npm run server"
