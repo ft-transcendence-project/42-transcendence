@@ -35,6 +35,8 @@ class PongLogic(AsyncWebsocketConsumer):
         except Exception as e:
             logger.error(f"Error retrieving for GameSetting: {e}")
         await self.send_pong_data(True)
+        while (self.pong_info.is_game_started == False):
+            await asyncio.sleep(1 / UPDATE_RATE_HZ)
         turn_count = 0
         while self.pong_info.score.left < SCORE_TO_WIN and self.pong_info.score.right < SCORE_TO_WIN:
             async with self.pong_info.lock:
@@ -112,10 +114,13 @@ class PongLogic(AsyncWebsocketConsumer):
                 del self.pong_info_map[self.pong_info.setting_id]
 
     async def receive(self, text_data=None):
-        paddle_instruction = json.loads(text_data)
+        pong_data = json.loads(text_data)
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
         pong_info = self.pong_info_map[setting_id]
-        pong_info.paddle.set_instruction(paddle_instruction)
+        if pong_data.get("game_signal", None) == "start":
+            pong_info.is_game_started = True
+        else:
+            pong_info.paddle.set_instruction(pong_data)
 
     async def handle_other_message(self, message):
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
