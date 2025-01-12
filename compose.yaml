@@ -77,10 +77,10 @@ services:
       start_period: 30s
 
   db:
-    image: postgres
-    container_name: db
+    build:
+      context: ./db
+      dockerfile: Dockerfile
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./data/db:/var/lib/postgresql/data
     env_file: .env
     healthcheck:
@@ -95,7 +95,9 @@ services:
       start_period: 30s
 
   frontend:
-    image: node:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: frontend
     working_dir: /usr/src/frontend
     command: /bin/sh -c "npm install && npm run server"
@@ -125,8 +127,6 @@ services:
   redis:
     image: redis
     container_name: redis
-    ports:
-      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "localhost", "ping"]
       interval: 30s
