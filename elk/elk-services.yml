@@ -126,7 +126,7 @@ services:
       - ELASTIC_HOSTS=https://es01:9200
     entrypoint: >
       /bin/bash -c "
-        /usr/local/bin/create_index_pattern.sh &&
+        /usr/local/bin/create_data_view.sh &&
         /usr/local/bin/set_ilm_policy.sh &&
         /usr/local/bin/docker-entrypoint
       "
