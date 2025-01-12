@@ -127,6 +127,7 @@ services:
     entrypoint: >
       /bin/bash -c "
         /usr/local/bin/create_index_pattern.sh &&
+        /usr/local/bin/set_ilm_policy.sh &&
         /usr/local/bin/docker-entrypoint
       "
 
