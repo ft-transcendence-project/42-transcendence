@@ -1,7 +1,7 @@
 ARG STACK_VERSION
 FROM docker.elastic.co/logstash/logstash:${STACK_VERSION}
 COPY logstash.conf /usr/share/logstash/pipeline/logstash.conf
-COPY data-view.json /usr/share/logstash/config/data-view.json
-COPY ilm-policy.json /usr/share/logstash/config/ilm-policy.json
-COPY --chmod=0755 create_data_view.sh /usr/local/bin/create_data_view.sh
-COPY --chmod=0755 set_ilm_policy.sh /usr/local/bin/set_ilm_policy.sh
+COPY data-view/data-view.json /usr/share/logstash/config/data-view.json
+COPY ilm-policy/ilm-policy.json /usr/share/logstash/config/ilm-policy.json
+COPY --chmod=0755 data-view/create_data_view.sh /usr/local/bin/create_data_view.sh
+COPY --chmod=0755 ilm-policy/set_ilm_policy.sh /usr/local/bin/set_ilm_policy.sh
