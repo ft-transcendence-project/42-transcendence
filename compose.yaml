@@ -77,10 +77,10 @@ services:
       start_period: 30s
 
   db:
-    image: postgres
-    container_name: db
+    build: 
+      context: ./db
+      dockerfile: Dockerfile
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./data/db:/var/lib/postgresql/data
     env_file: .env
     healthcheck:
