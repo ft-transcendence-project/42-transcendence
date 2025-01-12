@@ -1,10 +1,13 @@
 services:
   # elasticseach, kibana, logstash用のsslのセットアップ
   setup_elk:
-    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    build:
+      context: ./setup
+      dockerfile: Dockerfile
+      args:
+        STACK_VERSION: ${STACK_VERSION}
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
-      - ./setup_elk.sh:/usr/local/bin/setup_elk.sh
     env_file: ../.env
     user: "0"
     command: ["/bin/bash", "/usr/local/bin/setup_elk.sh"]
@@ -108,10 +111,13 @@ services:
     labels:
       co.elastic.logs/module: logstash
     user: root
+    build:
+      context: ./logstash
+      dockerfile: Dockerfile
+      args:
+        STACK_VERSION: ${STACK_VERSION}
     volumes:
       - certs:/usr/share/logstash/config/certs
-      - "./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro"
-      - "./create_index_pattern.sh:/usr/local/bin/create_index_pattern.sh"
     env_file: ../.env
     environment:
       - xpack.monitoring.enabled=false
