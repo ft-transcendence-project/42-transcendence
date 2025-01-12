@@ -33,9 +33,17 @@ class CustomLoginView(APIView):
             token = generate_jwt(user)
             login(request, user)
             logger.info(f"Login successful for user: {user.username}")
-            return Response(
+            response = Response(
                 {"token": token, "redirect": "homepage"}, status=status.HTTP_200_OK
             )
+            response.set_cookie(
+                key="token",
+                value=token,
+                max_age=86400,
+                secure=True,
+                samesite="Strict",
+            )
+            return response
         logger.warning(f"Login failed with errors: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

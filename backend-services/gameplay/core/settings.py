@@ -203,8 +203,9 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 if ENVIRONMENT == "production":
     DEBUG = False
-    SECRET_KEY = os.getenv("SECRET_KEY")
     CSRF_COOKIE_SECURE = True
+    CSRF_COOKIE_SAMESITE = "Lax"
+    SESSION_COOKIE_SAMESITE = "Lax"
     SESSION_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
@@ -213,3 +214,22 @@ if ENVIRONMENT == "production":
     SECURE_REDIRECT_EXEMPT = [r'^health/$']
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    CORS_ALLOW_ALL_ORIGINS = False
+    CSRF_TRUSTED_ORIGINS = [
+        "https://localhost:8443",
+        "https://127.0.0.1:8443",
+        "http://frontend:3000",
+    ]
+    ALLOWED_HOSTS = [
+        "localhost",
+        "127.0.0.1",
+        "backend",
+        "web",
+        "frontend",
+    ]
+    CORS_ALLOWED_ORIGINS = [
+        "https://localhost:8443",
+        "https://127.0.0.1:8443",
+        "http://frontend:3000",
+    ]
+    CORS_ALLOW_CREDENTIALS = True

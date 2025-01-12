@@ -3,5 +3,10 @@
     "round1": "第一轮",
     "round2": "第二轮",
     "round3": "第三轮",
-    "next-game": "下一场"
+    "next-game": "下一场比赛",
+    "errors": {
+        "unknown": "未知错误",
+        "load": "加载锦标赛数据失败。",
+        "no_player": "未找到选手信息"
+    }
 }

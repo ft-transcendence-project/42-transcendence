@@ -1,5 +1,10 @@
 {
     "game_start": "試合開始",
     "next_game_button": "次の試合へ",
-    "back_home_button": "ホームに戻る"
+    "back_home_button": "ホームに戻る",
+    "popup": {
+        "game_over": "ゲーム終了！勝者：",
+        "left": "左側",
+        "right": "右側"
+    }
 }

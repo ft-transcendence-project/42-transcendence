@@ -122,20 +122,6 @@ class PongLogic(AsyncWebsocketConsumer):
         else:
             pong_info.paddle.set_instruction(pong_data)
 
-    async def handle_other_message(self, message):
-        setting_id = self.scope["url_route"]["kwargs"]["settingid"]
-        pong_info = self.pong_info_map[setting_id]
-        logger.info(f"Other message received: {message}")
-        # その他のメッセージに対応する処理
-        response_message = {"message": f"Received: {message}"}
-        await self.channel_layer.group_send(
-            pong_info.group_name,
-            {
-                "type": "send_message",
-                "content": response_message,
-            },
-        )
-
     async def send_pong_data(self, first=False):
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
         pong_info = self.pong_info_map[setting_id]
