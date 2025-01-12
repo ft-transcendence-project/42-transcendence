@@ -5,6 +5,7 @@ import asyncio
 # import random
 import logging
 import math
+from datetime import datetime
 from .utils import Utils
 from .objects.pong_info import PongInfo
 
@@ -15,6 +16,8 @@ logger = logging.getLogger('ponglogic')
 # from websocket.serializers import GameStateSerializer
 
 SCORE_TO_WIN = 15
+RESET_DURATION = 2
+UPDATE_RATE_HZ = 60
 
 class PongLogic(AsyncWebsocketConsumer):
     pong_info_map = {}
@@ -45,18 +48,22 @@ class PongLogic(AsyncWebsocketConsumer):
 
     async def rendering(self):
         await self.send_pong_data()
-        await asyncio.sleep(0.005)
+        await asyncio.sleep(1 / UPDATE_RATE_HZ)
+        start_time = datetime.now()
         if self.pong_info.state == "stop":
-            await asyncio.sleep(2)
+            while (datetime.now() - start_time).total_seconds() < RESET_DURATION:
+                self.pong_info.paddle.update_position(self.pong_info.game_window)
+                await self.send_pong_data()
+                await asyncio.sleep(1 / UPDATE_RATE_HZ)
             self.pong_info.state = "running"
 
     async def update_pos(self):
         async with self.pong_info.lock:
+            self.pong_info.paddle.update_position(self.pong_info.game_window)
             ball_velocity = {
                 "x": self.pong_info.ball.velocity * math.cos(self.pong_info.ball.angle),
                 "y": self.pong_info.ball.velocity * math.sin(self.pong_info.ball.angle),
             }
-
             Utils.walls_collision(ball_velocity, self.pong_info)
             Utils.paddles_collision(ball_velocity, self.pong_info)
             Utils.obstacles_collision(ball_velocity, self.pong_info)
@@ -105,14 +112,10 @@ class PongLogic(AsyncWebsocketConsumer):
                 del self.pong_info_map[self.pong_info.setting_id]
 
     async def receive(self, text_data=None):
-        data = json.loads(text_data)
-        user_input = Utils.extract_to_dict(data)
+        paddle_instruction = json.loads(text_data)
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
         pong_info = self.pong_info_map[setting_id]
-
-        Utils.apply_user_input_to_paddle(user_input, pong_info)
-        if pong_info.state == "stop":
-            await self.send_pong_data()
+        pong_info.paddle.set_instruction(paddle_instruction)
 
     async def send_pong_data(self, first=False):
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]

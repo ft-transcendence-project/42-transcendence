@@ -1,5 +1,9 @@
 {
     "title": "Successfully Logged Out",
     "message": "Thank you for using our service",
-    "button": "Return to Home Page"
+    "button": "Return to Home Page",
+    "errors": {
+        "unknown": "Unknown error",
+        "logout": "An error occurred during logout. Please try again."
+    }
 }

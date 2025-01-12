@@ -11,17 +11,17 @@ class Utils:
         map_choise = game_setting.map
         logger.info(f"map: {map_choise}, ball_size: {ball_size_choise}, ball_v: {ball_v_choise}")
         if ball_size_choise == "big":
-            pong_info.ball.radius = 20
+            pong_info.ball.radius = pong_info.ball.BIG_RADIUS
         elif ball_size_choise == "normal":
-            pong_info.ball.radius = 10
+            pong_info.ball.radius = pong_info.ball.NORMAL_RADIUS
         elif ball_size_choise == "small":
-            pong_info.ball.radius = 5
+            pong_info.ball.radius = pong_info.ball.SMALL_RADIUS
         if ball_v_choise == "fast":
-            pong_info.ball.velocity = 7
+            pong_info.ball.velocity = pong_info.ball.FAST_VELOCITY
         elif ball_v_choise == "normal":
-            pong_info.ball.velocity = 5
+            pong_info.ball.velocity = pong_info.ball.NORMAL_VELOCITY
         elif ball_v_choise == "slow":
-            pong_info.ball.velocity = 3
+            pong_info.ball.velocity = pong_info.ball.SLOW_VELOCITY
         if map_choise == "b":
             pong_info.is_obstacle_exist = True
             pong_info.obstacle1.width = 500
@@ -344,43 +344,6 @@ class Utils:
             velocity["x"] *= -1
             velocity["y"] = abs(velocity["y"])
         return velocity["x"], velocity["y"]
-
-    @staticmethod
-    def update_obstacle_position(obstacle, game_window):
-        if (
-            obstacle.y + obstacle.height + obstacle.velocity <= game_window.height - 100 and
-            obstacle.y + obstacle.velocity >= 100):
-            obstacle.y += obstacle.velocity
-        else:
-            obstacle.velocity *= -1
-
-    @staticmethod
-    def extract_to_dict(data):
-        data_dict = {}
-        data_dict["key"] = data.get("key")
-        data_dict["action"] = data.get("action")
-        return data_dict
-
-    @staticmethod
-    def apply_user_input_to_paddle(user_input, pong_info):
-        if user_input["key"] == "D" and user_input["action"] == "pressed":
-            if (
-                pong_info.paddle.left_y + pong_info.paddle.velocity
-                <= pong_info.game_window.height - pong_info.paddle.height
-            ):
-                pong_info.paddle.left_y += pong_info.paddle.velocity
-        elif user_input["key"] == "E" and user_input["action"] == "pressed":
-            if pong_info.paddle.left_y - pong_info.paddle.velocity >= 0:
-                pong_info.paddle.left_y -= pong_info.paddle.velocity
-        elif user_input["key"] == "K" and user_input["action"] == "pressed":
-            if (
-                pong_info.paddle.right_y + pong_info.paddle.velocity
-                <= pong_info.game_window.height - pong_info.paddle.height
-            ):
-                pong_info.paddle.right_y += pong_info.paddle.velocity
-        elif user_input["key"] == "I" and user_input["action"] == "pressed":
-            if pong_info.paddle.right_y - pong_info.paddle.velocity >= 0:
-                pong_info.paddle.right_y -= pong_info.paddle.velocity
 
     @staticmethod
     def generate_pong_data(pong_info, first):

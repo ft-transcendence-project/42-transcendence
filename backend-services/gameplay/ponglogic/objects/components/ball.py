@@ -3,12 +3,20 @@ import random
 from ponglogic.utils import Utils
 
 class Ball:
+    FAST_VELOCITY = 15
+    NORMAL_VELOCITY = 10
+    SLOW_VELOCITY = 8
+
+    BIG_RADIUS = 20
+    NORMAL_RADIUS = 10
+    SMALL_RADIUS = 5
+
     def __init__(self):
         self.radius = 10
         self.x = 500
         self.y = 300
         self.angle = 0
-        self.velocity = 5
+        self.velocity = 20
         self.direction = {
             "facing_up": False,
             "facing_down": False,

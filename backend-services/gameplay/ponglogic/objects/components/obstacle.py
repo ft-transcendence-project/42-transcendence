@@ -7,4 +7,3 @@ class Obstacle:
             self.y = 435
         self.width = 0
         self.height = 0
-        self.velocity = 2
