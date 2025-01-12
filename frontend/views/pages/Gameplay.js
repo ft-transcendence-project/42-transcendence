@@ -24,7 +24,7 @@ const Gameplay = {
         }
 
 		console.log("SettingId in Gameplay:", settingId);
-
+		document.getElementById('gameId').innerText = `game id = ${sessionStorage.getItem('settingId')}`;
 		const gameCanvas = document.getElementById('gameCanvas');
 		const ctx = gameCanvas.getContext('2d');
 
@@ -246,17 +246,17 @@ const Gameplay = {
 			ctx.fillRect(paddle.right_x - paddle_w, 0 + paddle.right_y, paddle_w, paddle_h);
 			ctx.fillRect(ball.x - ball.radius, ball.y - ball.radius, 2 * ball.radius, 2 * ball.radius);
 
-			ctx.fillStyle = "white";
-			ctx.font = "50px Arial";
-			ctx.fillText(score.left, center_x - 50, 50);
-			ctx.fillText(score.right, center_x + 50, 50);
-
 			ctx.fillStyle = "red";
 			ctx.fillRect(blind.x, blind.y, blind.width, blind.height);
 
 			ctx.fillStyle = "yellow";
 			ctx.fillRect(obstacle1.x, obstacle1.y, obstacle1.width, obstacle1.height);
 			ctx.fillRect(obstacle2.x, obstacle2.y, obstacle2.width, obstacle2.height);
+	
+			ctx.fillStyle = "white";
+			ctx.font = "50px Arial";
+			ctx.fillText(score.left, center_x - 50, 50);
+			ctx.fillText(score.right, center_x + 50, 50);
 		}
 
 		let lastUpdateTime = 0;
