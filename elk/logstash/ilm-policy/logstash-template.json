@@ -2,19 +2,22 @@
   "index_patterns": ["logstash-*"],
   "settings": {
     "number_of_shards": 1,
-    "number_of_replicas": 1
+    "number_of_replicas": 1,
+    "index.lifecycle.name": "logstash-logs-policy",
+    "index.lifecycle.rollover_alias": "logstash"
   },
   "mappings": {
+    "dynamic": "strict",
     "properties": {
       "@timestamp": { "type": "date" },
       "@version": { "type": "keyword" },
+      "log_event": {
+        "type": "object",
+        "dynamic": true
+      },
       "host": { "type": "keyword" },
       "message": { "type": "text" },
-      "tags": { "type": "keyword" },
-      "type": { "type": "keyword" },
-      "level": { "type": "keyword" },
-      "logger_name": { "type": "keyword" },
-      "path": { "type": "keyword" }
+      "tags": { "type": "keyword" }
     }
   }
 }
