@@ -67,6 +67,8 @@ class PaddleControl:
             return None
 
     def connect_to_server(self, cert_file_path: str):
+        Utils.print_colored_message("white", "Connecting to: ")
+        Utils.print_colored_message("yellow", self.url + "\n")
         # WebSocketの設定と接続
         websocket.enableTrace(False)  # デバッグ情報を出力
         ws_app = websocket.WebSocketApp(
@@ -175,8 +177,6 @@ class PaddleControl:
 
     def main(self):
         self.first_setup()
-        Utils.print_colored_message("white", "Connecting to: ")
-        Utils.print_colored_message("yellow", self.url + "\n")
         cert_file_path = self.copy_certificate_from_docker()
         if cert_file_path is None:
             Utils.print_colored_message("red", "Error: Certificate copy failed")
