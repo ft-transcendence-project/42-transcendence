@@ -50,6 +50,31 @@ class PaddleControl:
         Utils.print_colored_message("yellow", "\nOK. You control \n\n\" ----- " + ("Left" if self.paddle_side == "left" else "Right") + " ----- \"\n")
 
     def copy_certificate_from_docker(self) -> str:
+            if key == self.down_key:
+                self.send_delayed_message(ws, 'down', 'start', self.paddle_side)
+
+            if key == self.up_key:
+                self.send_delayed_message(ws, 'up', 'start', self.paddle_side)
+
+    def start(self, ws):
+        Utils.print_colored_message("green", "Start by typing the space key!")
+        while (True):
+            user_input = sys.stdin.readline().rstrip('\n')
+            if user_input == ' ':
+                message = {
+                    "game_signal": "start"
+                }
+                ws.send(json.dumps(message))
+                break
+
+        if self.paddle_side == 'left':
+            Utils.print_colored_message("white", "Controls: D - down, E - up, Q - Quit")
+            self.down_key = 'd'
+            self.up_key = 'e'
+        elif self.paddle_side == 'right':
+            Utils.print_colored_message("white", "Controls: K - down, I - up, Q - Quit")
+            self.down_key = 'k'
+            self.up_key = 'i'
         try:
             subprocess.run(["docker", "cp", "web:/etc/ssl/certs/cert.pem", "."], check=True,stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL)
