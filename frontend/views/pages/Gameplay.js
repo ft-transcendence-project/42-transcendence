@@ -7,8 +7,6 @@ const Gameplay = {
 		left: false,
 		right: false,
 	},
-	leftInterval: null,
-	rightInterval: null,
 	keydownListener: null,
 	keyupListener: null,
 
@@ -85,6 +83,15 @@ const Gameplay = {
 			animationFrameId = requestAnimationFrame(update);
 		};
 
+		const gameStartButton = document.querySelector(".btn.btn-success.mt-3");
+		
+		// ボタンにクリックイベントを追加
+		gameStartButton.addEventListener("click", function () {
+			console.log("Game Startボタンが押されました");
+			gameStartButton.style.display = "none";
+			window.ws.send(JSON.stringify({ "game_signal": "start" }));
+		});
+
 		async function gameOver(data) {
 			let winner = data.winner;
 			if (winner === "left") {
@@ -148,6 +155,9 @@ const Gameplay = {
 		window.ws.onmessage = (e) => {
 			if (window.ws === null || window.ws.readyState !== WebSocket.OPEN)
 				return;
+			if (!first) {
+				gameStartButton.style.display = "none";
+			}
 			const data = JSON.parse(e.data);
             if (data.type === "game_over") {
                 gameOver(data);

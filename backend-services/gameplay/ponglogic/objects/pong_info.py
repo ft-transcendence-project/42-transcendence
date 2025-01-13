@@ -9,6 +9,7 @@ class PongInfo:
         self.setting_id = setting_id
         self.group_name = group_name
         self.channel_name = channel_name
+        self.is_game_started = False
         self.game_window = GameWindow()
         self.ball = Ball()
         self.paddle = Paddle()
