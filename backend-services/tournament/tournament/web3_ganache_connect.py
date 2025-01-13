@@ -75,6 +75,13 @@ class TournamentContract:
         tx_hash = self.web3.eth.send_raw_transaction(signed_txn.raw_transaction)
         return self.web3.eth.wait_for_transaction_receipt(tx_hash)
 
+    def create_tournament(self, name, date):
+            receipt = self.send_transaction(
+                self.contract.functions.createTournament(name, date)
+            )
+            print(f"Tournament created successfully. Transaction receipt: {receipt}")
+            return receipt
+
     def record_match(self, tournament_id, round, match_number, timestamp, player1_id, player2_id, player1_score, player2_score):
             receipt = self.send_transaction(
                 self.contract.functions.recordMatch(
@@ -91,11 +98,36 @@ class TournamentContract:
             return receipt
 
     def get_match(self, tournament_id, match_number):
-        return self.contract.functions.getMatch(tournament_id, match_number).call()
+        match_details = self.contract.functions.getMatch(tournament_id, match_number).call()
+        print(f"Match details: {match_details}")
+        return match_details
 
-def record_match_on_blockchain(tournament_id, round, match_number, timestamp, player1_id, player2_id, player1_score, player2_score):
+def record_match_on_blockchain(
+    tournament_id,
+    round,
+    match_number,
+    timestamp,
+    player1_id,
+    player2_id,
+    player1_score,
+    player2_score
+):
     try:
+        # TournamentContractインスタンスを作成
         tournament_contract = TournamentContract()
+
+        # トーナメントの存在確認
+        try:
+            tournament_details = tournament_contract.contract.functions.tournaments(tournament_id).call()
+            if not tournament_details[0]:  # トーナメントIDが0の場合は存在しないとみなす
+                print(f"Tournament with ID {tournament_id} does not exist. Creating new tournament.")
+                tournament_contract.create_tournament(f"Auto Tournament {tournament_id}", timestamp)
+        except Exception as e:
+            print(f"Error while checking tournament existence: {e}")
+            print(f"Creating new tournament with ID {tournament_id}")
+            tournament_contract.create_tournament(f"Auto Tournament {tournament_id}", timestamp)
+
+        # 試合の記録
         receipt = tournament_contract.record_match(
             tournament_id=tournament_id,
             round=round,
@@ -108,6 +140,7 @@ def record_match_on_blockchain(tournament_id, round, match_number, timestamp, pl
         )
         print(f"Transaction receipt: {receipt}")
         return receipt
+
     except Exception as e:
         print(f"An error occurred while recording match on blockchain: {e}")
         raise

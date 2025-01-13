@@ -72,6 +72,7 @@ contract Tournament {
         tournamentCount++;
         tournaments[tournamentCount] = Tournament(tournamentCount, name, date, false, 0);
         emit TournamentCreated(tournamentCount, name, date);
+
     }
 
     function recordMatch(
@@ -91,10 +92,38 @@ contract Tournament {
 
         emit MatchRecorded(tournamentId, round, matchNumber, timestamp, player1Id, player2Id, player1Score, player2Score, winnerId);
 
-        // Update tournament status if it's over (example logic)
-        tournaments[tournamentId].isOver = true;
-        tournaments[tournamentId].winnerId = winnerId;
+        // ラウンドの試合がすべて完了した場合、次のラウンドの試合を作成
+        bool allMatchesComplete = true;
+        for (uint256 i = 1; i <= matchNumber / 2; i++) {
+            if (matches[tournamentId][i].winnerId == 0) {
+                allMatchesComplete = false;
+                break;
+            }
+        }
+
+        if (allMatchesComplete) {
+            if (matchNumber >= 2) {
+                uint256 nextRound = round + 1;
+                for (uint256 i = 1; i <= matchNumber / 2; i++) {
+                    uint256 newMatchNumber = (nextRound - 1) * 4 + i;
+                    matches[tournamentId][newMatchNumber] = Match(
+                        nextRound,
+                        newMatchNumber,
+                        timestamp,
+                        matches[tournamentId][i * 2 - 1].winnerId,
+                        matches[tournamentId][i * 2].winnerId,
+                        0,
+                        0,
+                        0
+                    );
+                }
+            } else {
+                tournaments[tournamentId].isOver = true;
+                tournaments[tournamentId].winnerId = winnerId;
+            }
+        }
     }
+}
 
     function getMatch(uint256 tournamentId, uint256 matchNumber) public view returns (
         uint256 round,
@@ -109,4 +138,3 @@ contract Tournament {
         Match memory m = matches[tournamentId][matchNumber];
         return (m.round, m.matchNumber, m.timestamp, m.player1Id, m.player2Id, m.player1Score, m.player2Score, m.winnerId);
     }
-}
