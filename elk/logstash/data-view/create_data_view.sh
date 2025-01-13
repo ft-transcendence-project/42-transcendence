@@ -9,4 +9,4 @@ curl -X POST "${KIBANA_HOST}/api/data_views/data_view" \
   -H "kbn-xsrf: string" \
   -H "Content-Type: application/json" \
   -u ${KIBANA_USER}:${KIBANA_PASS} \
-  --data @/usr/share/logstash/config/index-pattern.json
+  --data @/usr/share/logstash/config/data-view.json
