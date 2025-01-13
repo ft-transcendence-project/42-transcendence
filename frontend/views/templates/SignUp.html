@@ -16,6 +16,20 @@
       <input type="email" name="email" id="email" class="form-control" />
       <div class="invalid-feedback" data-i18n="signup:validations.invalidEmail"></div>
     </div>
+    <div class="mb-3">
+      <label class="form-label" for="language">Default Language</label>
+      <br>
+      <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+        <input type="radio" class="btn-check" name="language" id="language-en" autocomplete="off" checked>
+        <label class="btn btn-outline-primary" for="language-en">English</label>
+      
+        <input type="radio" class="btn-check" name="language" id="language-ja" autocomplete="off">
+        <label class="btn btn-outline-primary" for="language-ja">Japanese</label>
+      
+        <input type="radio" class="btn-check" name="language" id="language-zh" autocomplete="off">
+        <label class="btn btn-outline-primary" for="language-zh">Chinese</label>
+      </div>
+    </div>    
     <button id="signup-button" type="submit" class="btn btn-primary w-100" data-i18n="signup:signupButton">Sign Up</button>
   </form>
 </div>
