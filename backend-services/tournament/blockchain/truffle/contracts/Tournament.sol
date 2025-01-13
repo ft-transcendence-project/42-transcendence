@@ -72,7 +72,6 @@ contract Tournament {
         tournamentCount++;
         tournaments[tournamentCount] = Tournament(tournamentCount, name, date, false, 0);
         emit TournamentCreated(tournamentCount, name, date);
-
     }
 
     function recordMatch(

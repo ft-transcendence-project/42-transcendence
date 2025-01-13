@@ -79,7 +79,6 @@ class TournamentContract:
             receipt = self.send_transaction(
                 self.contract.functions.createTournament(name, date)
             )
-            print(f"Tournament created successfully. Transaction receipt: {receipt}")
             return receipt
 
     def record_match(self, tournament_id, round, match_number, timestamp, player1_id, player2_id, player1_score, player2_score):
@@ -99,7 +98,6 @@ class TournamentContract:
 
     def get_match(self, tournament_id, match_number):
         match_details = self.contract.functions.getMatch(tournament_id, match_number).call()
-        print(f"Match details: {match_details}")
         return match_details
 
 def record_match_on_blockchain(
@@ -138,7 +136,6 @@ def record_match_on_blockchain(
             player1_score=player1_score,
             player2_score=player2_score
         )
-        print(f"Transaction receipt: {receipt}")
         return receipt
 
     except Exception as e:
