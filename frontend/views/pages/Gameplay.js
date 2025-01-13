@@ -155,6 +155,9 @@ const Gameplay = {
 		window.ws.onmessage = (e) => {
 			if (window.ws === null || window.ws.readyState !== WebSocket.OPEN)
 				return;
+			if (!first) {
+				gameStartButton.style.display = "none";
+			}
 			const data = JSON.parse(e.data);
             if (data.type === "game_over") {
                 gameOver(data);
