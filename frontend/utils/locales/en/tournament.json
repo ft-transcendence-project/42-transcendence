@@ -7,5 +7,9 @@
     "player6": "Player 6",
     "player7": "Player 7",
     "player8": "Player 8",
-    "submit": "Submit"
+    "submit": "Submit",
+    "errors": {
+        "unknown": "Unknown error",
+        "register": "Tournament register failed."
+    }
 }

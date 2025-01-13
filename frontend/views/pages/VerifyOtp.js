@@ -42,11 +42,11 @@ const VerifyOtp = {
             .map(([k, v]) => `${k}: ${v}`)
             .join(", ");
           console.error("OTP verification failed: ", errors);
-          alert("OTP verification failed");
+          alert(i18next.t("verifyotp:errors.verify"));
         }
       } catch (error) {
         console.error("Error during OTP verification:", error);
-        alert("Error during OTP verification");
+        alert(i18next.t("verifyotp:errors.unknown"));
       }
     });
   },

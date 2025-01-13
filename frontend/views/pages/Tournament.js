@@ -72,11 +72,11 @@ const Tournament = {
               })
               .join(", ");
             console.error("Tournament register failed", errors);
-            alert("Tournament register failed");
+            alert(i18next.t("tournament:errors.register"));
           }
         } catch (error) {
           console.error("Unknown error: ", error);
-          alert("Unknown error: ", error);
+          alert(i18next.t("tournament:errors.unknown"));
         }
       });
   },

@@ -1,10 +1,13 @@
 services:
   # elasticseach, kibana, logstash用のsslのセットアップ
   setup_elk:
-    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    build:
+      context: ./setup
+      dockerfile: Dockerfile
+      args:
+        STACK_VERSION: ${STACK_VERSION}
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
-      - ./setup_elk.sh:/usr/local/bin/setup_elk.sh
     env_file: ../.env
     user: "0"
     command: ["/bin/bash", "/usr/local/bin/setup_elk.sh"]
@@ -44,11 +47,11 @@ services:
       - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
       - xpack.security.transport.ssl.verification_mode=certificate
       - xpack.license.self_generated.type=${LICENSE}
-    mem_limit: ${ES_MEM_LIMIT}
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
+    # mem_limit: ${ES_MEM_LIMIT}
+    # ulimits:
+    #   memlock:
+    #     soft: -1
+    #     hard: -1
     healthcheck:
       test:
         [
@@ -87,7 +90,7 @@ services:
       - SERVER_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
       - SERVER_SSL_VERIFICATION_MODE=certificate
       - SERVER_SSL_REDIRECT=true
-    mem_limit: ${KB_MEM_LIMIT}
+    # mem_limit: ${KB_MEM_LIMIT}
     healthcheck:
       test:
         [
@@ -108,10 +111,13 @@ services:
     labels:
       co.elastic.logs/module: logstash
     user: root
+    build:
+      context: ./logstash
+      dockerfile: Dockerfile
+      args:
+        STACK_VERSION: ${STACK_VERSION}
     volumes:
       - certs:/usr/share/logstash/config/certs
-      - "./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro"
-      - "./create_index_pattern.sh:/usr/local/bin/create_index_pattern.sh"
     env_file: ../.env
     environment:
       - xpack.monitoring.enabled=false

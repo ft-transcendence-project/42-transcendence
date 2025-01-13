@@ -4,7 +4,7 @@ const Logout = {
       document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     } catch (error) {
       console.error("Failed to clear cookies:", error);
-      alert("An error occurred during logout process");
+      alert(i18next.t("login:errors.logout"));
       return;
     }
 
