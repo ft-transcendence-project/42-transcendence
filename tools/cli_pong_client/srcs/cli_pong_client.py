@@ -25,29 +25,33 @@ class PaddleControl:
     
     # game_idとpaddle_sideを設定するための関数
     def first_setup(self):
-        Utils.print_colored_message("green", "Welcome to Pong Game!!!\n")
-        Utils.print_colored_message("green", "Please type game id you want to play. ")
-        while (True):
-            self.game_id = sys.stdin.readline().strip()
-            if self.game_id.isnumeric():
-                self.url = base_url + self.game_id + "/"
-                break
-            else:
-                Utils.print_colored_message("red", "Invalid input. Please type a number. ")
-        Utils.print_colored_message("yellow", f"\nOK. The Game id is \n\n\" ----- " + self.game_id + " ----- \"\n")
-        Utils.print_colored_message("green", "Which paddle do you want to control?\nType D(Left) or K(Right)")
-        while (True):
-            user_input = sys.stdin.readline().strip()
-            print(user_input)
-            if user_input in ['D', 'd']:
-                self.paddle_side = 'left'
-                break
-            elif user_input in ['K', 'k']:
-                self.paddle_side = 'right'
-                break
-            else:
-                Utils.print_colored_message("red", "Invalid input. Please type D(Left) or K(Right).")
-        Utils.print_colored_message("yellow", "\nOK. You control \n\n\" ----- " + ("Left" if self.paddle_side == "left" else "Right") + " ----- \"\n")
+        try:
+            Utils.print_colored_message("green", "Welcome to Pong Game!!!\n")
+            Utils.print_colored_message("green", "Please type game id you want to play. ")
+            while (True):
+                self.game_id = sys.stdin.readline().strip()
+                if self.game_id.isnumeric():
+                    self.url = base_url + self.game_id + "/"
+                    break
+                else:
+                    Utils.print_colored_message("red", "Invalid input. Please type a number. ")
+            Utils.print_colored_message("yellow", f"\nOK. The Game id is \n\n\" ----- " + self.game_id + " ----- \"\n")
+            Utils.print_colored_message("green", "Which paddle do you want to control?\nType D(Left) or K(Right)")
+            while (True):
+                user_input = sys.stdin.readline().strip()
+                print(user_input)
+                if user_input in ['D', 'd']:
+                    self.paddle_side = 'left'
+                    break
+                elif user_input in ['K', 'k']:
+                    self.paddle_side = 'right'
+                    break
+                else:
+                    Utils.print_colored_message("red", "Invalid input. Please type D(Left) or K(Right).")
+            Utils.print_colored_message("yellow", "\nOK. You control \n\n\" ----- " + ("Left" if self.paddle_side == "left" else "Right") + " ----- \"\n")
+        except KeyboardInterrupt:
+            Utils.print_colored_message("red", "Disconnected\n")
+            sys.exit(1)
     
     def copy_certificate_from_docker(self) -> str:
         try:
