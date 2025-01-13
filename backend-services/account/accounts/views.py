@@ -34,7 +34,7 @@ class CustomLoginView(APIView):
             login(request, user)
             logger.info(f"Login successful for user: {user.username}")
             response = Response(
-                {"token": token, "redirect": "homepage", "id":user.id }, status=status.HTTP_200_OK
+                {"token": token, "redirect": "homepage", "id":user.id, "default_language":user.default_language }, status=status.HTTP_200_OK
             )
             response.set_cookie(
                 key="token",
