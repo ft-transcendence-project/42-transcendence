@@ -2,6 +2,8 @@ FROM nginx
 
 COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY ./frontend /static/
+
+# HTTPS config
 RUN apt-get update -y && apt-get install openssl
 
 RUN mkdir -p /etc/ssl/certs/ && mkdir -p /etc/ssl/private/
