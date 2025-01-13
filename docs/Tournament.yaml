@@ -1,0 +1,205 @@
+openapi: 3.0.0
+info:
+  title: Tournament Management API
+  description: |
+    トーナメント管理システムのAPI仕様
+    - トーナメントの作成と管理
+    - 試合結果の記録
+    - プレイヤー情報の管理
+  version: 1.0.0
+servers:
+- url: https://virtserver.swaggerhub.com/SHAHRUKH4062_1/Tournament/1.0.0
+  description: SwaggerHub API Auto Mocking
+- url: http://localhost:8000
+  description: 開発サーバー
+paths:
+  /api/tournaments/register:
+    post:
+      tags:
+      - tournaments
+      summary: トーナメント登録
+      description: 8人のプレイヤーでトーナメントを作成します
+      requestBody:
+        content:
+          application/json:
+            schema:
+              maxItems: 8
+              minItems: 8
+              type: array
+              example:
+              - Player 1
+              - Player 2
+              - Player 3
+              - Player 4
+              - Player 5
+              - Player 6
+              - Player 7
+              - Player 8
+              items:
+                type: string
+        required: true
+      responses:
+        "201":
+          description: トーナメント作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TournamentDetail'
+        "400":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+        "500":
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_500'
+  /api/matches/save:
+    post:
+      tags:
+      - matches
+      summary: 試合結果の保存
+      description: 試合結果を記録または更新します
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MatchSave'
+        required: true
+      responses:
+        "200":
+          description: 試合結果更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Match'
+        "201":
+          description: 新規試合結果作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Match'
+        "400":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_1'
+components:
+  schemas:
+    Tournament:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          example: Tournament 2024-12-28 15:30
+        date:
+          type: string
+          format: date
+          example: 2024-12-28
+    Player:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          example: Player 1
+    Match:
+      type: object
+      properties:
+        id:
+          type: integer
+        tournament:
+          $ref: '#/components/schemas/Tournament'
+        match_number:
+          minimum: 1
+          type: integer
+          example: 1
+        timestamp:
+          type: string
+          format: date-time
+        player1:
+          $ref: '#/components/schemas/Player'
+        player2:
+          $ref: '#/components/schemas/Player'
+        player1_score:
+          minimum: 0
+          type: integer
+          example: 0
+        player2_score:
+          minimum: 0
+          type: integer
+          example: 0
+        winner:
+          $ref: '#/components/schemas/Player'
+    MatchSave:
+      required:
+      - player1_id
+      - player2_id
+      - tournament_id
+      type: object
+      properties:
+        tournament_id:
+          type: integer
+        id:
+          type: integer
+          nullable: true
+        match_number:
+          minimum: 1
+          type: integer
+          default: 1
+        player1_id:
+          type: integer
+        player2_id:
+          type: integer
+        winner_id:
+          type: integer
+          nullable: true
+        player1_score:
+          minimum: 0
+          type: integer
+          default: 0
+        player2_score:
+          minimum: 0
+          type: integer
+          default: 0
+        timestamp:
+          type: string
+          format: date-time
+          nullable: true
+    TournamentDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        date:
+          type: string
+          format: date
+        matches:
+          type: array
+          items:
+            $ref: '#/components/schemas/Match'
+    inline_response_400:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Require 8 players
+    inline_response_500:
+      type: object
+      properties:
+        error:
+          type: string
+    inline_response_400_1:
+      type: object
+      properties:
+        error:
+          type: object

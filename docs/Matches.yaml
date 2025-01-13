@@ -1,0 +1,177 @@
+openapi: 3.0.0
+info:
+  title: Matches API
+  description: API for managing player matches
+  version: 1.0.0
+servers:
+- url: https://virtserver.swaggerhub.com/SHAHRUKH4062_1/Matches/1.0.0
+  description: SwaggerHub API Auto Mocking
+- url: http://localhost:8000
+  description: 開発サーバー
+paths:
+  /api/matches:
+    get:
+      tags:
+      - matches
+      summary: マッチ情報の取得
+      description: 現在のマッチ情報を取得します
+      responses:
+        "200":
+          description: マッチ情報の取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+    post:
+      tags:
+      - matches
+      summary: プレイヤー情報の登録
+      description: 8人のプレイヤー情報を受け取り、マッチ情報を返します
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_matches_body'
+        required: true
+      responses:
+        "200":
+          description: マッチ情報の取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_1'
+        "400":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+components:
+  schemas:
+    Players:
+      required:
+      - player1
+      - player2
+      - player3
+      - player4
+      - player5
+      - player6
+      - player7
+      - player8
+      type: object
+      properties:
+        player1:
+          type: string
+        player2:
+          type: string
+        player3:
+          type: string
+        player4:
+          type: string
+        player5:
+          type: string
+        player6:
+          type: string
+        player7:
+          type: string
+        player8:
+          type: string
+    inline_response_200:
+      type: object
+      properties:
+        players:
+          $ref: '#/components/schemas/inline_response_200_players'
+    api_matches_body:
+      required:
+      - player1
+      - player2
+      - player3
+      - player4
+      - player5
+      - player6
+      - player7
+      - player8
+      type: object
+      properties:
+        player1:
+          type: string
+          description: プレイヤー1の名前
+          example: sraza raza
+        player2:
+          type: string
+          description: プレイヤー2の名前
+          example: rtakashi takashi
+        player3:
+          type: string
+          description: プレイヤー3の名前
+          example: erin rin
+        player4:
+          type: string
+          description: プレイヤー4の名前
+          example: kkodaira kodaira
+        player5:
+          type: string
+          description: プレイヤー5の名前
+          example: oaoba aoba
+        player6:
+          type: string
+          description: プレイヤー6の名前
+          example: pizza tomato
+        player7:
+          type: string
+          description: プレイヤー7の名前
+          example: spagetti danshaku
+        player8:
+          type: string
+          description: プレイヤー8の名前
+          example: jagaimo oishii
+    inline_response_200_1:
+      type: object
+      properties:
+        players:
+          $ref: '#/components/schemas/inline_response_200_1_players'
+    inline_response_400:
+      type: object
+      properties:
+        error:
+          type: string
+          example: 全てのプレイヤー情報が必要です
+    inline_response_200_players:
+      type: object
+      properties:
+        player1:
+          type: string
+        player2:
+          type: string
+        player3:
+          type: string
+        player4:
+          type: string
+        player5:
+          type: string
+        player6:
+          type: string
+        player7:
+          type: string
+        player8:
+          type: string
+    inline_response_200_1_players:
+      type: object
+      properties:
+        player1:
+          type: string
+        player2:
+          type: string
+        player3:
+          type: string
+        player4:
+          type: string
+        player5:
+          type: string
+        player6:
+          type: string
+        player7:
+          type: string
+        player8:
+          type: string
+      example: "{\"player1\":\"sraza raza\",\"player2\":\"rtakashi takashi\",\"player3\":\"erin rin\",\"player4\":\"kkodaira kodaira\",\"player5\":\"oaoba aoba\",\"player6\":\"pizza tomato\",\"player7\":\"spagetti danshaku\",\"player8\":\"jagaimo oishii\"}"

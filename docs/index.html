@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>API Documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css" />
+    <style>
+        .nav-tabs {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        .nav-tabs li {
+            margin-right: 10px;
+        }
+        .nav-tabs button {
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: #666;
+        }
+        .nav-tabs button.active {
+            border-bottom: 2px solid #49cc90;
+            color: #000;
+        }
+        .swagger-ui {
+            display: none;
+        }
+        .swagger-ui.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <ul class="nav-tabs">
+        <li><button onclick="switchAPI('accounts')" id="accounts-tab">Accounts</button></li>
+        <li><button onclick="switchAPI('gameplay')" id="gameplay-tab">Gameplay</button></li>
+        <li><button onclick="switchAPI('matches')" id="matches-tab">Matches</button></li>
+        <li><button onclick="switchAPI('oauth')" id="oauth-tab">OAuth</button></li>
+        <li><button onclick="switchAPI('tournament')" id="tournament-tab">Tournament</button></li>
+    </ul>
+
+    <div id="accounts-ui" class="swagger-ui"></div>
+    <div id="gameplay-ui" class="swagger-ui"></div>
+    <div id="matches-ui" class="swagger-ui"></div>
+    <div id="oauth-ui" class="swagger-ui"></div>
+    <div id="tournament-ui" class="swagger-ui"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.min.js"></script>
+    <script>
+        const apis = {
+            accounts: "Accounts.yaml",
+            gameplay: "Gameplay.yaml",
+            matches: "Matches.yaml",
+            oauth: "OAuth.yaml",
+            tournament: "Tournament.yaml"
+        };
+
+        // SwaggerUIインスタンスを保持する
+        const uiInstances = {};
+
+        // 各APIのSwaggerUIを初期化
+        Object.entries(apis).forEach(([name, file]) => {
+            uiInstances[name] = SwaggerUIBundle({
+                url: file,
+                dom_id: `#${name}-ui`,
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                ],
+                layout: "StandaloneLayout"
+            });
+        });
+
+        // API切り替え関数
+        function switchAPI(apiName) {
+            // すべてのUIを非表示
+            document.querySelectorAll('.swagger-ui').forEach(el => {
+                el.classList.remove('active');
+            });
+            // すべてのタブを非アクティブ
+            document.querySelectorAll('.nav-tabs button').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // 選択されたUIとタブをアクティブ化
+            document.getElementById(`${apiName}-ui`).classList.add('active');
+            document.getElementById(`${apiName}-tab`).classList.add('active');
+        }
+
+        // 初期表示
+        window.onload = function() {
+            switchAPI('accounts');
+        }
+    </script>
+</body>
+</html>
