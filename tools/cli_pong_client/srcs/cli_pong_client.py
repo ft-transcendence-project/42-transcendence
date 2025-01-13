@@ -56,6 +56,16 @@ class PaddleControl:
                 self.send_delayed_message(ws, 'up', 'start', self.paddle_side)
 
     def start(self, ws):
+        Utils.print_colored_message("green", "Start by typing the space key!")
+        while (True):
+            user_input = sys.stdin.readline().rstrip('\n')
+            if user_input == ' ':
+                message = {
+                    "game_signal": "start"
+                }
+                ws.send(json.dumps(message))
+                break
+
         if self.paddle_side == 'left':
             Utils.print_colored_message("white", "Controls: D - down, E - up, Q - Quit")
             self.down_key = 'd'
