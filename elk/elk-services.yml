@@ -127,6 +127,7 @@ services:
     entrypoint: >
       /bin/bash -c "
         /usr/local/bin/set_ilm_policy.sh &&
+        /usr/local/bin/create_template.sh &&
         /usr/local/bin/create_data_view.sh &&
         /usr/local/bin/docker-entrypoint
       "
