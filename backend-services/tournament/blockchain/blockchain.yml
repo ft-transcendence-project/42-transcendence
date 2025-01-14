@@ -23,7 +23,10 @@ services:
     depends_on:
       - ganache
     command:
-      ["sh", "-c", "truffle migrate --network development && tail -f /dev/null"]
+      ["sh", "-c", "truffle compile && truffle migrate --network development --reset && truffle test"]
+    volumes:
+      - ./truffle:/app
+      - /app/node_modules
 
 volumes:
   ganache_data:

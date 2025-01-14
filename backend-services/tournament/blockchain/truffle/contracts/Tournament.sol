@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract Tournament {
+contract TournamentData {
     struct Player {
         uint256 id;
         string name;
@@ -74,6 +74,33 @@ contract Tournament {
         emit TournamentCreated(tournamentCount, name, date);
     }
 
+    function createNextRoundMatches(
+        uint256 tournamentId,
+        uint256 currentRound,
+        uint256 matchNumber,
+        uint256 timestamp
+    ) private {
+        uint256 nextRound = currentRound + 1;
+        uint256 numMatches = matchNumber / 2;
+        
+        for (uint256 i = 1; i <= numMatches; i++) {
+            uint256 newMatchNumber = (nextRound - 1) * 4 + i;
+            uint256 winner1 = matches[tournamentId][i * 2 - 1].winnerId;
+            uint256 winner2 = matches[tournamentId][i * 2].winnerId;
+            
+            matches[tournamentId][newMatchNumber] = Match(
+                nextRound,
+                newMatchNumber,
+                timestamp,
+                winner1,
+                winner2,
+                0,
+                0,
+                0
+            );
+        }
+    }
+
     function recordMatch(
         uint256 tournamentId,
         uint256 round,
@@ -87,42 +114,48 @@ contract Tournament {
         require(tournaments[tournamentId].id == tournamentId, "Tournament does not exist");
         matchCount++;
         uint256 winnerId = player1Score > player2Score ? player1Id : player2Id;
-        matches[tournamentId][matchNumber] = Match(round, matchNumber, timestamp, player1Id, player2Id, player1Score, player2Score, winnerId);
 
-        emit MatchRecorded(tournamentId, round, matchNumber, timestamp, player1Id, player2Id, player1Score, player2Score, winnerId);
+        matches[tournamentId][matchNumber] = Match(
+            round,
+            matchNumber,
+            timestamp,
+            player1Id,
+            player2Id,
+            player1Score,
+            player2Score,
+            winnerId
+        );
 
-        // ラウンドの試合がすべて完了した場合、次のラウンドの試合を作成
-        bool allMatchesComplete = true;
-        for (uint256 i = 1; i <= matchNumber / 2; i++) {
-            if (matches[tournamentId][i].winnerId == 0) {
-                allMatchesComplete = false;
-                break;
-            }
-        }
+        emit MatchRecorded(
+            tournamentId,
+            round,
+            matchNumber,
+            timestamp,
+            player1Id,
+            player2Id,
+            player1Score,
+            player2Score,
+            winnerId
+        );
 
-        if (allMatchesComplete) {
+        if (checkRoundComplete(tournamentId, matchNumber)) {
             if (matchNumber >= 2) {
-                uint256 nextRound = round + 1;
-                for (uint256 i = 1; i <= matchNumber / 2; i++) {
-                    uint256 newMatchNumber = (nextRound - 1) * 4 + i;
-                    matches[tournamentId][newMatchNumber] = Match(
-                        nextRound,
-                        newMatchNumber,
-                        timestamp,
-                        matches[tournamentId][i * 2 - 1].winnerId,
-                        matches[tournamentId][i * 2].winnerId,
-                        0,
-                        0,
-                        0
-                    );
-                }
+                createNextRoundMatches(tournamentId, round, matchNumber, timestamp);
             } else {
                 tournaments[tournamentId].isOver = true;
                 tournaments[tournamentId].winnerId = winnerId;
             }
         }
     }
-}
+
+    function checkRoundComplete(uint256 tournamentId, uint256 matchNumber) private view returns (bool) {
+        for (uint256 i = 1; i <= matchNumber / 2; i++) {
+            if (matches[tournamentId][i].winnerId == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     function getMatch(uint256 tournamentId, uint256 matchNumber) public view returns (
         uint256 round,
@@ -137,3 +170,4 @@ contract Tournament {
         Match memory m = matches[tournamentId][matchNumber];
         return (m.round, m.matchNumber, m.timestamp, m.player1Id, m.player2Id, m.player1Score, m.player2Score, m.winnerId);
     }
+}

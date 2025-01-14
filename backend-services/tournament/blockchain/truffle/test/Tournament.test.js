@@ -1,6 +1,6 @@
-const Tournament = artifacts.require("Tournament");
+const Tournament = artifacts.require("TournamentData");
 
-contract("Tournament", (accounts) => {
+contract("TournamentData", (accounts) => {
     let tournamentInstance;
     const owner = accounts[0];
     const nonOwner = accounts[1];

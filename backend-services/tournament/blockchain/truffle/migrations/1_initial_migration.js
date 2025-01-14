@@ -1,5 +1,5 @@
-const Tournament = artifacts.require("Tournament");
+const TournamentData = artifacts.require("TournamentData");
 
 module.exports = function (deployer) {
-    deployer.deploy(Tournament);
+    deployer.deploy(TournamentData);
 };

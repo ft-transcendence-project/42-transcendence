@@ -4,7 +4,7 @@ import os
 from eth_account import Account
 
 class TournamentContract:
-    def __init__(self, ganache_url="http://ganache:8545", abi_path="blockchain/truffle/build/contracts/Tournament.json", address_path="blockchain/truffle/contract_address.json", mnemonic=None, account_index=0):
+    def __init__(self, ganache_url="http://ganache:8545", abi_path="blockchain/truffle/build/contracts/TournamentData.json", address_path="blockchain/truffle/contract_address.json", mnemonic=None, account_index=0):
         self.ganache_url = ganache_url
         self.abi_path = abi_path
         self.address_path = address_path
