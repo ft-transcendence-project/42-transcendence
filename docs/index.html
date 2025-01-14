@@ -5,49 +5,77 @@
     <title>API Documentation</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css" />
     <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        /* タブのスタイル */
+        .tabs-container {
+            background: #fff;
+            padding: 0 20px;
+            border-bottom: 1px solid #dedede;
+        }
         .nav-tabs {
             display: flex;
             list-style: none;
             padding: 0;
-            margin: 20px 0;
-            border-bottom: 1px solid #ddd;
-        }
-        .nav-tabs li {
-            margin-right: 10px;
+            margin: 0;
+            max-width: 1460px;
+            margin: 0 auto;
         }
         .nav-tabs button {
-            padding: 10px 20px;
+            padding: 15px 30px;
             border: none;
             background: none;
             cursor: pointer;
-            color: #666;
+            color: #3b4151;
+            font-size: 14px;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .nav-tabs button:hover {
+            color: #49cc90;
         }
         .nav-tabs button.active {
-            border-bottom: 2px solid #49cc90;
-            color: #000;
+            border-bottom: 3px solid #49cc90;
+            color: #49cc90;
         }
-        .swagger-ui {
+        /* Swagger UIコンテナのスタイル */
+        .swagger-ui-container {
+            display: none;
+            margin-top: 0;
+        }
+        .swagger-ui-container.active {
+            display: block;
+        }
+        /* Swagger UIのヘッダー調整 */
+        .swagger-ui .topbar {
             display: none;
         }
-        .swagger-ui.active {
-            display: block;
+        /* スクロールバーの調整 */
+        .swagger-ui .wrapper {
+            padding: 0;
+            max-width: 1460px;
+            margin: 0 auto;
         }
     </style>
 </head>
 <body>
-    <ul class="nav-tabs">
-        <li><button onclick="switchAPI('accounts')" id="accounts-tab">Accounts</button></li>
-        <li><button onclick="switchAPI('gameplay')" id="gameplay-tab">Gameplay</button></li>
-        <li><button onclick="switchAPI('matches')" id="matches-tab">Matches</button></li>
-        <li><button onclick="switchAPI('oauth')" id="oauth-tab">OAuth</button></li>
-        <li><button onclick="switchAPI('tournament')" id="tournament-tab">Tournament</button></li>
-    </ul>
+    <div class="tabs-container">
+        <div class="nav-tabs">
+            <button onclick="switchAPI('accounts')" id="accounts-tab">Accounts</button>
+            <button onclick="switchAPI('gameplay')" id="gameplay-tab">Gameplay</button>
+            <button onclick="switchAPI('matches')" id="matches-tab">Matches</button>
+            <button onclick="switchAPI('oauth')" id="oauth-tab">OAuth</button>
+            <button onclick="switchAPI('tournament')" id="tournament-tab">Tournament</button>
+        </div>
+    </div>
 
-    <div id="accounts-ui" class="swagger-ui"></div>
-    <div id="gameplay-ui" class="swagger-ui"></div>
-    <div id="matches-ui" class="swagger-ui"></div>
-    <div id="oauth-ui" class="swagger-ui"></div>
-    <div id="tournament-ui" class="swagger-ui"></div>
+    <div id="accounts-ui" class="swagger-ui-container"></div>
+    <div id="gameplay-ui" class="swagger-ui-container"></div>
+    <div id="matches-ui" class="swagger-ui-container"></div>
+    <div id="oauth-ui" class="swagger-ui-container"></div>
+    <div id="tournament-ui" class="swagger-ui-container"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.min.js"></script>
@@ -60,27 +88,30 @@
             tournament: "Tournament.yaml"
         };
 
-        // SwaggerUIインスタンスを保持する
+        // SwaggerUIインスタンスを保持
         const uiInstances = {};
 
         // 各APIのSwaggerUIを初期化
         Object.entries(apis).forEach(([name, file]) => {
             uiInstances[name] = SwaggerUIBundle({
                 url: file,
-                dom_id: `#${name}-ui`,
+                domNode: document.getElementById(`${name}-ui`),
                 deepLinking: true,
                 presets: [
                     SwaggerUIBundle.presets.apis,
                     SwaggerUIStandalonePreset
                 ],
-                layout: "StandaloneLayout"
+                plugins: [
+                    SwaggerUIBundle.plugins.DownloadUrl
+                ],
+                layout: "BaseLayout",
+                defaultModelsExpandDepth: -1
             });
         });
 
-        // API切り替え関数
         function switchAPI(apiName) {
             // すべてのUIを非表示
-            document.querySelectorAll('.swagger-ui').forEach(el => {
+            document.querySelectorAll('.swagger-ui-container').forEach(el => {
                 el.classList.remove('active');
             });
             // すべてのタブを非アクティブ
