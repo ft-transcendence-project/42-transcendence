@@ -167,6 +167,7 @@ class PaddleControl:
                 break
             elif user_input == '3':
                 ball_velocity = "slow"
+                break
             else:
                 Utils.print_colored_message("red", "Invalid input. Please type 1(Fast) or 2(Normal) or 3(Slow).")
 
