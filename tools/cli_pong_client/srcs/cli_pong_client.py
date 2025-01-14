@@ -202,6 +202,8 @@ class PaddleControl:
                 Utils.print_colored_message("red", "Invalid input. Please type 1(Big) or 2(Normal) or 3(Small).")
 
         self.post_game_setting(ball_velocity, ball_size, map)
+        Utils.print_colored_message("white", "Please access the following URL from the browser.")
+        Utils.print_colored_message("yellow", f"https://localhost:8443/#/gameplay.{self.game_id}/\n")
 
     def first_setup(self):
         Utils.print_colored_message("green", "Welcome to Pong Game!!!\n")
