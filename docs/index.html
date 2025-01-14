@@ -35,11 +35,11 @@
 <body>
     <div id="api-selector">
         <select id="api-file" onchange="loadAPI(this.value)">
-            <option value="docs/Accounts.yaml">Accounts API</option>
-            <option value="docs/Gameplay.yaml">Gameplay API</option>
-            <option value="docs/Matches.yaml">Matches API</option>
-            <option value="docs/Oauth.yaml">Oauth API</option>
-            <option value="docs/Tournament.yaml">Tournament API</option>
+            <option value="Accounts.yaml">Accounts API</option>
+            <option value="Gameplay.yaml">Gameplay API</option>
+            <option value="Matches.yaml">Matches API</option>
+            <option value="OAuth.yaml">OAuth API</option>
+            <option value="Tournament.yaml">Tournament API</option>
         </select>
     </div>
     <div id="swagger-ui"></div>
@@ -48,18 +48,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js"></script>
     <script>
         window.onload = function() {
-            // Get the base URL for GitHub Pages
-            const baseUrl = window.location.pathname.replace(/\/[^/]*$/, '');
-            window.baseUrl = baseUrl;
-            loadAPI('docs/Accounts.yaml');
+            loadAPI('Accounts.yaml');
         };
 
         function loadAPI(fileName) {
-            // Construct the full URL for the YAML file
-            const fullUrl = window.location.origin + window.baseUrl + '/' + fileName;
-            
             const ui = SwaggerUIBundle({
-                url: fullUrl,
+                url: fileName,
                 dom_id: '#swagger-ui',
                 deepLinking: true,
                 presets: [
