@@ -8,10 +8,10 @@ info:
     - ユーザー情報の取得と登録
   version: 1.0.0
 servers:
-- url: https://localhost:8443/42pong.api/account
-  description: 本番環境
-- url: http://localhost:8000
-  description: 開発環境
+- url: https://virtserver.swaggerhub.com/SHAHRUKH4062_1/Oauth/1.0.0
+  description: SwaggerHub API Auto Mocking
+- url: http://localhost:3000
+  description: トラセン用のサーバー
 paths:
   /oauth:
     get:
