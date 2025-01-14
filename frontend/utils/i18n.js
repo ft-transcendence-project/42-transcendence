@@ -9,6 +9,13 @@ i18next
     backend: {
       loadPath: './utils/locales/{{lng}}/{{ns}}.json', // 見つからない場合fallbackLngを参照
     },
+    detection: {
+      // 言語検出の順序を設定
+      order: ['cookie', 'navigator'],
+      caches: ['cookie'], // 言語を保存する先をcookieに設定
+      cookieMinutes: 10080, // クッキーの有効期限（分単位、例: 7日 = 10080分）
+      cookieSecure: true, // HTTPSのみでクッキーを利用する場合に設定
+    },
   }, (err, t) => {
     if (err) return console.error('i18next init error:', err);
     updateContent(); // 初期翻訳適用
@@ -43,7 +50,6 @@ export function updateContent() {
 
 export function changeLanguage(lng) {
   i18next.changeLanguage(lng); // 言語設定を変更し、languageChangedイベント
-  localStorage.setItem('lang', lng); // 言語設定をローカルストレージに保存
 }
 
 // languageChangedイベントによりトリガー
