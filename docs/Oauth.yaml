@@ -1,154 +1,87 @@
 openapi: 3.0.0
 info:
-  title: 42 OAuth API
-  description: |
-    42 School OAuth認証システムのAPI仕様
-    - ユーザー認証とコールバック処理
-    - アクセストークンの取得と検証
-    - ユーザー情報の取得と登録
+  title: 42 OAuth Authentication API
+  description: API for 42 OAuth authentication flow
   version: 1.0.0
 servers:
-- url: https://virtserver.swaggerhub.com/SHAHRUKH4062_1/Oauth/1.0.0
-  description: SwaggerHub API Auto Mocking
-- url: http://localhost:8000
-  description: 開発環境
-- url: https://localhost:8443
-  description: 本番環境
-security:
-- BearerAuth: []
+  - url: https://localhost:8443/42pong.api/account
+    description: Production server
+  - url: http://localhost:8000
+    description: Development server
+
 paths:
-  /api/oauth:
+  /oauth:
     get:
       tags:
-      - oauth
-      summary: 42認証の開始
-      description: |
-        42 OAuth認証フローを開始します。
-        環境に応じて適切なリダイレクトURIを使用します。
+        - oauth
+      summary: Initiate 42 OAuth authorization flow
+      description: Redirects the user to 42's OAuth authorization page
       responses:
-        "302":
-          description: 42認証ページへリダイレクト
+        '302':
+          description: Redirect to 42's OAuth authorization page
           headers:
             Location:
-              style: simple
-              explode: false
               schema:
                 type: string
-                example: "https://api.intra.42.fr/oauth/authorize?client_id={UID}&redirect_uri={CALLBACK_URL}&response_type=code"
-  /api/oauth/callback:
+                example: https://api.intra.42.fr/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code
+
+  /oauth/callback:
     get:
       tags:
-      - oauth
-      summary: OAuth認証コールバック
-      description: |
-        42からの認証コールバックを処理し、
-        アクセストークンの取得とユーザー情報の登録を行います。
+        - oauth
+      summary: Handle OAuth callback from 42
+      description: Processes the authorization code and authenticates the user
       parameters:
-      - name: code
-        in: query
-        description: 認証コード
-        required: false
-        style: form
-        explode: true
-        schema:
-          type: string
-      - name: error
-        in: query
-        description: エラーコード
-        required: false
-        style: form
-        explode: true
-        schema:
-          type: string
-      - name: error_description
-        in: query
-        description: エラーの詳細説明
-        required: false
-        style: form
-        explode: true
-        schema:
-          type: string
+        - name: code
+          in: query
+          description: Authorization code from 42
+          schema:
+            type: string
+          required: false
+        - name: error
+          in: query
+          description: Error message from 42
+          schema:
+            type: string
+          required: false
+        - name: error_description
+          in: query
+          description: Detailed error description
+          schema:
+            type: string
+          required: false
       responses:
-        "302":
-          description: 認証成功時のリダイレクト
+        '302':
+          description: Successful authentication, redirect to frontend
           headers:
             Location:
-              style: simple
-              explode: false
               schema:
                 type: string
-                example: http://localhost:3000/#/
+                example: https://localhost:8443/#/
             Set-Cookie:
-              style: simple
-              explode: false
               schema:
                 type: string
                 example: token=dummy; Max-Age=86400; Secure; SameSite=Lax
-        "400":
-          description: 認証エラー
+        '400':
+          description: Authentication failed
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_400'
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: invalid_code
+                  error_description:
+                    type: string
+                    example: Authorization code was not provided or is invalid.
+
 components:
-  schemas:
-    OAuthError:
-      type: object
-      properties:
-        error:
-          type: string
-          description: エラーコード
-        error_description:
-          type: string
-          description: エラーの詳細説明
-    TokenResponse:
-      type: object
-      properties:
-        access_token:
-          type: string
-          description: アクセストークン
-        token_type:
-          type: string
-          example: Bearer
-        expires_in:
-          type: integer
-          description: トークンの有効期限（秒）
-    UserInfo:
-      type: object
-      properties:
-        login:
-          type: string
-          description: 42のユーザーログイン名
-    inline_response_400:
-      type: object
-      properties:
-        error:
-          type: string
-          example: No code provided
-        error_description:
-          type: string
-          example: Authorization code was not provided or is invalid.
-  parameters:
-    UID:
-      name: UID
-      in: query
-      description: 42アプリケーションのクライアントID
-      required: true
-      style: form
-      explode: true
-      schema:
-        type: string
-    SECRET:
-      name: SECRET
-      in: query
-      description: 42アプリケーションのクライアントシークレット
-      required: true
-      style: form
-      explode: true
-      schema:
-        type: string
   securitySchemes:
-    BearerAuth:
-      type: http
-      description: 42 APIへのアクセスに使用するBearerトークン
-      scheme: bearer
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://api.intra.42.fr/oauth/authorize
+          tokenUrl: https://api.intra.42.fr/oauth/token
+          scopes: {}
