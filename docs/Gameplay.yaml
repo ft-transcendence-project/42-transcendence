@@ -1,97 +1,149 @@
-openapi: 3.0.0
+asyncapi: 3.0.0
 info:
-  title: Gameplay API
-  description: API for ponglogic and gamesetting
+  title: Pong Logic API
   version: 1.0.0
+  description: Websocketを用いてPongロジックとのリアルタイム通信を行うAPIです。
 servers:
-- url: https://virtserver.swaggerhub.com/SHAHRUKH4062_1/Gameplay/1.0.0
-  description: SwaggerHub API Auto Mocking
-- url: https://virtserver.swaggerhub.com/SHAHRUKH4062_1/Accounts/1.0.0
-  description: SwaggerHub API Auto Mocking
-- url: https://localhost:8443/
-  description: ゲーム設定用APIサーバー
-- url: wss://localhost:8443/
-  description: WebSocketサーバー
-paths:
-  /gameplay/gamesetting/api/:
-    post:
-      tags:
-      - setting
-      summary: ゲーム設定を追加
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/gamesetting_api_body'
-        required: true
-      responses:
-        "201":
-          description: ゲーム設定が作成されました
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/inline_response_201'
-        "400":
-          description: リクエストのデータにエラーがあります
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/inline_response_400'
-  /gameplay/gamesetting/api/{id}/:
-    delete:
-      tags:
-      - setting
-      summary: ゲーム設定を削除
-      parameters:
-      - name: id
-        in: path
-        description: 削除するゲーム設定のID
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: integer
-      responses:
-        "204":
-          description: ゲーム設定が削除されました
-        "400":
-          description: リクエストのデータにエラーがあります
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/inline_response_400'
-components:
-  schemas:
-    gamesetting_api_body:
-      type: object
-      properties:
-        ball_velocity:
-          type: string
-          example: normal
-        ball_size:
-          type: string
-          example: normal
-        map:
-          type: string
-          example: A
-    inline_response_201:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        ball_velocity:
-          type: string
-          example: normal
-        ball_size:
-          type: string
-          example: normal
-        map:
-          type: string
-          example: A
-    inline_response_400:
-      type: object
-      properties:
-        error:
-          type: string
-          example: 無効なリクエストデータ
+  production:
+    host: localhost:8443
+    pathname: '/gameplay.ws/ponglogic/{settingId}'
+    protocol: wss
+    variables:
+      settingId:
+        default: '1'
+        description: Game setting ID
+channels:
+  game:
+    address: game_{setting_id}
+    messages:
+      receivePaddleInstruction.message:
+        description: パドルに対する指示を受け取るメッセージ
+        contentType: application/json
+        payload:
+          type: object
+          required:
+            - side
+            - move_direction
+            - action
+          properties:
+            side:
+              type: string
+              enum:
+                - left
+                - right
+            move_direction:
+              type: string
+              enum:
+                - up
+                - down
+            action:
+              type: string
+              enum:
+                - start
+                - stop
+      sendPongData.message:
+        description: Pongのデータを送信するメッセージ
+        contentType: application/json
+        payload:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: "このponglogicが使用しているGamesettingのid"
+            left_paddle_y:
+              type: integer
+              description: "左パドルのy座標"
+            right_paddle_y:
+              type: integer
+              description: "右パドルのy座標"
+            ball_x:
+              type: integer
+              description: "ボールのx座標"
+            ball_y:
+              type: integer
+              description: "ボールのy座標"
+            ball_radius:
+              type: integer
+              description: "ボールの半径"
+            left_score:
+              type: integer
+              description: "左プレイヤーの得点"
+            right_score:
+              type: integer
+              description: "右プレイヤーの得点"
+            obstacle1_x:
+              type: integer
+              description: "障害物1のx座標 (初回のみ)"
+            obstacle1_y:
+              type: integer
+              description: "障害物1のy座標 (初回のみ)"
+            obstacle1_width:
+              type: integer
+              description: "障害物1の幅 (初回のみ)"
+            obstacle1_height:
+              type: integer
+              description: "障害物1の高さ (初回のみ)"
+            obstacle2_x:
+              type: integer
+              description: "障害物2のx座標 (初回のみ)"
+            obstacle2_y:
+              type: integer
+              description: "障害物2のy座標 (初回のみ)"
+            obstacle2_width:
+              type: integer
+              description: "障害物2の幅 (初回のみ)"
+            obstacle2_height:
+              type: integer
+              description: "障害物2の高さ (初回のみ)"
+            blind_x:
+              type: integer
+              description: "ボール隠しのx座標 (初回のみ)"
+            blind_y:
+              type: integer
+              description: "ボール隠しのy座標 (初回のみ)"
+            blind_width:
+              type: integer
+              description: "ボール隠しの幅 (初回のみ)"
+            blind_height:
+              type: integer
+              description: "ボール隠しの高さ (初回のみ)"
+      sendGameOver.message:
+        description: ゲームの終了報告を送信するメッセージ
+        contentType: application/json
+        payload:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - game_over
+              description: "このmessageのタイプ"
+            winner:
+              type: string
+              description: "勝者の名前"
+            left_score:
+              type: integer
+              description: "左プレイヤーの得点"
+            right_score:
+              type: integer
+              description: "右プレイヤーの得点"
+    description: Channel for game events
+operations:
+  receivePaddleInstruction:
+    action: receive
+    channel:
+      $ref: '#/channels/game'
+    messages:
+      - $ref: '#/channels/game/messages/receivePaddleInstruction.message'
+  sendPongData:
+    action: send
+    channel:
+      $ref: '#/channels/game'
+    messages:
+      - $ref: '#/channels/game/messages/sendPongData.message'
+  sendGameOver:
+    action: send
+    channel:
+      $ref: '#/channels/game'
+    messages:
+      - $ref: '#/channels/game/messages/sendGameOver.message'
