@@ -5,7 +5,7 @@ info:
   PongゲームのAcount/OPTを管理するためのREST API
   - User Login,Logout , 登録
   - OPTのセットアップとトークン検証
-  version: 1.0.0
+
 servers:
 - url: https://virtserver.swaggerhub.com/SHAHRUKH4062_1/Accounts/1.0.0
   description: SwaggerHub API Auto Mocking
