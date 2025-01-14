@@ -1,7 +1,9 @@
 openapi: 3.0.0
 info:
   title: Matches API
-  description: API for managing player matches
+  description: |
+  Pongゲームの試合情報を管理するためのREST API
+  - 試合情報、プレイヤー情報
   version: 1.0.0
 servers:
 - url: https://virtserver.swaggerhub.com/SHAHRUKH4062_1/Matches/1.0.0
