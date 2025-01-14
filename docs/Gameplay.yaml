@@ -7,11 +7,10 @@ info:
     ゲーム設定、パドル操作、ゲーム状態の取得などの機能を提供します。
 
 servers:
-  - url: https://localhost:8443/42pong.api/gameplay
-    description: 本番環境
-  - url: http://localhost:8000/gameplay
-    description: 開発環境
-
+- url: https://virtserver.swaggerhub.com/SHAHRUKH4062_1/Gameplay/1.0.0
+  description: SwaggerHub API Auto Mocking
+- url: http://localhost:3000
+  description: トラセン用のサーバー
 paths:
   /games/{settingId}/paddle:
     post:
