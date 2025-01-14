@@ -7,12 +7,51 @@ import tty
 import termios
 import select
 import subprocess
+import atexit
+import tempfile
+from contextlib import contextmanager
+from pathlib import Path
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from .utils import Utils
 
 base_url = "wss://localhost:8443/gameplay.ws/ponglogic/"
+
+
+class CertificateManager:
+    def __init__(self):
+        self.temp_cert_path = None
+        atexit.register(self.cleanup)
+
+    @contextmanager
+    def get_certificate(self):
+        # 証明書を一時ファイルとして安全に管理
+        with tempfile.NamedTemporaryFile(suffix=".pem", delete=True) as temp_cert:
+            try:
+                # Dockerから証明書をコピー
+                result = subprocess.run(
+                    ["docker", "cp", "web:/etc/ssl/certs/cert.pem", temp_cert.name],
+                    capture_output=True,
+                    check=True,
+                )
+                self.temp_cert_path = Path(temp_cert.name)
+                yield self.temp_cert_path
+            except subprocess.CalledProcessError as e:
+                Utils.print_colored_message("red", f"Docker cp failed: {e.stderr}")
+                yield None
+            except Exception as e:
+                Utils.print_colored_message(
+                    "red",
+                    f"Other errors that occurred with copy_certificate_from_docker: {e}",
+                )
+                yield None
+            finally:
+                self.cleanup()
+
+    def cleanup(self):
+        if os.path.exists(self.temp_cert_path):
+            os.remove(sef.temp_cert_path)
 
 
 class PaddleControl:
@@ -70,26 +109,6 @@ class PaddleControl:
         except KeyboardInterrupt:
             Utils.print_colored_message("red", "Disconnected\n")
             sys.exit(1)
-
-    def copy_certificate_from_docker(self) -> str:
-        try:
-            subprocess.run(
-                ["docker", "cp", "web:/etc/ssl/certs/cert.pem", "."],
-                check=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-            return "./cert.pem"
-        # check==Trueで例外発生した場合にCalledProcessErrorをキャッチ
-        except subprocess.CalledProcessError as e:
-            Utils.print_colored_message("red", f"Docker cp failed: {e}")
-            return None
-        except Exception as e:
-            Utils.print_colored_message(
-                "red",
-                f"Other errors that occurred with copy_certificate_from_docker: {e}",
-            )
-            return None
 
     def connect_to_server(self, cert_file_path: str):
         Utils.print_colored_message("white", "Connecting to: ")
@@ -196,7 +215,7 @@ class PaddleControl:
         message = {"move_direction": move_direction, "action": action, "side": side}
         ws.send(json.dumps(message))
 
-    def main(self):
+    def run_game_cli(self):
         self.first_setup()
         cert_file_path = self.copy_certificate_from_docker()
         if cert_file_path is None:
@@ -207,4 +226,4 @@ class PaddleControl:
 
 if __name__ == "__main__":
     controller = PaddleControl()
-    controller.main()
+    controller.run_game_cli()
