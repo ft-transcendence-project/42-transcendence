@@ -21,22 +21,21 @@ base_url = "wss://localhost:8443/gameplay.ws/ponglogic/"
 
 class CertificateManager:
     def __init__(self):
-        self.temp_cert_path = None
-        atexit.register(self.cleanup)
+        pass
+        # atexit.register(self.cleanup)
 
     @contextmanager
     def get_certificate(self):
         # 証明書を一時ファイルとして安全に管理
         with tempfile.NamedTemporaryFile(suffix=".pem", delete=True) as temp_cert:
             try:
-                # Dockerから証明書をコピー
+                # webコンテナDockerから証明書をコピー
                 result = subprocess.run(
                     ["docker", "cp", "web:/etc/ssl/certs/cert.pem", temp_cert.name],
                     capture_output=True,
                     check=True,
                 )
-                self.temp_cert_path = Path(temp_cert.name)
-                yield self.temp_cert_path
+                yield Path(temp_cert.name)
             except subprocess.CalledProcessError as e:
                 Utils.print_colored_message("red", f"Docker cp failed: {e.stderr}")
                 yield None
@@ -46,12 +45,10 @@ class CertificateManager:
                     f"Other errors that occurred with copy_certificate_from_docker: {e}",
                 )
                 yield None
-            finally:
-                self.cleanup()
 
-    def cleanup(self):
-        if os.path.exists(self.temp_cert_path):
-            os.remove(sef.temp_cert_path)
+    # def cleanup(self):
+    #     if self.temp_cert_path != None and os.path.exists(self.temp_cert_path):
+    #         os.remove(self.temp_cert_path)
 
 
 class PaddleControl:
@@ -217,11 +214,15 @@ class PaddleControl:
 
     def run_game_cli(self):
         self.first_setup()
-        cert_file_path = self.copy_certificate_from_docker()
-        if cert_file_path is None:
+        with CertificateManager().get_certificate() as cert_path:
+            if cert_path is None:
+                Utils.print_colored_message("red", "証明書の取得に失敗")
+                return
+            self.connect_to_server(str(cert_path))
+        if cert_path is None:
             Utils.print_colored_message("red", "Error: Certificate copy failed")
             return
-        self.connect_to_server(cert_file_path)
+        self.connect_to_server(cert_path)
 
 
 if __name__ == "__main__":
