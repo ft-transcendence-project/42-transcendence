@@ -8,16 +8,12 @@ info:
     - ユーザー情報の取得と登録
   version: 1.0.0
 servers:
-- url: https://virtserver.swaggerhub.com/SHAHRUKH4062_1/Oauth/1.0.0
-  description: SwaggerHub API Auto Mocking
+- url: https://localhost:8443/42pong.api/account
+  description: 本番環境
 - url: http://localhost:8000
   description: 開発環境
-- url: https://localhost:8443
-  description: 本番環境
-security:
-- BearerAuth: []
 paths:
-  /api/oauth:
+  /oauth:
     get:
       tags:
       - oauth
@@ -25,6 +21,9 @@ paths:
       description: |
         42 OAuth認証フローを開始します。
         環境に応じて適切なリダイレクトURIを使用します。
+      security: []  # この endpoint は認証不要
+      parameters:
+        - $ref: '#/components/parameters/State'
       responses:
         "302":
           description: 42認証ページへリダイレクト
@@ -34,8 +33,8 @@ paths:
               explode: false
               schema:
                 type: string
-                example: "https://api.intra.42.fr/oauth/authorize?client_id={UID}&redirect_uri={CALLBACK_URL}&response_type=code"
-  /api/oauth/callback:
+                example: "https://api.intra.42.fr/oauth/authorize?client_id={UID}&redirect_uri={CALLBACK_URL}&response_type=code&state={STATE}"
+  /oauth/callback:
     get:
       tags:
       - oauth
@@ -43,13 +42,21 @@ paths:
       description: |
         42からの認証コールバックを処理し、
         アクセストークンの取得とユーザー情報の登録を行います。
+      security: []  # この endpoint は認証不要
       parameters:
       - name: code
         in: query
-        description: 認証コード
+        description: 42から受け取る認証コード
         required: false
         style: form
         explode: true
+        schema:
+          type: string
+      - name: state
+        in: query
+        description: CSRF対策用のステート値
+        required: false
+        style: form
         schema:
           type: string
       - name: error
@@ -57,15 +64,19 @@ paths:
         description: エラーコード
         required: false
         style: form
-        explode: true
         schema:
           type: string
+          enum: [
+            "access_denied",
+            "invalid_request",
+            "invalid_scope",
+            "server_error"
+          ]
       - name: error_description
         in: query
         description: エラーの詳細説明
         required: false
         style: form
-        explode: true
         schema:
           type: string
       responses:
@@ -83,72 +94,86 @@ paths:
               explode: false
               schema:
                 type: string
-                example: token=dummy; Max-Age=86400; Secure; SameSite=Lax
+                example: token=dummy; Max-Age=86400; Secure; SameSite=Lax; HttpOnly
         "400":
           description: 認証エラー
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_400'
+                $ref: '#/components/schemas/OAuthError'
 components:
   schemas:
     OAuthError:
       type: object
+      required:
+        - error
       properties:
         error:
           type: string
           description: エラーコード
+          enum:
+            - invalid_request
+            - invalid_grant
+            - unauthorized_client
+            - access_denied
+            - no_code_provided
         error_description:
           type: string
           description: エラーの詳細説明
     TokenResponse:
       type: object
+      required:
+        - access_token
+        - token_type
+        - expires_in
       properties:
         access_token:
           type: string
           description: アクセストークン
+          format: jwt
         token_type:
           type: string
           example: Bearer
+          enum: [Bearer]
         expires_in:
           type: integer
           description: トークンの有効期限（秒）
+          example: 7200
+        scope:
+          type: string
+          description: 許可されたスコープ（空の場合あり）
     UserInfo:
       type: object
+      required:
+        - login
       properties:
         login:
           type: string
           description: 42のユーザーログイン名
-    inline_response_400:
-      type: object
-      properties:
-        error:
+          example: jdoe
+        email:
           type: string
-          example: No code provided
-        error_description:
-          type: string
-          example: Authorization code was not provided or is invalid.
+          format: email
+          description: ユーザーのメールアドレス
+        image:
+          type: object
+          properties:
+            link:
+              type: string
+              format: uri
+              description: プロフィール画像のURL
   parameters:
-    UID:
-      name: UID
+    State:
+      name: state
       in: query
-      description: 42アプリケーションのクライアントID
-      required: true
-      style: form
-      explode: true
+      description: CSRF対策用のランダムな文字列
+      required: false
       schema:
         type: string
-    SECRET:
-      name: SECRET
-      in: query
-      description: 42アプリケーションのクライアントシークレット
-      required: true
-      style: form
-      explode: true
-      schema:
-        type: string
+        format: uuid
   securitySchemes:
     BearerAuth:
       type: http
       description: 42 APIへのアクセスに使用するBearerトークン
       scheme: bearer
+      bearerFormat: JWT
