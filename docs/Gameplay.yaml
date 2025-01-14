@@ -3,8 +3,8 @@ info:
   title: Pong Game API
   version: 1.0.0
   description: |
-    Pongゲームのロジックを制御するためのREST APIです。
-    ゲーム設定、パドル操作、ゲーム状態の取得などの機能を提供します。
+    Pongゲームのロジックを制御するためのREST API
+    - ゲーム設定、パドル操作、ゲーム状態の取得など
 
 servers:
 - url: https://virtserver.swaggerhub.com/SHAHRUKH4062_1/Gameplay/1.0.0
