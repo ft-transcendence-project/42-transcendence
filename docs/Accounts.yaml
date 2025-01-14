@@ -1,6 +1,7 @@
 openapi: 3.0.0
 info:
   title: Authentication API
+  version: 1.0.0
   description: |
    PongゲームのAcount/OPTを管理するためのREST API
    - User Login,Logout , 登録
