@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import SaveDataView, TournamentRegisterView, GetMatchView
+from .views import SaveDataView, TournamentRegisterView
 
 app_name = "tournament"
 urlpatterns = [
@@ -13,10 +13,5 @@ urlpatterns = [
         "api/save-data/<int:pk>/",
         SaveDataView.as_view(),
         name="save-data",
-    ),
-    path(
-        "api/get-match/<int:tournament_id>/<int:match_number>/",
-        GetMatchView.as_view(),
-        name="get-match",
-    ),
+    )
 ]

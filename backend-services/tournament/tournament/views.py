@@ -176,15 +176,3 @@ class SaveDataView(APIView):
                     player2_score=0,
                 )
                 next_match_number += 1
-
-
-class GetMatchView(APIView):
-    def get(self, request, tournament_id, match_number):
-        try:
-            match_details = get_match_from_blockchain(tournament_id, match_number)
-            return Response(match_details, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response(
-                {"error": f"Error retrieving match from blockchain: {str(e)}"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
