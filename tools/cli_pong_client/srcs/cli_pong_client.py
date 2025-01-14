@@ -111,9 +111,7 @@ class PaddleControl:
     def on_close(self, ws, close_status_code, close_msg):
         Utils.print_colored_message("red", "Disconnected\n")
 
-    def first_setup(self):
-        Utils.print_colored_message("green", "Welcome to Pong Game!!!\n")
-
+    def join_game(self):
         Utils.print_colored_message("green", "Please type game id you want to play. ")
         while (True):
             self.game_id = sys.stdin.readline().strip()
@@ -123,7 +121,24 @@ class PaddleControl:
             else:
                 Utils.print_colored_message("red", "Invalid input. Please type a number. ")
         Utils.print_colored_message("yellow", f"\nOK. The Game id is \n\n\" ----- " + self.game_id + " ----- \"\n")
-    
+
+    def create_game(self):
+        pass
+
+    def first_setup(self):
+        Utils.print_colored_message("green", "Welcome to Pong Game!!!\n")
+        Utils.print_colored_message("green", "Press 1 to join an existing game, or 2 to create your own!")
+        while (True):
+            user_input = sys.stdin.readline().strip()
+            if user_input == '1':
+                self.join_game()
+                break
+            elif user_input == '2':
+                self.create_game()
+                break
+            else:
+                Utils.print_colored_message("red", "Invalid input. Please type 1(Join) or 2(Create).")
+
         Utils.print_colored_message("green", "Which paddle do you want to control?\nType D(Left) or K(Right)")
         while (True):
             user_input = sys.stdin.readline().strip()
