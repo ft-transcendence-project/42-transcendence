@@ -20,13 +20,6 @@ const Login = {
       let username = document.getElementById("id_username").value;
       let password = document.getElementById("id_password").value;
 
-      function getCSRFToken() {
-        return document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("csrftoken="))
-          ?.split("=")[1];
-      }
-
       try {
         const response = await fetch(
           `${window.env.ACCOUNT_HOST}/accounts/api/login/`,
@@ -34,7 +27,6 @@ const Login = {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "X-CSRFToken": getCSRFToken(),
             },
             body: JSON.stringify({ username, password }),
           }
