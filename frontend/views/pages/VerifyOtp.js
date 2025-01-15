@@ -9,13 +9,6 @@ const VerifyOtp = {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      function getCSRFToken() {
-        return document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("csrftoken="))
-          ?.split("=")[1];
-      }
-
       try {
         const user = sessionStorage.getItem("user");
         const otp_token = document.getElementById("id_otp_token").value;
@@ -25,7 +18,6 @@ const VerifyOtp = {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "X-CSRFToken": getCSRFToken(),
             },
             body: JSON.stringify({ user, otp_token }),
           }
@@ -35,7 +27,7 @@ const VerifyOtp = {
 
         if (response.ok) {
           console.log("Login successful:", data);
-          document.cookie = `token=${data.token}; path=/; Secure; SameSite=Strict; max-age=86400`;
+          document.cookie = `isLoggedIn=true; path=/; max-age=86400`;
           window.location.hash = "#/";
         } else {
           const errors = Object.entries(data)

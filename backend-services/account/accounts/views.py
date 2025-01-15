@@ -27,16 +27,17 @@ class CustomLoginView(APIView):
                 return Response(
                     {"redirect": "accounts:verify_otp"}, status=status.HTTP_200_OK
                 )
-            token = generate_jwt(user)
+            jwt = generate_jwt(user)
             logger.info(f"Login successful for user: {user.username}")
             response = Response(
-                {"token": token, "redirect": "homepage"}, status=status.HTTP_200_OK
+                {"redirect": "homepage"}, status=status.HTTP_200_OK
             )
             response.set_cookie(
-                key="token",
-                value=token,
+                key="jwt",
+                value=jwt,
                 max_age=86400,
                 secure=True,
+                httponly=True,
                 samesite="Strict",
             )
             return response
@@ -105,11 +106,20 @@ class VerifyOTPView(APIView):
 
             logger.info(f"OTP verification attempt for user: {user.username}")
             if device and device.verify_token(otp):
-                token = generate_jwt(user)
+                jwt = generate_jwt(user)
                 logger.info(f"OTP verification successful for user: {user.username}")
-                return Response(
-                    {"token": token, "redirect": "homepage"}, status=status.HTTP_200_OK
+                response = Response(
+                    {"redirect": "homepage"}, status=status.HTTP_200_OK
                 )
+                response.set_cookie(
+                    key="jwt",
+                    value=jwt,
+                    max_age=86400,
+                    secure=True,
+                    httponly=True,
+                    samesite="Strict",
+                )
+                return response
             else:
                 logger.warning(f"Invalid OTP provided for user: {user.username}")
                 return Response(
@@ -117,3 +127,16 @@ class VerifyOTPView(APIView):
                 )
         logger.warning(f"OTP verification failed with errors: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@method_decorator([never_cache], name="dispatch")
+class LogoutView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        logger.info(f"Logout attempt for user: {request.user.username}")
+        response = Response({"message": "Logout successful"}, status=status.HTTP_200_OK)
+        response.delete_cookie("jwt")
+        logger.info(f"Logout successful for user: {request.user.username}")
+        return response
