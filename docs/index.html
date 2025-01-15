@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API Documentation</title>
+    <!-- Swagger UI CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css">
+    <!-- AsyncAPI CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/asyncapi-react/1.0.0-next.47/styles/default.min.css">
     <style>
         body {
             margin: 0;
@@ -19,6 +22,8 @@
             position: fixed;
             width: 100%;
             z-index: 1000;
+            display: flex;
+            align-items: center;
         }
         #api-selector select {
             padding: 8px;
@@ -27,8 +32,11 @@
             border: 1px solid #ccc;
             background: white;
         }
-        #swagger-ui {
+        #swagger-ui, #asyncapi-ui {
             margin-top: 50px;
+        }
+        #asyncapi-ui {
+            display: none;
         }
     </style>
 </head>
@@ -43,28 +51,63 @@
         </select>
     </div>
     <div id="swagger-ui"></div>
+    <div id="asyncapi-ui"></div>
 
+    <!-- Swagger UI Bundle -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js"></script>
+    <!-- AsyncAPI Bundle -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/asyncapi-react/1.0.0-next.47/standalone/asyncapi-standalone.min.js"></script>
+    
     <script>
         window.onload = function() {
             loadAPI('Accounts.yaml');
         };
 
-        function loadAPI(fileName) {
-            const ui = SwaggerUIBundle({
-                url: fileName,
-                dom_id: '#swagger-ui',
-                deepLinking: true,
-                presets: [
-                    SwaggerUIBundle.presets.apis,
-                    SwaggerUIStandalonePreset
-                ],
-                plugins: [
-                    SwaggerUIBundle.plugins.DownloadUrl
-                ],
-                layout: "StandaloneLayout"
-            });
+        async function loadAPI(fileName) {
+            try {
+                const response = await fetch(fileName);
+                const content = await response.text();
+                
+                // Check if the YAML contains AsyncAPI specific fields
+                const isAsyncAPI = content.includes('asyncapi:') || content.includes('channels:');
+                
+                // Hide both UIs initially
+                document.getElementById('swagger-ui').style.display = 'none';
+                document.getElementById('asyncapi-ui').style.display = 'none';
+                
+                if (isAsyncAPI) {
+                    // Show AsyncAPI UI
+                    document.getElementById('asyncapi-ui').style.display = 'block';
+                    AsyncApiStandalone.render({
+                        schema: content,
+                        domNode: '#asyncapi-ui',
+                        config: {
+                            show: {
+                                sidebar: true
+                            }
+                        }
+                    });
+                } else {
+                    // Show Swagger UI
+                    document.getElementById('swagger-ui').style.display = 'block';
+                    const ui = SwaggerUIBundle({
+                        url: fileName,
+                        dom_id: '#swagger-ui',
+                        deepLinking: true,
+                        presets: [
+                            SwaggerUIBundle.presets.apis,
+                            SwaggerUIStandalonePreset
+                        ],
+                        plugins: [
+                            SwaggerUIBundle.plugins.DownloadUrl
+                        ],
+                        layout: "StandaloneLayout"
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading API documentation:', error);
+            }
         }
     </script>
 </body>
