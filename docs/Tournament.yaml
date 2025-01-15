@@ -23,9 +23,11 @@ paths:
         content:
           application/json:
             schema:
-              maxItems: 8
-              minItems: 8
               type: array
+              minItems: 8
+              maxItems: 8
+              items:
+                type: string
               example:
               - Player 1
               - Player 2
@@ -35,8 +37,6 @@ paths:
               - Player 6
               - Player 7
               - Player 8
-              items:
-                type: string
         required: true
       responses:
         "201":
@@ -50,44 +50,108 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_400'
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Require 8 players
         "500":
           description: サーバーエラー
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_500'
-  /api/matches/save:
-    post:
+                type: object
+                properties:
+                  error:
+                    type: string
+
+  /api/tournaments/{tournament_id}:
+    get:
       tags:
-      - matches
-      summary: 試合結果の保存
-      description: 試合結果を記録または更新します
+      - tournaments
+      summary: トーナメント情報取得
+      description: 指定されたIDのトーナメント情報を取得します
+      parameters:
+        - name: tournament_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: トーナメント情報取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TournamentDetail'
+        "404":
+          description: トーナメントが見つかりません
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: No tournament found
+    
+    put:
+      tags:
+      - tournaments
+      summary: 試合結果の更新
+      description: トーナメントの試合結果を更新します
+      parameters:
+        - name: tournament_id
+          in: path
+          required: true
+          schema:
+            type: integer
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MatchSave'
-        required: true
+              type: object
+              properties:
+                currentMatch:
+                  $ref: '#/components/schemas/MatchUpdate'
       responses:
         "200":
           description: 試合結果更新成功
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Match'
-        "201":
-          description: 新規試合結果作成成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Match'
+                oneOf:
+                  - $ref: '#/components/schemas/Match'
+                  - type: object
+                    properties:
+                      match:
+                        $ref: '#/components/schemas/Match'
+                      tournament_complete:
+                        type: boolean
+                      winner:
+                        type: string
         "400":
           description: バリデーションエラー
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_400_1'
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: No match data provided
+        "404":
+          description: 試合が見つかりません
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Match not found
+
 components:
   schemas:
     Tournament:
@@ -102,6 +166,12 @@ components:
           type: string
           format: date
           example: 2024-12-28
+        is_over:
+          type: boolean
+        winner:
+          $ref: '#/components/schemas/Player'
+          nullable: true
+
     Player:
       type: object
       properties:
@@ -110,6 +180,7 @@ components:
         name:
           type: string
           example: Player 1
+
     Match:
       type: object
       properties:
@@ -118,8 +189,12 @@ components:
         tournament:
           $ref: '#/components/schemas/Tournament'
         match_number:
-          minimum: 1
           type: integer
+          minimum: 1
+          example: 1
+        round:
+          type: integer
+          minimum: 1
           example: 1
         timestamp:
           type: string
@@ -129,50 +204,46 @@ components:
         player2:
           $ref: '#/components/schemas/Player'
         player1_score:
-          minimum: 0
           type: integer
+          minimum: 0
           example: 0
         player2_score:
-          minimum: 0
           type: integer
+          minimum: 0
           example: 0
         winner:
           $ref: '#/components/schemas/Player'
-    MatchSave:
-      required:
-      - player1_id
-      - player2_id
-      - tournament_id
+          nullable: true
+
+    MatchUpdate:
       type: object
       properties:
-        tournament_id:
-          type: integer
-        id:
-          type: integer
-          nullable: true
         match_number:
+          type: integer
           minimum: 1
+        round:
           type: integer
-          default: 1
-        player1_id:
-          type: integer
-        player2_id:
-          type: integer
-        winner_id:
-          type: integer
-          nullable: true
+          minimum: 1
         player1_score:
-          minimum: 0
           type: integer
-          default: 0
+          minimum: 0
         player2_score:
-          minimum: 0
           type: integer
-          default: 0
-        timestamp:
+          minimum: 0
+        winner:
           type: string
-          format: date-time
-          nullable: true
+          enum: [player1, player2]
+        player1:
+          type: object
+          properties:
+            id:
+              type: integer
+        player2:
+          type: object
+          properties:
+            id:
+              type: integer
+
     TournamentDetail:
       type: object
       properties:
@@ -187,19 +258,3 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Match'
-    inline_response_400:
-      type: object
-      properties:
-        error:
-          type: string
-          example: Require 8 players
-    inline_response_500:
-      type: object
-      properties:
-        error:
-          type: string
-    inline_response_400_1:
-      type: object
-      properties:
-        error:
-          type: object
