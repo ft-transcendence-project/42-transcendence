@@ -37,15 +37,15 @@ class JWTAuthentication(BaseAuthentication):
                 raise exceptions.AuthenticationFailed("Invalid authorization header format")
 
             try:
-                jwt_token = auth[1]
-                jwt_info = jwt.decode(jwt_token, SECRET_KEY, algorithms=["HS256"])
+                jwt = auth[1]
+                jwt_info = jwt.decode(jwt, SECRET_KEY, algorithms=["HS256"])
                 userid = jwt_info.get("userid")
                 if userid is None:
                     raise exceptions.AuthenticationFailed("Token does not contain user ID")
 
                 try:
                     user = CustomUser.objects.get(pk=userid)
-                    return (user, jwt_token)
+                    return (user, jwt)
                 except CustomUser.DoesNotExist:
                     raise exceptions.AuthenticationFailed("User not found in database")
 

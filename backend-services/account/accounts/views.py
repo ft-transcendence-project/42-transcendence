@@ -27,14 +27,14 @@ class CustomLoginView(APIView):
                 return Response(
                     {"redirect": "accounts:verify_otp"}, status=status.HTTP_200_OK
                 )
-            token = generate_jwt(user)
+            jwt = generate_jwt(user)
             logger.info(f"Login successful for user: {user.username}")
             response = Response(
-                {"token": token, "redirect": "homepage"}, status=status.HTTP_200_OK
+                {"redirect": "homepage"}, status=status.HTTP_200_OK
             )
             response.set_cookie(
-                key="token",
-                value=token,
+                key="jwt",
+                value=jwt,
                 max_age=86400,
                 secure=True,
                 httponly=True,
@@ -106,14 +106,14 @@ class VerifyOTPView(APIView):
 
             logger.info(f"OTP verification attempt for user: {user.username}")
             if device and device.verify_token(otp):
-                token = generate_jwt(user)
+                jwt = generate_jwt(user)
                 logger.info(f"OTP verification successful for user: {user.username}")
                 response = Response(
-                    {"token": token, "redirect": "homepage"}, status=status.HTTP_200_OK
+                    {"redirect": "homepage"}, status=status.HTTP_200_OK
                 )
                 response.set_cookie(
-                    key="token",
-                    value=token,
+                    key="jwt",
+                    value=jwt,
                     max_age=86400,
                     secure=True,
                     httponly=True,
