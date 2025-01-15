@@ -27,7 +27,6 @@ const VerifyOtp = {
 
         if (response.ok) {
           console.log("Login successful:", data);
-          document.cookie = `token=${data.token}; path=/; Secure; SameSite=Strict; max-age=86400`;
           window.location.hash = "#/";
         } else {
           const errors = Object.entries(data)

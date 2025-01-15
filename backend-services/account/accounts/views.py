@@ -108,9 +108,18 @@ class VerifyOTPView(APIView):
             if device and device.verify_token(otp):
                 token = generate_jwt(user)
                 logger.info(f"OTP verification successful for user: {user.username}")
-                return Response(
+                response = Response(
                     {"token": token, "redirect": "homepage"}, status=status.HTTP_200_OK
                 )
+                response.set_cookie(
+                    key="token",
+                    value=token,
+                    max_age=86400,
+                    secure=True,
+                    httponly=True,
+                    samesite="Strict",
+                )
+                return response
             else:
                 logger.warning(f"Invalid OTP provided for user: {user.username}")
                 return Response(
