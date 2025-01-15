@@ -127,3 +127,16 @@ class VerifyOTPView(APIView):
                 )
         logger.warning(f"OTP verification failed with errors: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@method_decorator([never_cache], name="dispatch")
+class LogoutView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        logger.info(f"Logout attempt for user: {request.user.username}")
+        response = Response({"message": "Logout successful"}, status=status.HTTP_200_OK)
+        response.delete_cookie("jwt")
+        logger.info(f"Logout successful for user: {request.user.username}")
+        return response
