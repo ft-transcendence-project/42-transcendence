@@ -31,11 +31,11 @@ services:
     restart: unless-stopped
 
   db:
-    volumes: !override
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    volumes: !reset []
     restart: unless-stopped
 
   frontend:
+    volumes: !reset []
     environment: !override
       - ACCOUNT_HOST=https://localhost:8443/42pong.api/account
       - GAMEPLAY_HOST=https://localhost:8443/42pong.api/gameplay
