@@ -116,33 +116,42 @@ class PongLogic(AsyncWebsocketConsumer):
     async def receive(self, text_data=None):
         pong_data = json.loads(text_data)
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
-        pong_info = self.pong_info_map[setting_id]
-        if pong_data.get("game_signal", None) == "start":
-            pong_info.is_game_started = True
-        else:
-            pong_info.paddle.set_instruction(pong_data)
+        try:
+            pong_info = self.pong_info_map[setting_id]
+            if pong_data.get("game_signal", None) == "start":
+                pong_info.is_game_started = True
+            else:
+                pong_info.paddle.set_instruction(pong_data)
+        except KeyError:
+            logger.error(f"Error: setting_id '{setting_id}' is not found in pong_info_map.")
 
     async def send_pong_data(self, first=False):
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
-        pong_info = self.pong_info_map[setting_id]
-        await self.channel_layer.group_send(
-            pong_info.group_name,
-            {
-                "type": "send_message",
-                "content": Utils.generate_pong_data(pong_info, first),
-            },
-        )
+        try:
+            pong_info = self.pong_info_map[setting_id]
+            await self.channel_layer.group_send(
+                pong_info.group_name,
+                {
+                    "type": "send_message",
+                    "content": Utils.generate_pong_data(pong_info, first),
+                },
+            )
+        except KeyError:
+            print(f"Error: setting_id '{setting_id}' is not found in pong_info_map.")
 
     async def send_game_over_message(self, winner):
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
-        pong_info = self.pong_info_map[setting_id]
-        await self.channel_layer.group_send(
-            pong_info.group_name,
-            {
-                "type": "send_message",
-                "content": Utils.generate_game_over_message(pong_info, winner),
-            },
-        )
+        try:
+            pong_info = self.pong_info_map[setting_id]
+            await self.channel_layer.group_send(
+                pong_info.group_name,
+                {
+                    "type": "send_message",
+                    "content": Utils.generate_game_over_message(pong_info, winner),
+                },
+            )
+        except KeyError:
+            print(f"Error: setting_id '{setting_id}' is not found in pong_info_map.")
 
     async def send_message(self, event):
         pong_data = event["content"]
