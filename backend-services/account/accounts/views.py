@@ -37,6 +37,7 @@ class CustomLoginView(APIView):
                 value=token,
                 max_age=86400,
                 secure=True,
+                httponly=True,
                 samesite="Strict",
             )
             return response

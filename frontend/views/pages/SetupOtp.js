@@ -4,18 +4,11 @@ const SetupOtp = {
       (response) => response.text()
     );
 
-    const token = document.cookie.replace(
-      /(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/,
-      "$1"
-    );
-
     const response = await fetch(
       `${window.env.ACCOUNT_HOST}/accounts/api/setup-otp/`,
       {
         method: "GET",
-        headers: {
-          Authorization: `JWT ${token}`,
-        },
+        credentials: "include", // Cookieを含めて送信
       }
     ).catch((error) => console.error(error));
     const data = await response.json();
