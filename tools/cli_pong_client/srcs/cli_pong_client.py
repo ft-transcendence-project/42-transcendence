@@ -14,9 +14,13 @@ from .utils import Utils
 
 base_ws_url = "wss://localhost:8443/gameplay.ws/ponglogic/"
 game_setting_url = "https://localhost:8443/42pong.api/gameplay/gamesetting/api/"
+login_url = "https://localhost:8443/42pong.api/account/accounts/api/login/"
 
 class PaddleControl:
     def __init__(self):
+        self.username = ""
+        self.password = ""
+        self.login_token = ""
         self.game_id = None
         self.ws_url = ""
         self.running = True
@@ -233,11 +237,41 @@ class PaddleControl:
                 Utils.print_colored_message("red", "Invalid input. Please type D(Left) or K(Right).")
         Utils.print_colored_message("yellow", "\nOK. You control \n\n\" ----- " + ("Left" if self.paddle_side == "left" else "Right") + " ----- \"\n")
 
+    def post_login(self):
+        headers = {
+            "Content-Type": "application/json",
+        }
+
+        Utils.print_colored_message("green", "Please type your username.")
+        self.username = sys.stdin.readline().strip()
+
+        Utils.print_colored_message("green", "Please type your password.")
+        self.password = sys.stdin.readline().strip()
+
+        login_info = {
+            "username": self.username,
+            "password": self.password
+        }
+
+        try:
+            response = requests.post(login_url, headers=headers, json=login_info, verify=False)
+
+            if response.status_code == 200:
+                Utils.print_colored_message("green", "Logged in successfully!\n")
+                self.login_token = response.json().get('token')
+            else:
+                Utils.print_colored_message("red", "Failed to login. Please check your username and password.\n")
+                self.login()
+        except Exception as e:
+            Utils.print_colored_message("red", f"An error occurred:{e}\n")
+            sys.exit(1)
+
     def login(self):
         Utils.print_colored_message("green", "Do you want to login? (Y/N)")
         while (True):
             user_input = sys.stdin.readline().strip()
             if user_input in ['Y', 'y']:
+                self.post_login()
                 break
             elif user_input in ['N', 'n']:
                 break
