@@ -136,7 +136,6 @@ class Utils:
             == True
         ):
             is_left = True
-            # 左パドル上部の衝突判定
             if (
                 Utils.has_collided_with_paddle_top(
                     pong_info.ball, pong_info.paddle, is_left
@@ -155,7 +154,6 @@ class Utils:
 
     @staticmethod
     def right_paddle_collision(ball_velocity, pong_info):
-        # 右パドル衝突判定
         if (
             Utils.has_collided_with_paddle_right(
                 pong_info.ball, pong_info.paddle, pong_info.game_window
@@ -163,7 +161,6 @@ class Utils:
             == True
         ):
             is_left = False
-            # 右パドル上部衝突判定
             if (
                 Utils.has_collided_with_paddle_top(
                     pong_info.ball, pong_info.paddle, is_left
@@ -225,20 +222,16 @@ class Utils:
 
     @staticmethod
     def update_ball_angle(ball, paddle, is_left, is_top):
-        # 左パドルの上部に衝突した時
         if is_left == True and is_top == True:
             collision_distance = (paddle.left_y + paddle.height / 2) - ball.y
-            # 左パドルの最上部に衝突したか
             if collision_distance > paddle.height / 2:
                 ball.angle = ball.bound_angle.get("left_top")
             else:
                 ball.angle = (ball.bound_angle["left_top"] - 2 * math.pi) / (
                     paddle.height / 2
                 ) * collision_distance + 2 * math.pi
-        # 左パドルの下部に衝突した時
         elif is_left == True and is_top == False:
             collision_distance = ball.y - (paddle.left_y + paddle.height / 2)
-            # パドルの最下部に衝突したか
             if collision_distance > paddle.height / 2:
                 ball.angle = ball.bound_angle.get("left_bottom")
             else:
@@ -247,10 +240,8 @@ class Utils:
                     / (paddle.height / 2)
                     * collision_distance
                 )
-        # 右パドルの上部に衝突した時
         elif is_left == False and is_top == True:
             collision_distance = (paddle.right_y + paddle.height / 2) - ball.y
-            # 右パドルの最上部に衝突したか
             if collision_distance > paddle.height / 2:
                 ball.angle = ball.bound_angle.get("right_top")
             else:
@@ -260,10 +251,8 @@ class Utils:
                     / (paddle.height / 2)
                     * collision_distance
                 )
-        # 右パドルの下部に衝突した時
         else:
             collision_distance = ball.y - (paddle.right_y + paddle.height / 2)
-            # 右パドルの最下部に衝突したか
             if collision_distance > paddle.height / 2:
                 ball.angle = ball.bound_angle.get("right_bottom")
             else:
@@ -276,7 +265,6 @@ class Utils:
 
     @staticmethod
     def adjust_ball_position(ball, paddle, velocity, game_window, obstacle_exist, obstacle1, obstacle2):
-        # 左パドルに衝突しそうかどうか
         if (
             ball.x - ball.radius > paddle.width
             and ball.x + velocity["x"] - ball.radius < paddle.width
@@ -285,7 +273,6 @@ class Utils:
             ball.x = paddle.width + ball.radius
         else:
             ball.x += velocity["x"]
-        # 右パドルに衝突しそうかどうか
         if (
             ball.x + ball.radius < game_window.width - paddle.width
             and ball.x + velocity["x"] + ball.radius > game_window.width - paddle.width
@@ -294,13 +281,10 @@ class Utils:
             ball.x = game_window.width - paddle.width - ball.radius
         else:
             ball.y += velocity["y"]
-        # 上の壁に衝突しそうかどうか
         if ball.y - ball.radius < 0:
             ball.y = ball.radius
-        # 下の壁に衝突しそうかどうか
         if ball.y + ball.radius > game_window.height:
             ball.y = game_window.height - ball.radius
-        # 障害物1に衝突しそうかどうか
         if (obstacle_exist == True):
             if (ball.y + ball.radius > obstacle1.y and ball.y + ball.radius - obstacle1.y <= abs(velocity["y"])
                 and ball.x + ball.radius > obstacle1.x and ball.x - ball.radius < obstacle1.x + obstacle1.width
@@ -318,7 +302,6 @@ class Utils:
                   and ball.x - ball.radius < obstacle1.x + obstacle1.width and obstacle1.x + obstacle1.width - ball.x + ball.radius <= abs(velocity["x"])
                   and ball.direction["facing_left"]):
                 ball.x = obstacle1.x + obstacle1.width + ball.radius
-            # 障害物2に衝突しそうかどうか
             if (ball.y + ball.radius > obstacle2.y and ball.y + ball.radius - obstacle2.y <= abs(velocity["y"])
                 and ball.x + ball.radius > obstacle2.x and ball.x - ball.radius < obstacle2.x + obstacle2.width
                 and ball.direction["facing_down"]):
