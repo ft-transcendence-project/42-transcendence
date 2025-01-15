@@ -91,8 +91,8 @@ def oauth_callback_view(request):
                 response = redirect("http://localhost:3000/#/")
 
             response.set_cookie(
-                key="token",
-                value="dummy",
+                key="isLoggedIn",
+                value="true",
                 max_age=86400,
                 secure=True,
                 samesite="Lax",
