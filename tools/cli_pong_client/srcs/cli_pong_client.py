@@ -260,14 +260,14 @@ class PaddleControl:
                 Utils.print_colored_message("green", "Logged in successfully!\n")
                 self.login_token = response.json().get('token')
             else:
-                Utils.print_colored_message("red", "Failed to login. Please check your username and password.\n")
+                Utils.print_colored_message("red", "Failed to log in. Please check your username and password.\n")
                 self.login()
         except Exception as e:
             Utils.print_colored_message("red", f"An error occurred:{e}\n")
             sys.exit(1)
 
     def login(self):
-        Utils.print_colored_message("green", "Do you want to login? (Y/N)")
+        Utils.print_colored_message("green", "Do you want to log in? (Y/N)")
         while (True):
             user_input = sys.stdin.readline().strip()
             if user_input in ['Y', 'y']:
