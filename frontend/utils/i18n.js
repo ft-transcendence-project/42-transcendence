@@ -12,9 +12,8 @@ i18next
     detection: {
       // 言語検出の順序を設定
       order: ['cookie', 'navigator'],
-      caches: ['cookie'], // 言語を保存する先をcookieに設定
-      cookieMinutes: 10080, // クッキーの有効期限（分単位、例: 7日 = 10080分）
-      cookieSecure: true, // HTTPSのみでクッキーを利用する場合に設定
+      lookupCookie: 'default_language', // cookieのキー名を指定
+      caches: [], // キャッシュしない
     },
   }, (err, t) => {
     if (err) return console.error('i18next init error:', err);
