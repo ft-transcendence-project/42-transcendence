@@ -2,7 +2,6 @@ import json
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 import asyncio
-# import random
 import logging
 import math
 from datetime import datetime
@@ -10,10 +9,6 @@ from .utils import Utils
 from .objects.pong_info import PongInfo
 
 logger = logging.getLogger('ponglogic')
-
-# from channels.db import database_sync_to_async
-# from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
-# from websocket.serializers import GameStateSerializer
 
 SCORE_TO_WIN = 15
 RESET_DURATION = 2
@@ -26,7 +21,6 @@ class PongLogic(AsyncWebsocketConsumer):
         self.group_name = None
         super().__init__(*args, **kwargs)
 
-    # PongLogic
     async def game_loop(self):
         try:
             from gamesetting.models import GameSetting
