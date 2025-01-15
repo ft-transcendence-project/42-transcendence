@@ -233,7 +233,20 @@ class PaddleControl:
                 Utils.print_colored_message("red", "Invalid input. Please type D(Left) or K(Right).")
         Utils.print_colored_message("yellow", "\nOK. You control \n\n\" ----- " + ("Left" if self.paddle_side == "left" else "Right") + " ----- \"\n")
 
+    def login(self):
+        Utils.print_colored_message("green", "Do you want to login? (Y/N)")
+        while (True):
+            user_input = sys.stdin.readline().strip()
+            if user_input in ['Y', 'y']:
+                break
+            elif user_input in ['N', 'n']:
+                break
+            else:
+                Utils.print_colored_message("red", "Invalid input. Please type Y(Yes) or N(No).")
+
     def main(self):
+        self.login()
+
         self.first_setup()
     
         Utils.print_colored_message("white", "Connecting to: ")
