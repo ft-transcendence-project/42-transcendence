@@ -3,20 +3,21 @@ info:
   title: Authentication API
   version: 1.0.0
   description: |
-   PongゲームのAcount/OPTを管理するためのREST API
-   - User Login,Logout , 登録
-   - OPTのセットアップとトークン検証
+    PongゲームのAcount/OPTを管理するためのREST API
+    - User Login,Logout , 登録
+    - OPTのセットアップとトークン検証
 
 servers:
-- url: https://virtserver.swaggerhub.com/SHAHRUKH4062_1/Accounts/1.0.0
-  description: SwaggerHub API Auto Mocking
-- url: http://localhost:3000
-  description: トラセン用のサーバー
+  - url: https://virtserver.swaggerhub.com/SHAHRUKH4062_1/Accounts/1.0.0
+    description: SwaggerHub API Auto Mocking
+  - url: http://localhost:3000
+    description: トラセン用のサーバー
+
 paths:
   /login:
     post:
       tags:
-      - authentication
+        - authentication
       summary: ユーザーログイン
       requestBody:
         content:
@@ -37,10 +38,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
   /logout:
     get:
       tags:
-      - authentication
+        - authentication
       summary: ユーザーログアウト
       responses:
         "200":
@@ -49,10 +51,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RedirectResponse'
+
   /signup:
     post:
       tags:
-      - authentication
+        - authentication
       summary: ユーザー登録
       requestBody:
         content:
@@ -73,11 +76,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
   /setup-otp:
     get:
       tags:
-      - otp
+        - otp
       summary: OTP初期設定情報取得
+      security:
+        - BearerAuth: []
       responses:
         "200":
           description: OTP設定情報
@@ -91,12 +97,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/inline_response_400'
-      security:
-      - BearerAuth: []
+
     post:
       tags:
-      - otp
+        - otp
       summary: OTP設定の確定
+      security:
+        - BearerAuth: []
       responses:
         "200":
           description: 設定成功
@@ -104,12 +111,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/inline_response_200_2'
-      security:
-      - BearerAuth: []
+
   /verify-otp:
     post:
       tags:
-      - otp
+        - otp
       summary: OTPトークン検証
       requestBody:
         content:
@@ -130,6 +136,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
 components:
   schemas:
     Error:
@@ -138,12 +145,14 @@ components:
         error:
           type: string
           example: エラーメッセージ
+
     RedirectResponse:
       type: object
       properties:
         redirect:
           type: string
           example: accounts:login
+
     login_body:
       type: object
       properties:
@@ -153,21 +162,23 @@ components:
         password:
           type: string
           example: password123
+
     inline_response_200:
       oneOf:
-      - type: object
-        properties:
-          token:
-            type: string
-            example: eyJ0eXAiOiJKV1QiLC...
-          redirect:
-            type: string
-            example: homepage
-      - type: object
-        properties:
-          redirect:
-            type: string
-            example: accounts:verify_otp
+        - type: object
+          properties:
+            token:
+              type: string
+              example: eyJ0eXAiOiJKV1QiLC...
+            redirect:
+              type: string
+              example: homepage
+        - type: object
+          properties:
+            redirect:
+              type: string
+              example: accounts:verify_otp
+
     signup_body:
       type: object
       properties:
@@ -179,6 +190,7 @@ components:
         password:
           type: string
           format: password
+
     inline_response_200_1:
       type: object
       properties:
@@ -188,18 +200,21 @@ components:
         secret_key:
           type: string
           example: ABCDEFGHIJKLMNOP
+
     inline_response_400:
       type: object
       properties:
         message:
           type: string
           example: OTP already set up
+
     inline_response_200_2:
       type: object
       properties:
         message:
           type: string
           example: OTP setup successful
+
     verifyotp_body:
       type: object
       properties:
@@ -208,6 +223,7 @@ components:
         otp_token:
           type: string
           example: "123456"
+
     inline_response_200_3:
       type: object
       properties:
@@ -217,6 +233,7 @@ components:
         redirect:
           type: string
           example: homepage
+
   securitySchemes:
     BearerAuth:
       type: http
