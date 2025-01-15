@@ -19,6 +19,7 @@ const SignUp = {
       let username = document.getElementById("username").value;
       let password = document.getElementById("password").value;
       let email = document.getElementById("email").value;
+      let default_language = document.querySelector('input[name="language"]:checked').id.replace("language-", "");
 
       function getCSRFToken() {
         return document.cookie
@@ -36,7 +37,7 @@ const SignUp = {
               "Content-Type": "application/json",
               "X-CSRFToken": getCSRFToken(),
             },
-            body: JSON.stringify({ username, password, email }),
+            body: JSON.stringify({ username, password, email, default_language }),
           }
         );
 

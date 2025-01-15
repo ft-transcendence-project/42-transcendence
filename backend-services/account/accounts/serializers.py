@@ -27,13 +27,14 @@ class SignUpSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ["username", "password", "email"]
+        fields = ["username", "password", "email", "default_language"]
 
     def create(self, validated_data):
         user = CustomUser.objects.create_user(
             username=validated_data["username"],
             password=validated_data["password"],
             email=validated_data.get("email", ""),
+            default_language=validated_data.get("default_language", "en"),
         )
         return user
 

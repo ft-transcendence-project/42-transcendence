@@ -2,6 +2,7 @@ const Logout = {
   render: async () => {
     try {
       document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      document.cookie = "default_language=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     } catch (error) {
       console.error("Failed to clear cookies:", error);
       alert(i18next.t("login:errors.logout"));
