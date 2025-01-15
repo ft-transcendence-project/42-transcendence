@@ -26,34 +26,25 @@ class JWTAuthentication(BaseAuthentication):
 
     def authenticate(self, request):
         try:
-            auth = get_authorization_header(request).split()
-
-            if not auth or auth[0].lower() != self.keyword.lower().encode():
+            token = request.COOKIES.get('jwt')
+            if not token:
                 return None
 
-            if len(auth) == 1:
-                raise exceptions.AuthenticationFailed("Authorization header must contain two parts")
-            elif len(auth) > 2:
-                raise exceptions.AuthenticationFailed("Invalid authorization header format")
+            jwt_info = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+            userid = jwt_info.get("userid")
+            if userid is None:
+                raise exceptions.AuthenticationFailed("Token does not contain user ID")
 
             try:
-                jwt = auth[1]
-                jwt_info = jwt.decode(jwt, SECRET_KEY, algorithms=["HS256"])
-                userid = jwt_info.get("userid")
-                if userid is None:
-                    raise exceptions.AuthenticationFailed("Token does not contain user ID")
+                user = CustomUser.objects.get(pk=userid)
+                return (user, token)
+            except CustomUser.DoesNotExist:
+                raise exceptions.AuthenticationFailed("User not found in database")
 
-                try:
-                    user = CustomUser.objects.get(pk=userid)
-                    return (user, jwt)
-                except CustomUser.DoesNotExist:
-                    raise exceptions.AuthenticationFailed("User not found in database")
-
-            except jwt.ExpiredSignatureError:
-                raise exceptions.AuthenticationFailed("Token has expired")
-            except jwt.InvalidTokenError:
-                raise exceptions.AuthenticationFailed("Invalid token format")
-
+        except jwt.ExpiredSignatureError:
+            raise exceptions.AuthenticationFailed("Token has expired")
+        except jwt.InvalidTokenError:
+            raise exceptions.AuthenticationFailed("Invalid token format")
         except Exception as e:
             raise exceptions.AuthenticationFailed(f"Authentication error: {str(e)}")
 
