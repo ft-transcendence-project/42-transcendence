@@ -4,17 +4,15 @@ info:
   version: 1.0.0
   description: |
     PongゲームのAcount/OPTを管理するためのREST API
-    - User Login,Logout , 登録
+    - User Login, Signup
     - OPTのセットアップとトークン検証
 
 servers:
-  - url: https://virtserver.swaggerhub.com/SHAHRUKH4062_1/Accounts/1.0.0
-    description: SwaggerHub API Auto Mocking
   - url: http://localhost:3000
-    description: トラセン用のサーバー
+    description: 開発用サーバー
 
 paths:
-  /login:
+  /api/login:
     post:
       tags:
         - authentication
@@ -39,20 +37,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /logout:
-    get:
-      tags:
-        - authentication
-      summary: ユーザーログアウト
-      responses:
-        "200":
-          description: ログアウト成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RedirectResponse'
-
-  /signup:
+  /api/signup:
     post:
       tags:
         - authentication
@@ -77,7 +62,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /setup-otp:
+  /api/setup-otp:
     get:
       tags:
         - otp
@@ -112,7 +97,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/inline_response_200_2'
 
-  /verify-otp:
+  /api/verify-otp:
     post:
       tags:
         - otp
@@ -162,6 +147,9 @@ components:
         password:
           type: string
           example: password123
+      required:
+        - username
+        - password
 
     inline_response_200:
       oneOf:
@@ -190,6 +178,10 @@ components:
         password:
           type: string
           format: password
+      required:
+        - username
+        - email
+        - password
 
     inline_response_200_1:
       type: object
@@ -223,6 +215,9 @@ components:
         otp_token:
           type: string
           example: "123456"
+      required:
+        - username
+        - otp_token
 
     inline_response_200_3:
       type: object
