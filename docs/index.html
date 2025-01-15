@@ -6,8 +6,6 @@
     <title>API Documentation</title>
     <!-- Swagger UI CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css">
-    <!-- AsyncAPI CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/asyncapi-react/1.0.0-next.47/styles/default.min.css">
     <style>
         body {
             margin: 0;
@@ -38,25 +36,40 @@
         #asyncapi-ui {
             display: none;
         }
+        asyncapi-component {
+            --font-size: 14px;
+            --primary-color: #32329f;
+            --secondary-color: #62a03f;
+            --primary-text-color: #333;
+            --secondary-text-color: #666;
+            --bg-color: #fff;
+            --border-radius: 4px;
+            --border-width: 1px;
+            --border-color: #ccc;
+        }
     </style>
+    <!-- AsyncAPI Web Component -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponents/2.8.0/webcomponents-bundle.min.js"></script>
+    <script src="https://unpkg.com/@asyncapi/web-component@1.0.0-next.47/lib/asyncapi-web-component.js" type="module"></script>
 </head>
 <body>
     <div id="api-selector">
         <select id="api-file" onchange="loadAPI(this.value)">
             <option value="Accounts.yaml">Accounts API</option>
             <option value="Gameplay.yaml">Gameplay API</option>
+            <option value="Matches.yaml">Matches API</option>
             <option value="Oauth.yaml">Oauth API</option>
             <option value="Tournament.yaml">Tournament API</option>
         </select>
     </div>
     <div id="swagger-ui"></div>
-    <div id="asyncapi-ui"></div>
+    <div id="asyncapi-ui">
+        <asyncapi-component></asyncapi-component>
+    </div>
 
     <!-- Swagger UI Bundle -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js"></script>
-    <!-- AsyncAPI Bundle -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/asyncapi-react/1.0.0-next.47/standalone/asyncapi-standalone.min.js"></script>
     
     <script>
         window.onload = function() {
@@ -78,15 +91,8 @@
                 if (isAsyncAPI) {
                     // Show AsyncAPI UI
                     document.getElementById('asyncapi-ui').style.display = 'block';
-                    AsyncApiStandalone.render({
-                        schema: content,
-                        domNode: '#asyncapi-ui',
-                        config: {
-                            show: {
-                                sidebar: true
-                            }
-                        }
-                    });
+                    const asyncApiComponent = document.querySelector('asyncapi-component');
+                    asyncApiComponent.spec = content;
                 } else {
                     // Show Swagger UI
                     document.getElementById('swagger-ui').style.display = 'block';
