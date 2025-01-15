@@ -17,50 +17,22 @@ paths:
       tags:
         - authentication
       summary: ユーザーログイン
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/login_body'
-        required: true
       responses:
         "200":
           description: ログイン成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/inline_response_200'
         "400":
           description: バリデーションエラー
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
 
   /api/signup:
     post:
       tags:
         - authentication
       summary: ユーザー登録
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/signup_body'
-        required: true
       responses:
         "201":
           description: 登録成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RedirectResponse'
         "400":
           description: バリデーションエラー
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
 
   /api/setup-otp:
     get:
@@ -72,16 +44,8 @@ paths:
       responses:
         "200":
           description: OTP設定情報
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/inline_response_200_1'
         "400":
           description: すでに設定済み
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/inline_response_400'
 
     post:
       tags:
@@ -92,143 +56,19 @@ paths:
       responses:
         "200":
           description: 設定成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/inline_response_200_2'
 
   /api/verify-otp:
     post:
       tags:
         - otp
       summary: OTPトークン検証
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/verifyotp_body'
-        required: true
       responses:
         "200":
           description: 検証成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/inline_response_200_3'
         "400":
           description: 検証失敗
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
 
 components:
-  schemas:
-    Error:
-      type: object
-      properties:
-        error:
-          type: string
-          example: エラーメッセージ
-
-    RedirectResponse:
-      type: object
-      properties:
-        redirect:
-          type: string
-          example: accounts:login
-
-    login_body:
-      type: object
-      properties:
-        username:
-          type: string
-          example: user@example.com
-        password:
-          type: string
-          example: password123
-      required:
-        - username
-        - password
-
-    inline_response_200:
-      oneOf:
-        - type: object
-          properties:
-            token:
-              type: string
-              example: eyJ0eXAiOiJKV1QiLC...
-            redirect:
-              type: string
-              example: homepage
-        - type: object
-          properties:
-            redirect:
-              type: string
-              example: accounts:verify_otp
-
-    signup_body:
-      type: object
-      properties:
-        username:
-          type: string
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-          format: password
-      required:
-        - username
-        - email
-        - password
-
-    inline_response_200_1:
-      type: object
-      properties:
-        otpauth_url:
-          type: string
-          example: otpauth://totp/...
-        secret_key:
-          type: string
-          example: ABCDEFGHIJKLMNOP
-
-    inline_response_400:
-      type: object
-      properties:
-        message:
-          type: string
-          example: OTP already set up
-
-    inline_response_200_2:
-      type: object
-      properties:
-        message:
-          type: string
-          example: OTP setup successful
-
-    verifyotp_body:
-      type: object
-      properties:
-        username:
-          type: string
-        otp_token:
-          type: string
-          example: "123456"
-      required:
-        - username
-        - otp_token
-
-    inline_response_200_3:
-      type: object
-      properties:
-        token:
-          type: string
-          example: eyJ0eXAiOiJKV1QiLC...
-        redirect:
-          type: string
-          example: homepage
-
   securitySchemes:
     BearerAuth:
       type: http
