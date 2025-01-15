@@ -41,6 +41,7 @@ const Login = {
             window.location.hash = "#/verify-otp";
             return;
           }
+          document.cookie = `isLoggedIn=true; path=/; max-age=86400`;
           window.location.hash = "#/";
         } else {
           const errors = Object.entries(data)
