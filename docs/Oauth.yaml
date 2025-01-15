@@ -12,95 +12,71 @@ servers:
   description: SwaggerHub API Auto Mocking
 - url: http://localhost:3000
   description: トラセン用のサーバー
+
 paths:
-  /oauth:
+  /account/oauth:
     get:
       tags:
-      - oauth
+        - oauth
       summary: 42認証の開始
       description: |
         42 OAuth認証フローを開始します。
         環境に応じて適切なリダイレクトURIを使用します。
-      security: []  # この endpoint は認証不要
-      parameters:
-        - $ref: '#/components/parameters/State'
       responses:
-        "302":
+        '302':
           description: 42認証ページへリダイレクト
           headers:
             Location:
-              style: simple
-              explode: false
               schema:
                 type: string
-                example: "https://api.intra.42.fr/oauth/authorize?client_id={UID}&redirect_uri={CALLBACK_URL}&response_type=code&state={STATE}"
-  /oauth/callback:
+                example: "https://api.intra.42.fr/oauth/authorize?client_id={UID}&redirect_uri={CALLBACK_URL}&response_type=code"
+
+  /account/oauth/callback:
     get:
       tags:
-      - oauth
+        - oauth
       summary: OAuth認証コールバック
       description: |
         42からの認証コールバックを処理し、
         アクセストークンの取得とユーザー情報の登録を行います。
-      security: []  # この endpoint は認証不要
       parameters:
-      - name: code
-        in: query
-        description: 42から受け取る認証コード
-        required: false
-        style: form
-        explode: true
-        schema:
-          type: string
-      - name: state
-        in: query
-        description: CSRF対策用のステート値
-        required: false
-        style: form
-        schema:
-          type: string
-      - name: error
-        in: query
-        description: エラーコード
-        required: false
-        style: form
-        schema:
-          type: string
-          enum: [
-            "access_denied",
-            "invalid_request",
-            "invalid_scope",
-            "server_error"
-          ]
-      - name: error_description
-        in: query
-        description: エラーの詳細説明
-        required: false
-        style: form
-        schema:
-          type: string
+        - name: code
+          in: query
+          description: 42から受け取る認証コード
+          required: false
+          schema:
+            type: string
+        - name: error
+          in: query
+          description: エラーコード
+          required: false
+          schema:
+            type: string
+        - name: error_description
+          in: query
+          description: エラーの詳細説明
+          required: false
+          schema:
+            type: string
       responses:
-        "302":
+        '302':
           description: 認証成功時のリダイレクト
           headers:
             Location:
-              style: simple
-              explode: false
               schema:
                 type: string
-                example: http://localhost:3000/#/
+                example: "https://localhost:8443/#/"
             Set-Cookie:
-              style: simple
-              explode: false
               schema:
                 type: string
-                example: token=dummy; Max-Age=86400; Secure; SameSite=Lax; HttpOnly
-        "400":
+                example: "token=dummy; Max-Age=86400; Secure; SameSite=Lax"
+        '400':
           description: 認証エラー
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/OAuthError'
+
 components:
   schemas:
     OAuthError:
@@ -112,36 +88,26 @@ components:
           type: string
           description: エラーコード
           enum:
-            - invalid_request
-            - invalid_grant
-            - unauthorized_client
             - access_denied
             - no_code_provided
         error_description:
           type: string
           description: エラーの詳細説明
+
     TokenResponse:
       type: object
       required:
         - access_token
         - token_type
-        - expires_in
       properties:
         access_token:
           type: string
           description: アクセストークン
-          format: jwt
         token_type:
           type: string
           example: Bearer
           enum: [Bearer]
-        expires_in:
-          type: integer
-          description: トークンの有効期限（秒）
-          example: 7200
-        scope:
-          type: string
-          description: 許可されたスコープ（空の場合あり）
+
     UserInfo:
       type: object
       required:
@@ -151,29 +117,10 @@ components:
           type: string
           description: 42のユーザーログイン名
           example: jdoe
-        email:
-          type: string
-          format: email
-          description: ユーザーのメールアドレス
-        image:
-          type: object
-          properties:
-            link:
-              type: string
-              format: uri
-              description: プロフィール画像のURL
-  parameters:
-    State:
-      name: state
-      in: query
-      description: CSRF対策用のランダムな文字列
-      required: false
-      schema:
-        type: string
-        format: uuid
+
   securitySchemes:
     BearerAuth:
       type: http
-      description: 42 APIへのアクセスに使用するBearerトークン
       scheme: bearer
+      description: 42 APIへのアクセスに使用するBearerトークン
       bearerFormat: JWT
