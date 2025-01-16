@@ -44,8 +44,15 @@ const router = async () => {
   const body = null || document.getElementById("body_container");
   const footer = null || document.getElementById("footer_container");
 
-  const location = window.location.hash.slice(1).toLowerCase() || "/";
+  let location = window.location.hash.slice(1).toLowerCase() || "/";
   console.log(location);
+
+  const gameplayMatch = location.match(/^\/gameplay\.(\d+)/);  // 数字の部分をキャッチ
+  if (gameplayMatch) {
+    const settingId = gameplayMatch[1];  // settingId（例: '1'）を取得
+    sessionStorage.setItem("settingId", settingId);  // sessionStorage に保存
+    location = '/gameplay'; // locationを'/gameplay'に変更して遷移させる
+  }
 
   if (window.currentPage && window.currentPage.cleanup) {
     window.currentPage.cleanup();

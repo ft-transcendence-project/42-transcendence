@@ -40,13 +40,12 @@ const GameSetting = {
         const responseData = await response.json();
         const settingId = responseData.id;
         console.log("Settings updated successfully:", settings);
-        sessionStorage.setItem("settingId", settingId);
         console.log("Settings ID saved to sessionStorage:", sessionStorage.getItem("settingId"));
         if (sessionStorage.getItem("isTournament") === "true") {
             window.location.hash = `#/matches`; // Matches画面へ遷移
             return;
         }
-        window.location.hash = `#/gameplay`; // Gameplay画面へ遷移
+        window.location.hash = `#/gameplay.${settingId}/`; // Gameplay画面へ遷移
         const tournamentButton = document.getElementById("navbar:tournament");
         if (tournamentButton) {
             tournamentButton.removeAttribute("href");
