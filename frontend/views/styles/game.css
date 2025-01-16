@@ -1,0 +1,38 @@
+.vh-100 {
+  height: 100vh;
+}
+  
+#gameWrapper {
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+  
+.player-name {
+  min-width: 100px;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+  
+#gameCanvas {
+  width: 60vw;
+  max-width: 800px;
+  padding: 0 2px;
+}
+  
+.mt-3 {
+  margin-top: 1rem;
+}
+
+#nextGameButton,
+#gameOverButton {
+  display: none;
+}
+  
+#play-button {
+  width: 200px;
+  height: 45px;
+}
+ 
