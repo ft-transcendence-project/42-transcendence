@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Documentation</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css">
+    <title>AsyncAPI Documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/asyncapi-react/1.0.0-next.48/styles.css">
     <style>
         body {
             margin: 0;
@@ -26,7 +26,7 @@
             border-bottom: 2px solid #49cc90;
             font-weight: bold;
         }
-        #swagger-ui {
+        #asyncapi {
             margin: 1em;
         }
     </style>
@@ -38,14 +38,13 @@
         <button class="tab-button" onclick="loadSpec('OAuth.yaml')">OAuth</button>
         <button class="tab-button" onclick="loadSpec('Tournament.yaml')">Tournament</button>
     </div>
-    <div id="swagger-ui"></div>
+    <div id="asyncapi"></div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/asyncapi-react/1.0.0-next.48/index.js"></script>
     <script>
-        let ui = null;
+        let currentSpec = null;
 
-        function loadSpec(yamlFile) {
+        async function loadSpec(yamlFile) {
             // Update active tab
             document.querySelectorAll('.tab-button').forEach(button => {
                 button.classList.remove('active');
@@ -54,25 +53,21 @@
                 }
             });
 
-            // If UI exists, remove it
-            if (ui) {
-                ui.removeDocument();
+            try {
+                const response = await fetch(yamlFile);
+                const yamlContent = await response.text();
+                
+                AsyncApiStandalone.render({
+                    schema: yamlContent,
+                    config: {
+                        show: {
+                            sidebar: true
+                        }
+                    }
+                }, document.getElementById('asyncapi'));
+            } catch (error) {
+                console.error('Error loading spec:', error);
             }
-
-            // Initialize Swagger UI
-            ui = SwaggerUIBundle({
-                url: yamlFile,
-                dom_id: '#swagger-ui',
-                deepLinking: true,
-                presets: [
-                    SwaggerUIBundle.presets.apis,
-                    SwaggerUIStandalonePreset
-                ],
-                plugins: [
-                    SwaggerUIBundle.plugins.DownloadUrl
-                ],
-                layout: "StandaloneLayout"
-            });
         }
 
         // Load default spec on page load
