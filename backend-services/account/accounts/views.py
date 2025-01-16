@@ -38,6 +38,13 @@ class CustomLoginView(APIView):
                 httponly=True,
                 samesite="Strict",
             )
+            response.set_cookie(
+                key="default_language",
+                value=user.default_language,
+                max_age=86400,
+                secure=True,
+                samesite="Strict",
+            )
             return response
         logger.warning(f"Login failed with errors: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

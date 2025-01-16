@@ -19,6 +19,7 @@ const SignUp = {
       let username = document.getElementById("username").value;
       let password = document.getElementById("password").value;
       let email = document.getElementById("email").value;
+      let default_language = document.querySelector('input[name="language"]:checked').id.replace("language-", "");
 
       try {
         const response = await fetch(
@@ -28,7 +29,7 @@ const SignUp = {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ username, password, email }),
+            body: JSON.stringify({ username, password, email, default_language }),
           }
         );
 
