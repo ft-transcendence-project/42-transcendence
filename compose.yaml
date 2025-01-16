@@ -136,4 +136,4 @@ services:
       start_period: 30s
 
 include:
-  - ./backend-services/tournament/blockchain/blockchain.yml
+  - ./blockchain/blockchain.yml
