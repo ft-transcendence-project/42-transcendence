@@ -82,7 +82,6 @@
                 <a href="#oauth" class="nav-link" data-section="oauth">OAuth API</a>
                 <a href="#gameplay" class="nav-link" data-section="gameplay">Gameplay API</a>
                 <a href="#tournament" class="nav-link" data-section="tournament">Tournament API</a>
-                <a href="#gamesetting" class="nav-link" data-section="gamesetting">Game Settings API</a>
             </div>
         </div>
     </nav>
@@ -97,31 +96,17 @@
             </asyncapi-component>
         </div>
         <div id="tournament" class="api-section"></div>
-        <div id="gamesetting" class="api-section"></div>
     </div>
 
     <script>
         // OpenAPI/Swagger UI initialization
-        function initializeSwaggerUI(elementId, specUrl, urlsPaths) {
+        function initializeSwaggerUI(elementId, specUrl) {
             return SwaggerUIBundle({
                 url: specUrl,
                 dom_id: `#${elementId}`,
                 presets: [
                     SwaggerUIBundle.presets.apis,
                     SwaggerUIBundle.SwaggerUIStandalonePreset
-                ],
-                plugins: [
-                    function() {
-                        return {
-                            statePlugins: {
-                                spec: {
-                                    wrapSelectors: {
-                                        url: () => () => specUrl
-                                    }
-                                }
-                            }
-                        }
-                    }
                 ],
                 layout: "BaseLayout",
                 docExpansion: "list"
@@ -157,96 +142,6 @@
             initializeSwaggerUI('accounts', './Accounts.yaml');
             initializeSwaggerUI('oauth', './Oauth.yaml');
             initializeSwaggerUI('tournament', './Tournament.yaml');
-            
-            // Create and initialize Game Settings OpenAPI spec
-            const gameSettingSpec = {
-                openapi: '3.0.0',
-                info: {
-                    title: 'Game Settings API',
-                    version: '1.0.0',
-                    description: 'API for managing game settings'
-                },
-                paths: {
-                    '/api/': {
-                        get: {
-                            summary: 'Get all game settings',
-                            responses: {
-                                '200': {
-                                    description: 'Successfully retrieved game settings'
-                                }
-                            }
-                        },
-                        post: {
-                            summary: 'Create new game setting',
-                            responses: {
-                                '201': {
-                                    description: 'Successfully created game setting'
-                                }
-                            }
-                        }
-                    },
-                    '/api/{pk}/': {
-                        get: {
-                            summary: 'Get specific game setting',
-                            parameters: [
-                                {
-                                    name: 'pk',
-                                    in: 'path',
-                                    required: true,
-                                    schema: {
-                                        type: 'integer'
-                                    }
-                                }
-                            ],
-                            responses: {
-                                '200': {
-                                    description: 'Successfully retrieved game setting'
-                                }
-                            }
-                        },
-                        put: {
-                            summary: 'Update specific game setting',
-                            parameters: [
-                                {
-                                    name: 'pk',
-                                    in: 'path',
-                                    required: true,
-                                    schema: {
-                                        type: 'integer'
-                                    }
-                                }
-                            ],
-                            responses: {
-                                '200': {
-                                    description: 'Successfully updated game setting'
-                                }
-                            }
-                        },
-                        delete: {
-                            summary: 'Delete specific game setting',
-                            parameters: [
-                                {
-                                    name: 'pk',
-                                    in: 'path',
-                                    required: true,
-                                    schema: {
-                                        type: 'integer'
-                                    }
-                                }
-                            ],
-                            responses: {
-                                '204': {
-                                    description: 'Successfully deleted game setting'
-                                }
-                            }
-                        }
-                    }
-                }
-            };
-            
-            const gameSettingBlob = new Blob([JSON.stringify(gameSettingSpec)], {type: 'application/json'});
-            const gameSettingUrl = URL.createObjectURL(gameSettingBlob);
-            initializeSwaggerUI('gamesetting', gameSettingUrl);
 
             // Handle hash-based navigation
             window.addEventListener('hashchange', handleHashChange);
