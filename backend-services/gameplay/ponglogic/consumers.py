@@ -131,7 +131,7 @@ class PongLogic(AsyncWebsocketConsumer):
                 },
             )
         except KeyError:
-            print(f"Error: setting_id '{setting_id}' is not found in pong_info_map.")
+            logger.error(f"Error: setting_id '{setting_id}' is not found in pong_info_map.")
 
     async def send_game_over_message(self, winner):
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
@@ -145,7 +145,7 @@ class PongLogic(AsyncWebsocketConsumer):
                 },
             )
         except KeyError:
-            print(f"Error: setting_id '{setting_id}' is not found in pong_info_map.")
+            logger.error(f"Error: setting_id '{setting_id}' is not found in pong_info_map.")
 
     async def send_message(self, event):
         pong_data = event["content"]
