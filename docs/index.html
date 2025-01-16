@@ -38,10 +38,16 @@
         #swagger-ui {
             margin: 0;
         }
-        /* Hide Swagger UI's top bar and info section */
-        .swagger-ui .topbar, 
-        .swagger-ui .info {
+        .swagger-ui .topbar {
             display: none;
+        }
+        .error-message {
+            padding: 1em;
+            margin: 1em;
+            background-color: #fff1f0;
+            border: 1px solid #ffa39e;
+            border-radius: 4px;
+            color: #cf1322;
         }
     </style>
 </head>
@@ -52,14 +58,27 @@
         <button class="api-button" onclick="loadSpec('OAuth')">OAuth</button>
         <button class="api-button" onclick="loadSpec('Tournament')">Tournament</button>
     </div>
+    <div id="error-container"></div>
     <div id="swagger-ui"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
     <script>
         let ui = null;
 
+        function showError(message) {
+            const container = document.getElementById('error-container');
+            container.innerHTML = `<div class="error-message">${message}</div>`;
+        }
+
+        function clearError() {
+            document.getElementById('error-container').innerHTML = '';
+        }
+
         async function loadSpec(name) {
+            clearError();
+
             // Update active button
             document.querySelectorAll('.api-button').forEach(button => {
                 button.classList.remove('active');
@@ -69,9 +88,20 @@
             });
 
             try {
-                // Fetch the YAML file
                 const response = await fetch(`${name}.yaml`);
+                if (!response.ok) {
+                    throw new Error(`Failed to load ${name}.yaml: ${response.statusText}`);
+                }
                 const yamlContent = await response.text();
+                
+                // Parse YAML to check format
+                let spec = jsyaml.load(yamlContent);
+                
+                // Add OpenAPI version if not present
+                if (!spec.swagger && !spec.openapi) {
+                    spec.openapi = '3.0.0';
+                    yamlContent = 'openapi: 3.0.0\n' + yamlContent;
+                }
 
                 // If UI exists, remove it
                 if (ui) {
@@ -80,7 +110,7 @@
 
                 // Initialize Swagger UI
                 ui = SwaggerUIBundle({
-                    spec: yamlContent,
+                    spec: spec,
                     dom_id: '#swagger-ui',
                     deepLinking: true,
                     presets: [
@@ -97,6 +127,7 @@
                 });
             } catch (error) {
                 console.error('Error loading spec:', error);
+                showError(`Error loading API specification: ${error.message}`);
             }
         }
 
