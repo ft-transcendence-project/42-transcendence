@@ -1,14 +1,16 @@
 import logging
 import os
+from urllib.parse import urlencode
 
 import requests
-from accounts.models import CustomUser
 from django.conf import settings
-from django.contrib.auth import login
 from django.shortcuts import redirect
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+
+from accounts.models import CustomUser
+from accounts.utils.auth import generate_jwt
 
 logger = logging.getLogger("oauth")
 
@@ -83,8 +85,15 @@ def oauth_callback_view(request):
                 user.set_unusable_password()
                 user.save()
 
-            login(request, user)
             logger.info(f"Successfully authenticated user: {username}")
+
+            if settings.DEBUG == False and user.otp_enabled:
+                params = urlencode({"user": user.username})
+                return redirect(f"https://localhost:8443/#/verify-otp?{params}")
+            elif user.otp_enabled:
+                params = urlencode({"user": user.username})
+                return redirect(f"http://localhost:3000/#/verify-otp?{params}")
+
             if settings.DEBUG == False:
                 response = redirect("https://localhost:8443/#/")
             else:
@@ -96,6 +105,14 @@ def oauth_callback_view(request):
                 max_age=86400,
                 secure=True,
                 samesite="Lax",
+            )
+            response.set_cookie(
+                key="jwt",
+                value=generate_jwt(user),
+                max_age=86400,
+                secure=True,
+                httponly=True,
+                samesite="Strict",
             )
             return response
     logger.error("No authorization code provided")
