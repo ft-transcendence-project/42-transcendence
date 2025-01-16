@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>42 Pong API Documentation</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/asyncapi-react/0.24.18/styles/default.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js"></script>
+    <script src="https://unpkg.com/@asyncapi/web-component@1.0.0-next.47/lib/asyncapi-web-component.js" type="module"></script>
     <style>
         body {
             margin: 0;
@@ -36,6 +38,7 @@
         .nav-links {
             display: flex;
             gap: 1rem;
+            flex-wrap: wrap;
         }
         .nav-link {
             color: #fff;
@@ -46,6 +49,9 @@
         }
         .nav-link:hover {
             background-color: #333;
+        }
+        .nav-link.active {
+            background-color: #404040;
         }
         .content {
             margin-top: 80px;
@@ -59,8 +65,11 @@
             display: block;
         }
         #gameplay {
-            height: 100vh;
-            overflow: auto;
+            height: calc(100vh - 100px);
+        }
+        asyncapi-component {
+            height: 100%;
+            width: 100%;
         }
     </style>
 </head>
@@ -69,70 +78,179 @@
         <div class="nav-content">
             <h1>42 Pong API Documentation</h1>
             <div class="nav-links">
-                <a href="#accounts" class="nav-link" onclick="showSection('accounts')">Accounts API</a>
-                <a href="#gameplay" class="nav-link" onclick="showSection('gameplay')">Gameplay API</a>
-                <a href="#oauth" class="nav-link" onclick="showSection('oauth')">OAuth API</a>
-                <a href="#tournament" class="nav-link" onclick="showSection('tournament')">Tournament API</a>
+                <a href="#accounts" class="nav-link" data-section="accounts">Accounts API</a>
+                <a href="#oauth" class="nav-link" data-section="oauth">OAuth API</a>
+                <a href="#gameplay" class="nav-link" data-section="gameplay">Gameplay API</a>
+                <a href="#tournament" class="nav-link" data-section="tournament">Tournament API</a>
+                <a href="#gamesetting" class="nav-link" data-section="gamesetting">Game Settings API</a>
             </div>
         </div>
     </nav>
 
     <div class="content">
         <div id="accounts" class="api-section"></div>
-        <div id="gameplay" class="api-section"></div>
         <div id="oauth" class="api-section"></div>
+        <div id="gameplay" class="api-section">
+            <asyncapi-component
+                schemaUrl="./Gameplay.yaml"
+                cssImportPath="https://unpkg.com/@asyncapi/web-component@1.0.0-next.47/lib/styles/fiori.css">
+            </asyncapi-component>
+        </div>
         <div id="tournament" class="api-section"></div>
+        <div id="gamesetting" class="api-section"></div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/asyncapi-react/0.24.18/index.min.js"></script>
-    
     <script>
         // OpenAPI/Swagger UI initialization
-        function initializeSwaggerUI(elementId, specUrl) {
-            SwaggerUIBundle({
+        function initializeSwaggerUI(elementId, specUrl, urlsPaths) {
+            return SwaggerUIBundle({
                 url: specUrl,
                 dom_id: `#${elementId}`,
                 presets: [
                     SwaggerUIBundle.presets.apis,
                     SwaggerUIBundle.SwaggerUIStandalonePreset
                 ],
-                layout: "BaseLayout"
+                plugins: [
+                    function() {
+                        return {
+                            statePlugins: {
+                                spec: {
+                                    wrapSelectors: {
+                                        url: () => () => specUrl
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                layout: "BaseLayout",
+                docExpansion: "list"
             });
         }
 
         // Show selected section
         function showSection(sectionId) {
+            // Update active section
             document.querySelectorAll('.api-section').forEach(section => {
                 section.classList.remove('active');
             });
             document.getElementById(sectionId).classList.add('active');
+
+            // Update active nav link
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-section') === sectionId) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        // Handle hash change
+        function handleHashChange() {
+            const hash = window.location.hash.slice(1) || 'accounts';
+            showSection(hash);
         }
 
         // Initialize all API documentation
         window.onload = function() {
+            // Initialize Swagger UIs
             initializeSwaggerUI('accounts', './Accounts.yaml');
             initializeSwaggerUI('oauth', './Oauth.yaml');
             initializeSwaggerUI('tournament', './Tournament.yaml');
-
-            // AsyncAPI initialization for Gameplay
-            const gameplaySpec = document.getElementById('gameplay');
-            fetch('./Gameplay.yaml')
-                .then(response => response.text())
-                .then(spec => {
-                    AsyncApiStandalone.render({
-                        schema: spec,
-                        config: {
-                            show: {
-                                sidebar: true
+            
+            // Create and initialize Game Settings OpenAPI spec
+            const gameSettingSpec = {
+                openapi: '3.0.0',
+                info: {
+                    title: 'Game Settings API',
+                    version: '1.0.0',
+                    description: 'API for managing game settings'
+                },
+                paths: {
+                    '/api/': {
+                        get: {
+                            summary: 'Get all game settings',
+                            responses: {
+                                '200': {
+                                    description: 'Successfully retrieved game settings'
+                                }
+                            }
+                        },
+                        post: {
+                            summary: 'Create new game setting',
+                            responses: {
+                                '201': {
+                                    description: 'Successfully created game setting'
+                                }
                             }
                         }
-                    }, gameplaySpec);
-                });
+                    },
+                    '/api/{pk}/': {
+                        get: {
+                            summary: 'Get specific game setting',
+                            parameters: [
+                                {
+                                    name: 'pk',
+                                    in: 'path',
+                                    required: true,
+                                    schema: {
+                                        type: 'integer'
+                                    }
+                                }
+                            ],
+                            responses: {
+                                '200': {
+                                    description: 'Successfully retrieved game setting'
+                                }
+                            }
+                        },
+                        put: {
+                            summary: 'Update specific game setting',
+                            parameters: [
+                                {
+                                    name: 'pk',
+                                    in: 'path',
+                                    required: true,
+                                    schema: {
+                                        type: 'integer'
+                                    }
+                                }
+                            ],
+                            responses: {
+                                '200': {
+                                    description: 'Successfully updated game setting'
+                                }
+                            }
+                        },
+                        delete: {
+                            summary: 'Delete specific game setting',
+                            parameters: [
+                                {
+                                    name: 'pk',
+                                    in: 'path',
+                                    required: true,
+                                    schema: {
+                                        type: 'integer'
+                                    }
+                                }
+                            ],
+                            responses: {
+                                '204': {
+                                    description: 'Successfully deleted game setting'
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            
+            const gameSettingBlob = new Blob([JSON.stringify(gameSettingSpec)], {type: 'application/json'});
+            const gameSettingUrl = URL.createObjectURL(gameSettingBlob);
+            initializeSwaggerUI('gamesetting', gameSettingUrl);
 
-            // Show default section
-            showSection('accounts');
+            // Handle hash-based navigation
+            window.addEventListener('hashchange', handleHashChange);
+            handleHashChange();
         }
     </script>
 </body>
