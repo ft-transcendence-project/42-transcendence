@@ -1,3 +1,5 @@
+import { changeLanguage } from "../../utils/i18n.js";
+
 const Login = {
   render: async () => {
     return (await fetch("/views/templates/Login.html")).text();
@@ -44,6 +46,8 @@ const Login = {
 
         if (response.ok) {
           console.log("Login success: ", data);
+          event.preventDefault();
+          changeLanguage(data.default_language);
           if (data.redirect === "accounts:verify_otp") {
             sessionStorage.setItem("user", username);
             window.location.hash = "#/verify-otp";
