@@ -1,10 +1,7 @@
 import logging
 
-from django.contrib.auth import login, logout
-from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
-from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.debug import sensitive_post_parameters
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from rest_framework import status
@@ -31,14 +28,20 @@ class CustomLoginView(APIView):
                     {"redirect": "accounts:verify_otp"}, status=status.HTTP_200_OK
                 )
             token = generate_jwt(user)
-            login(request, user)
             logger.info(f"Login successful for user: {user.username}")
             response = Response(
-                {"token": token, "redirect": "homepage"}, status=status.HTTP_200_OK
+                {"token": token, "redirect": "homepage", "id":user.id }, status=status.HTTP_200_OK
             )
             response.set_cookie(
                 key="token",
                 value=token,
+                max_age=86400,
+                secure=True,
+                samesite="Strict",
+            )
+            response.set_cookie(
+                key="default_language",
+                value=user.default_language,
                 max_age=86400,
                 secure=True,
                 samesite="Strict",
@@ -110,7 +113,6 @@ class VerifyOTPView(APIView):
             logger.info(f"OTP verification attempt for user: {user.username}")
             if device and device.verify_token(otp):
                 token = generate_jwt(user)
-                login(request, user)
                 logger.info(f"OTP verification successful for user: {user.username}")
                 return Response(
                     {"token": token, "redirect": "homepage"}, status=status.HTTP_200_OK

@@ -3,6 +3,10 @@
     "username": "ユーザー名",
     "password": "パスワード",
     "email": "メールアドレス",
+    "default_language": "デフォルト言語",
+    "english": "英語",
+    "japanese": "日本語",
+    "chinese": "中国語",
     "signupButton": "登録",
     "errors": {
         "unknown": "不明なエラーが発生しました",
