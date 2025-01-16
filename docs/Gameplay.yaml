@@ -1,4 +1,4 @@
-asyncapi: 2.6.0
+asyncapi: 3.0.0
 info:
   title: Pong Logic API
   version: 1.0.0
@@ -6,147 +6,165 @@ info:
 
 servers:
   production:
-    $ref: "#/components/servers/production"
+    host: localhost:8443
+    pathname: '/gameplay.ws/ponglogic/{settingId}'
+    protocol: wss
+    variables:
+      settingId:
+        default: '1'
+        description: Game setting ID
 
 channels:
-  "game":
-    subscribe:
-      message:
-        $ref: "#/components/messages/sendPongData"
-    publish:
-      message:
-        $ref: "#/components/messages/receivePaddleInstruction"
+  'game_{setting_id}':
+    description: Channel for game events
+    parameters:
+      setting_id:
+        schema:
+          type: string
+        description: Game setting ID
+    messages:
+      receivePaddleInstruction:
+        description: パドルに対する指示を受け取るメッセージ
+        contentType: application/json
+        payload:
+          type: object
+          required:
+            - side
+            - move_direction
+            - action
+          properties:
+            side:
+              type: string
+              enum:
+                - left
+                - right
+            move_direction:
+              type: string
+              enum:
+                - up
+                - down
+            action:
+              type: string
+              enum:
+                - start
+                - stop
+      sendPongData:
+        description: Pongのデータを送信するメッセージ
+        contentType: application/json
+        payload:
+          type: object
+          required:
+            - id
+            - left_paddle_y
+            - right_paddle_y
+            - ball_x
+            - ball_y
+            - ball_radius
+            - left_score
+            - right_score
+          properties:
+            id:
+              type: integer
+              description: このponglogicが使用しているGamesettingのid
+            left_paddle_y:
+              type: integer
+              description: 左パドルのy座標
+            right_paddle_y:
+              type: integer
+              description: 右パドルのy座標
+            ball_x:
+              type: integer
+              description: ボールのx座標
+            ball_y:
+              type: integer
+              description: ボールのy座標
+            ball_radius:
+              type: integer
+              description: ボールの半径
+            left_score:
+              type: integer
+              description: 左プレイヤーの得点
+            right_score:
+              type: integer
+              description: 右プレイヤーの得点
+            obstacle1_x:
+              type: integer
+              description: 障害物1のx座標 (初回のみ)
+            obstacle1_y:
+              type: integer
+              description: 障害物1のy座標 (初回のみ)
+            obstacle1_width:
+              type: integer
+              description: 障害物1の幅 (初回のみ)
+            obstacle1_height:
+              type: integer
+              description: 障害物1の高さ (初回のみ)
+            obstacle2_x:
+              type: integer
+              description: 障害物2のx座標 (初回のみ)
+            obstacle2_y:
+              type: integer
+              description: 障害物2のy座標 (初回のみ)
+            obstacle2_width:
+              type: integer
+              description: 障害物2の幅 (初回のみ)
+            obstacle2_height:
+              type: integer
+              description: 障害物2の高さ (初回のみ)
+            blind_x:
+              type: integer
+              description: ボール隠しのx座標 (初回のみ)
+            blind_y:
+              type: integer
+              description: ボール隠しのy座標 (初回のみ)
+            blind_width:
+              type: integer
+              description: ボール隠しの幅 (初回のみ)
+            blind_height:
+              type: integer
+              description: ボール隠しの高さ (初回のみ)
+      sendGameOver:
+        description: ゲームの終了報告を送信するメッセージ
+        contentType: application/json
+        payload:
+          type: object
+          required:
+            - type
+            - winner
+            - left_score
+            - right_score
+          properties:
+            type:
+              type: string
+              enum:
+                - game_over
+              description: このmessageのタイプ
+            winner:
+              type: string
+              description: 勝者の名前
+            left_score:
+              type: integer
+              description: 左プレイヤーの得点
+            right_score:
+              type: integer
+              description: 右プレイヤーの得点
 
-components:
-  servers:
-    production:
-      url: wss://localhost:8443/gameplay.ws/ponglogic/{settingId}
-      protocol: wss
-      description: Production server
-      variables:
-        settingId:
-          default: '1'
-          description: Game setting ID
-
-  messages:
-    receivePaddleInstruction:
-      payload:
-        type: object
-        required:
-          - side
-          - move_direction
-          - action
-        properties:
-          side:
-            type: string
-            enum:
-              - left
-              - right
-          move_direction:
-            type: string
-            enum:
-              - up
-              - down
-          action:
-            type: string
-            enum:
-              - start
-              - stop
-
-    sendPongData:
-      payload:
-        type: object
-        required:
-          - id
-          - left_paddle_y
-          - right_paddle_y
-          - ball_x
-          - ball_y
-          - ball_radius
-          - left_score
-          - right_score
-        properties:
-          id:
-            type: integer
-            description: このponglogicが使用しているGamesettingのid
-          left_paddle_y:
-            type: integer
-            description: 左パドルのy座標
-          right_paddle_y:
-            type: integer
-            description: 右パドルのy座標
-          ball_x:
-            type: integer
-            description: ボールのx座標
-          ball_y:
-            type: integer
-            description: ボールのy座標
-          ball_radius:
-            type: integer
-            description: ボールの半径
-          left_score:
-            type: integer
-            description: 左プレイヤーの得点
-          right_score:
-            type: integer
-            description: 右プレイヤーの得点
-          obstacle1_x:
-            type: integer
-            description: 障害物1のx座標 (初回のみ)
-          obstacle1_y:
-            type: integer
-            description: 障害物1のy座標 (初回のみ)
-          obstacle1_width:
-            type: integer
-            description: 障害物1の幅 (初回のみ)
-          obstacle1_height:
-            type: integer
-            description: 障害物1の高さ (初回のみ)
-          obstacle2_x:
-            type: integer
-            description: 障害物2のx座標 (初回のみ)
-          obstacle2_y:
-            type: integer
-            description: 障害物2のy座標 (初回のみ)
-          obstacle2_width:
-            type: integer
-            description: 障害物2の幅 (初回のみ)
-          obstacle2_height:
-            type: integer
-            description: 障害物2の高さ (初回のみ)
-          blind_x:
-            type: integer
-            description: ボール隠しのx座標 (初回のみ)
-          blind_y:
-            type: integer
-            description: ボール隠しのy座標 (初回のみ)
-          blind_width:
-            type: integer
-            description: ボール隠しの幅 (初回のみ)
-          blind_height:
-            type: integer
-            description: ボール隠しの高さ (初回のみ)
-
-    sendGameOver:
-      payload:
-        type: object
-        required:
-          - type
-          - winner
-          - left_score
-          - right_score
-        properties:
-          type:
-            type: string
-            enum:
-              - game_over
-            description: このmessageのタイプ
-          winner:
-            type: string
-            description: 勝者の名前
-          left_score:
-            type: integer
-            description: 左プレイヤーの得点
-          right_score:
-            type: integer
-            description: 右プレイヤーの得点
+operations:
+  receivePaddleInstruction:
+    action: receive
+    channel:
+      $ref: '#/channels/game_{setting_id}'
+    messages:
+      - $ref: '#/channels/game_{setting_id}/messages/receivePaddleInstruction'
+  sendPongData:
+    action: send
+    channel:
+      $ref: '#/channels/game_{setting_id}'
+    messages:
+      - $ref: '#/channels/game_{setting_id}/messages/sendPongData'
+  sendGameOver:
+    action: send
+    channel:
+      $ref: '#/channels/game_{setting_id}'
+    messages:
+      - $ref: '#/channels/game_{setting_id}/messages/sendGameOver'
