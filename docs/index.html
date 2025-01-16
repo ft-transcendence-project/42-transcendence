@@ -4,12 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API Documentation</title>
-    <!-- RapiDoc -->
-    <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/rapidoc/9.3.4/rapidoc-min.js"></script>
+    <!-- Swagger UI CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css">
+    <!-- Elements UI for AsyncAPI -->
+    <link rel="stylesheet" href="https://unpkg.com/@stoplight/elements/styles.min.css">
     <style>
         body {
             margin: 0;
             padding: 0;
+        }
+        .topbar {
+            display: none;
         }
         #api-selector {
             background: #1b1b1b;
@@ -27,10 +32,24 @@
             border: 1px solid #ccc;
             background: white;
         }
-        rapi-doc {
+        #swagger-ui, #elements-ui {
             margin-top: 50px;
-            width: 100%;
             height: calc(100vh - 50px);
+        }
+        #elements-ui {
+            display: none;
+        }
+        #error-message {
+            margin-top: 60px;
+            padding: 20px;
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            display: none;
+        }
+        .elements-container {
+            height: 100%;
         }
     </style>
 </head>
@@ -43,29 +62,80 @@
             <option value="Tournament.yaml">Tournament API</option>
         </select>
     </div>
-    <rapi-doc
-        theme = "light"
-        render-style = "read"
-        show-header = "false"
-        show-info = "true"
-        allow-spec-url-load = "false"
-        allow-spec-file-load = "false"
-    > 
-    </rapi-doc>
+    <div id="error-message"></div>
+    <div id="swagger-ui"></div>
+    <div id="elements-ui">
+        <div class="elements-container"></div>
+    </div>
 
+    <!-- Swagger UI Bundle -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js"></script>
+    <!-- Elements UI for AsyncAPI -->
+    <script src="https://unpkg.com/@stoplight/elements/web-components.min.js"></script>
+    
     <script>
+        let currentUI = null;
+
         window.onload = function() {
             loadAPI('Accounts.yaml');
         };
 
         async function loadAPI(fileName) {
+            // Reset UI states
+            document.getElementById('swagger-ui').style.display = 'none';
+            document.getElementById('elements-ui').style.display = 'none';
+            document.getElementById('error-message').style.display = 'none';
+            
+            if (currentUI) {
+                try {
+                    currentUI.unmount && currentUI.unmount();
+                } catch (e) {
+                    console.warn('Error unmounting previous UI:', e);
+                }
+            }
+
             try {
                 const response = await fetch(fileName);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 const content = await response.text();
-                const rapidocElement = document.querySelector('rapi-doc');
-                rapidocElement.loadSpec(content);
+                
+                // Check if it's AsyncAPI
+                const isAsyncAPI = content.toLowerCase().includes('asyncapi:');
+                
+                if (isAsyncAPI) {
+                    // Show Elements UI for AsyncAPI
+                    document.getElementById('elements-ui').style.display = 'block';
+                    const container = document.querySelector('.elements-container');
+                    const elements = document.createElement('elements-api');
+                    elements.apiDescriptionDocument = content;
+                    container.innerHTML = '';
+                    container.appendChild(elements);
+                    currentUI = elements;
+                } else {
+                    // Show Swagger UI for OpenAPI
+                    document.getElementById('swagger-ui').style.display = 'block';
+                    currentUI = SwaggerUIBundle({
+                        spec: jsyaml.load(content),
+                        dom_id: '#swagger-ui',
+                        deepLinking: true,
+                        presets: [
+                            SwaggerUIBundle.presets.apis,
+                            SwaggerUIStandalonePreset
+                        ],
+                        plugins: [
+                            SwaggerUIBundle.plugins.DownloadUrl
+                        ],
+                        layout: "StandaloneLayout"
+                    });
+                }
             } catch (error) {
                 console.error('Error loading API documentation:', error);
+                const errorDiv = document.getElementById('error-message');
+                errorDiv.style.display = 'block';
+                errorDiv.innerHTML = `<strong>Error loading API documentation:</strong><br>${error.message}`;
             }
         }
     </script>
