@@ -15,3 +15,8 @@
 .display-none {
     display: none;
 }
+
+.play-button-size {
+    width: 200px;
+    height: 45px;
+}
