@@ -84,7 +84,7 @@ const router = async () => {
 
   // footer
 
-  body.innerHTML = await page.render();
+  body.innerHTML = DOMPurify.sanitize(await page.render());
   await page.after_render();
   updateContent();
 };
