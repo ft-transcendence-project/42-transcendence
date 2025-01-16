@@ -30,11 +30,18 @@ class CustomLoginView(APIView):
             token = generate_jwt(user)
             logger.info(f"Login successful for user: {user.username}")
             response = Response(
-                {"token": token, "redirect": "homepage"}, status=status.HTTP_200_OK
+                {"token": token, "redirect": "homepage", "id":user.id }, status=status.HTTP_200_OK
             )
             response.set_cookie(
                 key="token",
                 value=token,
+                max_age=86400,
+                secure=True,
+                samesite="Strict",
+            )
+            response.set_cookie(
+                key="default_language",
+                value=user.default_language,
                 max_age=86400,
                 secure=True,
                 samesite="Strict",
