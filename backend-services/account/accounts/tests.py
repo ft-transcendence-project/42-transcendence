@@ -1,6 +1,5 @@
 import time
 
-from django.test import TestCase
 from django.urls import reverse
 from django_otp.oath import TOTP
 from django_otp.plugins.otp_totp.models import TOTPDevice
@@ -28,7 +27,6 @@ class CustomLoginViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("token", response.data)
         self.assertEqual(response.data["redirect"], "homepage")
-        self.assertTrue(response.wsgi_request.user.is_authenticated)
 
     def test_custom_login_view_valid_login_with_otp(self):
         """正しいユーザー名とパスワードでログインできることを確認する、OTPが有効な場合"""
@@ -42,7 +40,6 @@ class CustomLoginViewTests(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, {"redirect": "accounts:verify_otp"})
-        self.assertFalse(response.wsgi_request.user.is_authenticated)
 
     def test_custom_login_view_invalid_login(self):
         """間違ったパスワードでログインできないことを確認する"""

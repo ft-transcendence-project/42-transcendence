@@ -3,6 +3,10 @@
     "username": "Username",
     "password": "Password",
     "email": "Email",
+    "default_language": "Default Language",
+    "english": "English",
+    "japanese": "Japanese",
+    "chinese": "Chinese",
     "signupButton": "Sign Up",
     "errors": {
         "unknown": "Unknown error",
