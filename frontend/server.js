@@ -7,30 +7,25 @@ const PORT = 3000;
 let headerContent = "";
 let footerContent = "";
 
-async function loadHeader() {
+async function loadTemplate(filePath, fallbackContent) {
   try {
-    headerContent = await fs.readFile(
-      path.join(__dirname, "/views/templates/Navbar.html"),
-      "utf-8"
-    );
+    return await fs.readFile(path.join(__dirname, filePath), "utf-8");
   } catch (err) {
-    console.error("Error while loading header:", err);
-    headerContent = "<div>Error loading header</div>";
+    console.error(`Error while loading template (${filePath}):`, err);
+    return fallbackContent;
   }
 }
 
-async function loadFooter() {
-  try {
-    footerContent = await fs.readFile(
-      path.join(__dirname, "/views/templates/Footer.html"),
-      "utf-8"
-    );
-  } catch (err) {
-    console.error("Error while loading footer:", err);
-    footerContent = "<div>Error loading footer</div>";
-  }
+async function loadTemplates() {
+  headerContent = await loadTemplate(
+    "/views/templates/Navbar.html",
+    "<div>Error loading header</div>"
+  );
+  footerContent = await loadTemplate(
+    "/views/templates/Footer.html",
+    "<div>Error loading footer</div>"
+  );
 }
-
 
 const server = http.createServer(async (req, res) => {
   try {
@@ -124,9 +119,7 @@ const renderPage = async (url) => {
   return pages[url] || "<h1>404 - Page Not Found</h1>";
 };
 
-loadHeader()
-  .then(loadFooter)
-  .then(() => {
+loadTemplates().then(() => {
   server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
   });
