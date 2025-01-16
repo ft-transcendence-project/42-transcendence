@@ -109,7 +109,7 @@ class SaveDataView(APIView):
                     player1_score=match.player1_score,
                     player2_score=match.player2_score
                 )
-                print(f"Blockchain transaction receipt: {receipt}")
+                logger.info(f"Blockchain transaction receipt: {receipt}")
             except Exception as e:
                 return Response(
                     {"error": f"An error occurred while recording match on blockchain: {e}"},
