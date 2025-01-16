@@ -106,6 +106,22 @@ class TournamentContract:
     def get_match(self, tournament_id, match_number):
         match_details = self.contract.functions.getMatch(tournament_id, match_number).call()
         return match_details
+    
+    # イベントフィルタの作成とログの取得
+    def get_event_logs(self, event_name, from_block=0, to_block='latest'):
+        try:
+            # キーワード引数を使用してイベントフィルタを作成
+            event_filter = self.contract.events[event_name].create_filter(
+                from_block=from_block,
+                to_block=to_block
+            )
+            # フィルタに一致するすべてのエントリを取得
+            for event in event_filter.get_all_entries():
+                logger.info(f"Event: {event}")
+                logger.info(f"Event Args: {event['args']}")
+        except Exception as e:
+            logger.error(f"An error occurred while getting event logs: {e}")
+
 
 def record_match_on_blockchain(
     tournament_id,
@@ -143,6 +159,9 @@ def record_match_on_blockchain(
             player1_score=player1_score,
             player2_score=player2_score
         )
+
+        # イベントログの取得
+        tournament_contract.get_event_logs("MatchRecorded")
         return receipt
 
     except Exception as e:
