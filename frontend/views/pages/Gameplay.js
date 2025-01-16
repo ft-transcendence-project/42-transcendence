@@ -2,7 +2,7 @@ import { fetchWithHandling } from "../../utils/fetchWithHandling.js";
 
 const Gameplay = {
 	render: async () => {
-		return (await fetch("/views/templates/Gameplay.html")).text();
+		return (await fetchWithHandling("/views/templates/Gameplay.html")).text();
 	},
 
 	isPaddleMoving: {
@@ -103,7 +103,8 @@ const Gameplay = {
 			}
 
             if (sessionStorage.getItem("isTournament") === "true") {
-                const tournamentData = await fetchWithHandling(`${window.env.TOURNAMENT_HOST}/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`);
+                const tournamentResponse = await fetchWithHandling(`${window.env.TOURNAMENT_HOST}/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`);
+				const tournamentData = await tournamentResponse.json();
                 console.log("Tournament data get successfully:", tournamentData);
     
                 const currentMatchId = parseInt(sessionStorage.getItem("currentMatch")) - 1;
@@ -116,14 +117,11 @@ const Gameplay = {
                 	currentMatch.winner = winner;
 					console.log("currentMatch", currentMatch);
 
-                	const responseData = await fetchWithHandling(`${window.env.TOURNAMENT_HOST}/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`, {
+                	const response = await fetchWithHandling(`${window.env.TOURNAMENT_HOST}/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`, {
                 	    method: "PUT",
-                	    headers: {
-                	        "Content-Type": "application/json",
-                	    },
-                	    body: JSON.stringify({ currentMatch }),
+                	    body: currentMatch,
                 	});
-
+					const responseData = await response.json();
                 	console.log("Tournament data updated successfully:", responseData);
                 }
 

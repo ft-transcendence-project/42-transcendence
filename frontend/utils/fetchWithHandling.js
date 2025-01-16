@@ -1,26 +1,34 @@
-export async function fetchWithHandling(url, method = "GET", body = null) {
-    const headers = { "Content-Type": "application/json" };
+export async function fetchWithHandling(url, options = {}) {
+    const defaultOptions = {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",  // デフォルトのヘッダー
+        },
+    };
+
+    // オプションをマージ
+    const finalOptions = {
+        ...defaultOptions,
+        ...options,
+    };
+
+    if (options.body) {
+        finalOptions.body = JSON.stringify(options.body);
+    }
 
     try {
-        const options = {
-            method,
-            headers,
-        };
-        
-        if (body) {
-            options.body = JSON.stringify(body);
-        }
+        // fetchを実行
+        const response = await fetch(url, finalOptions);
 
-        const response = await fetch(url, options);
-
+        // エラーハンドリング
         if (!response.ok) {
             const errorData = await response.json();
             console.error("API Error:", errorData);
             throw new Error(`HTTP Error: ${response.status}`);
         }
 
-        // レスポンスデータをパースして返す
-        return await response.json();
+        console.log("API Success:", response);
+        return response;
     } catch (error) {
         console.error("Fetch Error:", error);
         throw error;
