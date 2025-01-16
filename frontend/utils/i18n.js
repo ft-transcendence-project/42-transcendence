@@ -5,7 +5,7 @@ i18next
     fallbackLng: 'en', // ブラウザの言語が取得できない場合のデフォルト言語
     debug: false,
     ns: ['navbar', 'home', 'login', 'signup', 'tournament', 'matches', 'gamesetting', 
-    'logout', 'setupotp', 'verifyotp', 'gameplay', 'winner'], // 翻訳キーの名前空間
+    'logout', 'setupotp', 'verifyotp', 'gameplay', 'winner', 'alreadysetupotp'], // 翻訳キーの名前空間
     backend: {
       loadPath: './utils/locales/{{lng}}/{{ns}}.json', // 見つからない場合fallbackLngを参照
     },
