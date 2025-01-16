@@ -1,3 +1,5 @@
+import { fetchWithHandling } from "../../utils/fetchWithHandling.js";
+
 const Gameplay = {
 	render: async () => {
 		return (await fetch("/views/templates/Gameplay.html")).text();
@@ -101,51 +103,32 @@ const Gameplay = {
 			}
 
             if (sessionStorage.getItem("isTournament") === "true") {
-                try {
-                    const response = await fetch(`${window.env.TOURNAMENT_HOST}/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`);
+                const tournamentData = await fetchWithHandling(`${window.env.TOURNAMENT_HOST}/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`);
+                console.log("Tournament data get successfully:", tournamentData);
     
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        console.error("Error updating tournament data:", errorData);
-                        throw new Error(`HTTP Error Status: ${response.status}`);
-                    }
-    
-                    const tournamentData = await response.json();
-                    console.log("Tournament data get successfully:", tournamentData);
-    
-                    const currentMatchId = parseInt(sessionStorage.getItem("currentMatch")) - 1;
-    
-                    if (tournamentData && tournamentData.matches) {
-						let currentMatch = tournamentData.matches[currentMatchId];
+                const currentMatchId = parseInt(sessionStorage.getItem("currentMatch")) - 1;
 
-                        currentMatch.player1_score = data.left_score;
-                        currentMatch.player2_score = data.right_score;
-                        currentMatch.winner = winner;
-						console.log("currentMatch", currentMatch);
+                if (tournamentData && tournamentData.matches) {
+					let currentMatch = tournamentData.matches[currentMatchId];
 
-                        const postResponse = await fetch(`${window.env.TOURNAMENT_HOST}/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`, {
-                            method: "PUT",
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify({ currentMatch }),
-                        });
-    
-                        if (!postResponse.ok) {
-                            const errorData = await postResponse.json();
-                            console.error("Error updating tournament data:", errorData);
-                            throw new Error(`HTTP Error Status: ${postResponse.status}`);
-                        }
-    
-                        const responseData = await postResponse.json();
-                        console.log("Tournament data updated successfully:", responseData);
-                        }
+                	currentMatch.player1_score = data.left_score;
+                	currentMatch.player2_score = data.right_score;
+                	currentMatch.winner = winner;
+					console.log("currentMatch", currentMatch);
 
-					alert(`${i18next.t("gameplay:popup.game_over")} ${winner}`);
-                    document.getElementById('nextGameButton').style.display = 'block';
-                } catch (error) {
-                    console.error("Error updating tournament data:", error);
+                	const responseData = await fetchWithHandling(`${window.env.TOURNAMENT_HOST}/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`, {
+                	    method: "PUT",
+                	    headers: {
+                	        "Content-Type": "application/json",
+                	    },
+                	    body: JSON.stringify({ currentMatch }),
+                	});
+
+                	console.log("Tournament data updated successfully:", responseData);
                 }
+
+				alert(`${i18next.t("gameplay:popup.game_over")} ${winner}`);
+                document.getElementById('nextGameButton').style.display = 'block';
             } else {
 				alert(`${i18next.t("gameplay:popup.game_over")} ${winner}`);
                 document.getElementById('gameOverButton').style.display = 'block';
@@ -293,20 +276,12 @@ const Gameplay = {
 		}
 	
 		if (sessionStorage.getItem('settingId') && sessionStorage.getItem("isTournament") !== "true") {
-		  try {
-			const response = await fetch(`${window.env.GAMEPLAY_HOST}/gamesetting/api/${window.sessionStorage.getItem('settingId')}/`, {
+			await fetchWithHandling(`${window.env.GAMEPLAY_HOST}/gamesetting/api/${window.sessionStorage.getItem('settingId')}/`, {
 			  method: "DELETE",
 			});
 	
-			if (!response.ok) {
-			  throw new Error(`HTTP error! status: ${response.status}`);
-			}
-	
             sessionStorage.removeItem('settingId')
 			console.log("Settings deleted successfully:", sessionStorage.getItem('settingId'));
-		  } catch (error) {
-			console.error("Failed to delete settings:", error);
-		  }
 		}
 
         const tournamentButton = document.getElementById("navbar:tournament");
