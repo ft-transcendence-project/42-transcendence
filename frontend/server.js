@@ -96,7 +96,7 @@ const getFilePath = (url) => {
   if (url.startsWith("/public/")) {
     return path.join(__dirname, url);
   }
-  return path.join(__dirname, url === "/" ? "index.html" : url);
+  return path.join(__dirname, url === "/" ? "/views/templates/index.html" : url);
 };
 
 const getContentType = (filePath) => {
