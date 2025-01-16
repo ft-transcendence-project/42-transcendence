@@ -65,7 +65,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
     <script>
-        let ui = null;
+        let currentUI = null;
 
         function showError(message) {
             const container = document.getElementById('error-container');
@@ -90,7 +90,7 @@
             try {
                 const response = await fetch(`${name}.yaml`);
                 if (!response.ok) {
-                    throw new Error(`Failed to load ${name}.yaml: ${response.statusText}`);
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const yamlContent = await response.text();
                 
@@ -99,17 +99,18 @@
                 
                 // Add OpenAPI version if not present
                 if (!spec.swagger && !spec.openapi) {
-                    spec.openapi = '3.0.0';
-                    yamlContent = 'openapi: 3.0.0\n' + yamlContent;
+                    spec = {
+                        openapi: '3.0.0',
+                        ...spec
+                    };
                 }
 
-                // If UI exists, remove it
-                if (ui) {
-                    ui.removeDocument();
-                }
+                // Remove existing UI if present
+                const swaggerContainer = document.getElementById('swagger-ui');
+                swaggerContainer.innerHTML = '';
 
-                // Initialize Swagger UI
-                ui = SwaggerUIBundle({
+                // Initialize new Swagger UI
+                currentUI = SwaggerUIBundle({
                     spec: spec,
                     dom_id: '#swagger-ui',
                     deepLinking: true,

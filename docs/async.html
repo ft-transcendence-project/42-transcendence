@@ -84,7 +84,7 @@
             try {
                 const response = await fetch(`${name}.yaml`);
                 if (!response.ok) {
-                    throw new Error(`Failed to load ${name}.yaml: ${response.statusText}`);
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const yamlContent = await response.text();
                 
@@ -93,9 +93,16 @@
                 
                 // Add AsyncAPI version if not present
                 if (!spec.asyncapi) {
-                    spec.asyncapi = '2.6.0';
+                    spec = {
+                        asyncapi: '2.6.0',
+                        ...spec
+                    };
                 }
+
+                // Clear existing content
+                document.getElementById('asyncapi').innerHTML = '';
                 
+                // Render new content
                 AsyncApiStandalone.render({
                     schema: spec,
                     config: {
@@ -107,6 +114,7 @@
             } catch (error) {
                 console.error('Error loading spec:', error);
                 showError(`Error loading API specification: ${error.message}`);
+                document.getElementById('asyncapi').innerHTML = '';
             }
         }
 
