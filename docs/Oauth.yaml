@@ -7,14 +7,15 @@ info:
     - アクセストークンの取得と検証
     - ユーザー情報の取得と登録
   version: 1.0.0
+
 servers:
-- url: https://virtserver.swaggerhub.com/SHAHRUKH4062_1/Oauth/1.0.0
-  description: SwaggerHub API Auto Mocking
-- url: http://localhost:3000
-  description: トラセン用のサーバー
+  - url: https://localhost:8443/42pong.api
+    description: Production server
+  - url: http://localhost:8000
+    description: Development server
 
 paths:
-  /account/oauth:
+  /oauth:
     get:
       tags:
         - oauth
@@ -31,7 +32,7 @@ paths:
                 type: string
                 example: "https://api.intra.42.fr/oauth/authorize?client_id={UID}&redirect_uri={CALLBACK_URL}&response_type=code"
 
-  /account/oauth/callback:
+  /oauth/callback:
     get:
       tags:
         - oauth
