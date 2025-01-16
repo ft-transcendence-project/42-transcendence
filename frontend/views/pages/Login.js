@@ -37,8 +37,8 @@ const Login = {
         if (response.ok) {
           console.log("Login success: ", data);
           if (data.redirect === "accounts:verify_otp") {
-            sessionStorage.setItem("user", username);
-            window.location.hash = "#/verify-otp";
+            const params = new URLSearchParams({ user: username });
+            window.location.hash = `#/verify-otp?${params}`;
             return;
           }
           document.cookie = `isLoggedIn=true; path=/; max-age=86400`;

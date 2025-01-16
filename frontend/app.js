@@ -44,15 +44,17 @@ const router = async () => {
   const body = null || document.getElementById("body_container");
   const footer = null || document.getElementById("footer_container");
 
-  const location = window.location.hash.slice(1).toLowerCase() || "/";
-  console.log(location);
+  const hash = window.location.hash.slice(1);
+  const [path, query] = hash.split("?");
+  const location = path.toLowerCase() || "/";
+  console.log("Path:", location, "Query:", query);
 
   if (window.currentPage && window.currentPage.cleanup) {
     window.currentPage.cleanup();
   }
 
   const page = routes[location];
-  console.log(page);
+  console.log("Page component:", page);
   window.currentPage = page;
 
   if (getCookie("isLoggedIn") === "true") {

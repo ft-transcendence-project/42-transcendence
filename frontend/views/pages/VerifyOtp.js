@@ -10,16 +10,22 @@ const VerifyOtp = {
       e.preventDefault();
 
       try {
-        const user = sessionStorage.getItem("user");
+        const urlParams = new URLSearchParams(
+          window.location.hash.split("?")[1]
+        );
+        const user = urlParams.get("user");
         const otp_token = document.getElementById("id_otp_token").value;
+
         const response = await fetch(
-          `${window.env.ACCOUNT_HOST}/accounts/api/verify-otp/`,
+          `${
+            window.env.ACCOUNT_HOST
+          }/accounts/api/verify-otp/?user=${encodeURIComponent(user)}`,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ user, otp_token }),
+            body: JSON.stringify({ otp_token }),
           }
         );
 

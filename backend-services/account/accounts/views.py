@@ -29,9 +29,7 @@ class CustomLoginView(APIView):
                 )
             jwt = generate_jwt(user)
             logger.info(f"Login successful for user: {user.username}")
-            response = Response(
-                {"redirect": "homepage"}, status=status.HTTP_200_OK
-            )
+            response = Response({"redirect": "homepage"}, status=status.HTTP_200_OK)
             response.set_cookie(
                 key="jwt",
                 value=jwt,
@@ -98,7 +96,7 @@ class SetupOTPView(APIView):
 @method_decorator([sensitive_post_parameters()], name="dispatch")
 class VerifyOTPView(APIView):
     def post(self, request):
-        serializer = OTPSerializer(data=request.data)
+        serializer = OTPSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             user = serializer.validated_data["user"]
             otp = serializer.validated_data["otp_token"]
@@ -108,9 +106,7 @@ class VerifyOTPView(APIView):
             if device and device.verify_token(otp):
                 jwt = generate_jwt(user)
                 logger.info(f"OTP verification successful for user: {user.username}")
-                response = Response(
-                    {"redirect": "homepage"}, status=status.HTTP_200_OK
-                )
+                response = Response({"redirect": "homepage"}, status=status.HTTP_200_OK)
                 response.set_cookie(
                     key="jwt",
                     value=jwt,
