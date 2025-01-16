@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API Documentation</title>
+    <!-- OpenAPI/Swagger UI -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css">
+    <!-- AsyncAPI UI -->
+    <link href="https://unpkg.com/@asyncapi/react-component@1.0.0-next.48/styles/default.min.css" rel="stylesheet">
     <style>
         body {
             margin: 0;
@@ -14,6 +17,24 @@
             background-color: #f8f9fa;
             padding: 1em;
             border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: center;
+            gap: 1em;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: white;
+            flex-wrap: wrap;
+        }
+        .viewer-select {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1em;
+            gap: 1em;
+        }
+        .spec-select {
+            width: 100%;
             display: flex;
             justify-content: center;
             gap: 1em;
@@ -35,11 +56,9 @@
             color: white;
             border-color: #49cc90;
         }
-        #swagger-ui {
+        #viewer-container {
             margin: 0;
-        }
-        .swagger-ui .topbar {
-            display: none;
+            padding: 20px;
         }
         .error-message {
             padding: 1em;
@@ -49,23 +68,50 @@
             border-radius: 4px;
             color: #cf1322;
         }
+        .swagger-ui .topbar {
+            display: none;
+        }
+        .asyncapi__sidebar {
+            position: sticky;
+            top: 60px;
+            height: calc(100vh - 60px);
+        }
+        #swagger-ui, #asyncapi {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="top-bar">
-        <button class="api-button active" onclick="loadSpec('Accounts')">Accounts</button>
-        <button class="api-button" onclick="loadSpec('Gameplay')">Gameplay</button>
-        <button class="api-button" onclick="loadSpec('OAuth')">OAuth</button>
-        <button class="api-button" onclick="loadSpec('Tournament')">Tournament</button>
+        <div class="viewer-select">
+            <button class="api-button active" onclick="switchViewer('openapi')">OpenAPI</button>
+            <button class="api-button" onclick="switchViewer('asyncapi')">AsyncAPI</button>
+        </div>
+        <div class="spec-select">
+            <button class="api-button active" onclick="loadSpec('Accounts')">Accounts</button>
+            <button class="api-button" onclick="loadSpec('Gameplay')">Gameplay</button>
+            <button class="api-button" onclick="loadSpec('OAuth')">OAuth</button>
+            <button class="api-button" onclick="loadSpec('Tournament')">Tournament</button>
+        </div>
     </div>
     <div id="error-container"></div>
-    <div id="swagger-ui"></div>
+    <div id="viewer-container">
+        <div id="swagger-ui"></div>
+        <div id="asyncapi"></div>
+    </div>
 
+    <!-- OpenAPI/Swagger UI -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.min.js"></script>
+    <!-- AsyncAPI UI -->
+    <script src="https://unpkg.com/@asyncapi/react-component@1.0.0-next.48/browser/standalone/index.js"></script>
+    <!-- YAML Parser -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+    
     <script>
-        let currentUI = null;
+        let currentViewer = 'openapi';
+        let currentSpec = 'Accounts';
+        let swaggerUI = null;
 
         function showError(message) {
             const container = document.getElementById('error-container');
@@ -76,11 +122,32 @@
             document.getElementById('error-container').innerHTML = '';
         }
 
+        function switchViewer(viewerType) {
+            clearError();
+            currentViewer = viewerType;
+
+            // Update button states
+            document.querySelectorAll('.viewer-select .api-button').forEach(button => {
+                button.classList.remove('active');
+                if (button.textContent.toLowerCase() === viewerType) {
+                    button.classList.add('active');
+                }
+            });
+
+            // Show/hide appropriate viewer
+            document.getElementById('swagger-ui').style.display = viewerType === 'openapi' ? 'block' : 'none';
+            document.getElementById('asyncapi').style.display = viewerType === 'asyncapi' ? 'block' : 'none';
+
+            // Reload current spec with new viewer
+            loadSpec(currentSpec);
+        }
+
         async function loadSpec(name) {
             clearError();
+            currentSpec = name;
 
-            // Update active button
-            document.querySelectorAll('.api-button').forEach(button => {
+            // Update spec button states
+            document.querySelectorAll('.spec-select .api-button').forEach(button => {
                 button.classList.remove('active');
                 if (button.textContent === name) {
                     button.classList.add('active');
@@ -93,47 +160,70 @@
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const yamlContent = await response.text();
-                
-                // Parse YAML to check format
-                let spec = jsyaml.load(yamlContent);
-                
-                // Add OpenAPI version if not present
-                if (!spec.swagger && !spec.openapi) {
-                    spec = {
-                        openapi: '3.0.0',
-                        ...spec
-                    };
+                const spec = jsyaml.load(yamlContent);
+
+                if (currentViewer === 'openapi') {
+                    loadOpenAPISpec(spec);
+                } else {
+                    loadAsyncAPISpec(spec);
                 }
-
-                // Remove existing UI if present
-                const swaggerContainer = document.getElementById('swagger-ui');
-                swaggerContainer.innerHTML = '';
-
-                // Initialize new Swagger UI
-                currentUI = SwaggerUIBundle({
-                    spec: spec,
-                    dom_id: '#swagger-ui',
-                    deepLinking: true,
-                    presets: [
-                        SwaggerUIBundle.presets.apis,
-                        SwaggerUIStandalonePreset
-                    ],
-                    plugins: [
-                        SwaggerUIBundle.plugins.DownloadUrl
-                    ],
-                    defaultModelsExpandDepth: -1,
-                    displayRequestDuration: true,
-                    filter: false,
-                    layout: "BaseLayout"
-                });
             } catch (error) {
                 console.error('Error loading spec:', error);
                 showError(`Error loading API specification: ${error.message}`);
             }
         }
 
-        // Load default spec on page load
+        function loadOpenAPISpec(spec) {
+            const container = document.getElementById('swagger-ui');
+            container.innerHTML = '';
+
+            swaggerUI = SwaggerUIBundle({
+                spec: spec,
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                ],
+                plugins: [
+                    SwaggerUIBundle.plugins.DownloadUrl
+                ],
+                defaultModelsExpandDepth: -1,
+                displayRequestDuration: true,
+                filter: false,
+                layout: "BaseLayout"
+            });
+        }
+
+        function loadAsyncAPISpec(spec) {
+            const container = document.getElementById('asyncapi');
+            container.innerHTML = '';
+
+            AsyncApiStandalone.render({
+                schema: spec,
+                config: {
+                    show: {
+                        sidebar: true,
+                        info: true,
+                        servers: true,
+                        operations: true,
+                        messages: true,
+                        schemas: true,
+                        errors: true
+                    },
+                    expand: {
+                        operations: true,
+                        messages: true,
+                        schemas: true
+                    },
+                    maxWidth: '100%'
+                }
+            }, container);
+        }
+
+        // Initialize on page load
         window.onload = function() {
+            switchViewer('openapi');
             loadSpec('Accounts');
         };
     </script>
