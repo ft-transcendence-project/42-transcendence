@@ -10,33 +10,47 @@
             margin: 0;
             padding: 0;
         }
-        #tabs {
-            padding: 1em;
+        .top-bar {
             background-color: #f8f9fa;
+            padding: 1em;
             border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: center;
+            gap: 1em;
         }
-        .tab-button {
-            padding: 0.5em 1em;
-            margin-right: 0.5em;
-            border: none;
-            background: none;
+        .api-button {
+            padding: 0.75em 1.5em;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background-color: white;
             cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
         }
-        .tab-button.active {
-            border-bottom: 2px solid #49cc90;
-            font-weight: bold;
+        .api-button:hover {
+            background-color: #f0f0f0;
+        }
+        .api-button.active {
+            background-color: #49cc90;
+            color: white;
+            border-color: #49cc90;
         }
         #swagger-ui {
-            margin: 1em;
+            margin: 0;
+        }
+        /* Hide Swagger UI's top bar and info section */
+        .swagger-ui .topbar, 
+        .swagger-ui .info {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div id="tabs">
-        <button class="tab-button active" onclick="loadSpec('Accounts.yaml')">Accounts</button>
-        <button class="tab-button" onclick="loadSpec('Gameplay.yaml')">Gameplay</button>
-        <button class="tab-button" onclick="loadSpec('OAuth.yaml')">OAuth</button>
-        <button class="tab-button" onclick="loadSpec('Tournament.yaml')">Tournament</button>
+    <div class="top-bar">
+        <button class="api-button active" onclick="loadSpec('Accounts')">Accounts</button>
+        <button class="api-button" onclick="loadSpec('Gameplay')">Gameplay</button>
+        <button class="api-button" onclick="loadSpec('OAuth')">OAuth</button>
+        <button class="api-button" onclick="loadSpec('Tournament')">Tournament</button>
     </div>
     <div id="swagger-ui"></div>
 
@@ -45,39 +59,50 @@
     <script>
         let ui = null;
 
-        function loadSpec(yamlFile) {
-            // Update active tab
-            document.querySelectorAll('.tab-button').forEach(button => {
+        async function loadSpec(name) {
+            // Update active button
+            document.querySelectorAll('.api-button').forEach(button => {
                 button.classList.remove('active');
-                if (button.textContent === yamlFile.split('.')[0]) {
+                if (button.textContent === name) {
                     button.classList.add('active');
                 }
             });
 
-            // If UI exists, remove it
-            if (ui) {
-                ui.removeDocument();
-            }
+            try {
+                // Fetch the YAML file
+                const response = await fetch(`${name}.yaml`);
+                const yamlContent = await response.text();
 
-            // Initialize Swagger UI
-            ui = SwaggerUIBundle({
-                url: yamlFile,
-                dom_id: '#swagger-ui',
-                deepLinking: true,
-                presets: [
-                    SwaggerUIBundle.presets.apis,
-                    SwaggerUIStandalonePreset
-                ],
-                plugins: [
-                    SwaggerUIBundle.plugins.DownloadUrl
-                ],
-                layout: "StandaloneLayout"
-            });
+                // If UI exists, remove it
+                if (ui) {
+                    ui.removeDocument();
+                }
+
+                // Initialize Swagger UI
+                ui = SwaggerUIBundle({
+                    spec: yamlContent,
+                    dom_id: '#swagger-ui',
+                    deepLinking: true,
+                    presets: [
+                        SwaggerUIBundle.presets.apis,
+                        SwaggerUIStandalonePreset
+                    ],
+                    plugins: [
+                        SwaggerUIBundle.plugins.DownloadUrl
+                    ],
+                    defaultModelsExpandDepth: -1,
+                    displayRequestDuration: true,
+                    filter: false,
+                    layout: "BaseLayout"
+                });
+            } catch (error) {
+                console.error('Error loading spec:', error);
+            }
         }
 
         // Load default spec on page load
         window.onload = function() {
-            loadSpec('Accounts.yaml');
+            loadSpec('Accounts');
         };
     </script>
 </body>
