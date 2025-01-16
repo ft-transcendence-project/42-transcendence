@@ -3,72 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Documentation</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css">
-    <link href="https://unpkg.com/@asyncapi/react-component@1.0.0-next.48/styles/default.min.css" rel="stylesheet">
+    <title>42 Pong API Documentation</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/asyncapi-react/0.24.18/styles/default.min.css" rel="stylesheet">
     <style>
         body {
             margin: 0;
             padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
-        .swagger-ui .topbar {
+        .nav {
+            background: #1a1a1a;
+            padding: 1rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        .nav h1 {
+            color: white;
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+        .nav-link {
+            color: #fff;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .nav-link:hover {
+            background-color: #333;
+        }
+        .content {
+            margin-top: 80px;
+            padding: 2rem;
+        }
+        .api-section {
+            margin-bottom: 2rem;
             display: none;
         }
-        #openapi-docs {
-            padding: 20px;
+        .api-section.active {
+            display: block;
         }
-        #asyncapi {
-            padding: 20px;
+        #gameplay {
+            height: 100vh;
+            overflow: auto;
         }
     </style>
 </head>
 <body>
-    <div id="openapi-docs"></div>
-    <div id="asyncapi"></div>
+    <nav class="nav">
+        <div class="nav-content">
+            <h1>42 Pong API Documentation</h1>
+            <div class="nav-links">
+                <a href="#accounts" class="nav-link" onclick="showSection('accounts')">Accounts API</a>
+                <a href="#gameplay" class="nav-link" onclick="showSection('gameplay')">Gameplay API</a>
+                <a href="#oauth" class="nav-link" onclick="showSection('oauth')">OAuth API</a>
+                <a href="#tournament" class="nav-link" onclick="showSection('tournament')">Tournament API</a>
+            </div>
+        </div>
+    </nav>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.min.js"></script>
-    <script src="https://unpkg.com/@asyncapi/react-component@1.0.0-next.48/browser/standalone/index.js"></script>
+    <div class="content">
+        <div id="accounts" class="api-section"></div>
+        <div id="gameplay" class="api-section"></div>
+        <div id="oauth" class="api-section"></div>
+        <div id="tournament" class="api-section"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/asyncapi-react/0.24.18/index.min.js"></script>
+    
     <script>
-        // Initialize OpenAPI viewer
-        SwaggerUIBundle({
-            dom_id: '#openapi-docs',
-            urls: [
-                { url: 'Accounts.yaml', name: 'Accounts' },
-                { url: 'OAuth.yaml', name: 'OAuth' },
-                { url: 'Tournament.yaml', name: 'Tournament' }
-            ],
-            deepLinking: true,
-            presets: [
-                SwaggerUIBundle.presets.apis,
-                SwaggerUIStandalonePreset
-            ],
-            plugins: [
-                SwaggerUIBundle.plugins.DownloadUrl
-            ],
-            layout: "BaseLayout",
-            defaultModelsExpandDepth: -1
-        });
+        // OpenAPI/Swagger UI initialization
+        function initializeSwaggerUI(elementId, specUrl) {
+            SwaggerUIBundle({
+                url: specUrl,
+                dom_id: `#${elementId}`,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIBundle.SwaggerUIStandalonePreset
+                ],
+                layout: "BaseLayout"
+            });
+        }
 
-        // Initialize AsyncAPI viewer
-        fetch('Gameplay.yaml')
-            .then(response => response.text())
-            .then(spec => {
-                AsyncApiStandalone.render({
-                    schema: spec,
-                    config: {
-                        show: {
-                            sidebar: true,
-                            info: true,
-                            servers: true,
-                            operations: true,
-                            messages: true,
-                            schemas: true
+        // Show selected section
+        function showSection(sectionId) {
+            document.querySelectorAll('.api-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        // Initialize all API documentation
+        window.onload = function() {
+            initializeSwaggerUI('accounts', './Accounts.yaml');
+            initializeSwaggerUI('oauth', './Oauth.yaml');
+            initializeSwaggerUI('tournament', './Tournament.yaml');
+
+            // AsyncAPI initialization for Gameplay
+            const gameplaySpec = document.getElementById('gameplay');
+            fetch('./Gameplay.yaml')
+                .then(response => response.text())
+                .then(spec => {
+                    AsyncApiStandalone.render({
+                        schema: spec,
+                        config: {
+                            show: {
+                                sidebar: true
+                            }
                         }
-                    }
-                }, document.getElementById('asyncapi'));
-            })
-            .catch(console.error);
+                    }, gameplaySpec);
+                });
+
+            // Show default section
+            showSection('accounts');
+        }
     </script>
 </body>
 </html>
