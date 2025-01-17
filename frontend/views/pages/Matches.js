@@ -55,7 +55,6 @@ const Matches = {
       sessionStorage.removeItem("currentMatch");
       sessionStorage.removeItem("player1");
       sessionStorage.removeItem("player2");
-      sessionStorage.removeItem("settingId");
       const nextGameButton = document.getElementById("matches:next-game");
       nextGameButton.setAttribute("href", "#/winner");
       nextGameButton.innerText = "To the winner page";
