@@ -40,9 +40,7 @@ const getCookie = (name) => {
 };
 
 const router = async () => {
-  const header = null || document.getElementById("header_container");
   const body = null || document.getElementById("body_container");
-  const footer = null || document.getElementById("footer_container");
 
   const hash = window.location.hash.slice(1);
   const [path, query] = hash.split("?");
@@ -88,8 +86,6 @@ const router = async () => {
     gameplayButton.setAttribute("href", "#/gamesetting");
     gameplayButton.classList.replace("disabled", "active");
   }
-
-  // footer
 
   body.innerHTML = DOMPurify.sanitize(await page.render());
   updateContent();

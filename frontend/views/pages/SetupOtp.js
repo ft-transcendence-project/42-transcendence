@@ -1,8 +1,9 @@
+import { fetchWithHandling } from "../../utils/fetchWithHandling.js";
+import { fetchHtml } from "../../utils/fetchHtml.js";
+
 const SetupOtp = {
   render: async () => {
-    const template = await fetch("/views/templates/SetupOtp.html").then(
-      (response) => response.text()
-    );
+    const template = await fetchHtml("/views/templates/SetupOtp.html");
 
     const response = await fetch(
       `${window.env.ACCOUNT_HOST}/accounts/setup-otp/`,
@@ -16,7 +17,7 @@ const SetupOtp = {
     console.log(data);
 
     if (data.message === "OTP already set up") {
-      return (await fetch("/views/templates/AlreadySetupOtp.html")).text();
+      return (await fetchHtml("/views/templates/AlreadySetupOtp.html"));
     }
 
     return template
@@ -30,27 +31,16 @@ const SetupOtp = {
       .addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        try {
-          const response = await fetch(
-            `${window.env.ACCOUNT_HOST}/accounts/setup-otp/`,
-            {
-              method: "POST",
-              credentials: "include",
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-
-          if (response.ok) {
-            window.location.hash = "#/";
-          } else {
-            console.error(await response.json());
-            alert(i18next.t("setupotp:errors.setup"));
-          }
-        } catch (error) {
-          console.error("Error ", error);
-          alert(i18next.t("setupotp:errors.unknown"));
+        const response = await fetchWithHandling(
+          `${window.env.ACCOUNT_HOST}/accounts/setup-otp/`,
+          {
+            method: "POST",
+            credentials: "include",
+          },
+          "setupotp:errors.setup"
+        );
+        if (response) {
+          window.location.hash = "#/";
         }
       });
   },

@@ -1,8 +1,10 @@
 import { changeLanguage } from "../../utils/i18n.js";
+import { fetchWithHandling } from "../../utils/fetchWithHandling.js";
+import { fetchHtml } from "../../utils/fetchHtml.js";
 
 const Login = {
   render: async () => {
-    return (await fetch("/views/templates/Login.html")).text();
+    return (await fetchHtml("/views/templates/Login.html"));
   },
 
   after_render: async () => {
@@ -22,41 +24,26 @@ const Login = {
       let username = document.getElementById("id_username").value;
       let password = document.getElementById("id_password").value;
 
-      try {
-        const response = await fetch(
-          `${window.env.ACCOUNT_HOST}/accounts/login/`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ username, password }),
-          }
-        );
-
-        const data = await response.json();
-
-        if (response.ok) {
-          console.log("Login success: ", data);
-          event.preventDefault();
-          changeLanguage(data.default_language);
-          if (data.redirect === "accounts:verify_otp") {
-            const params = new URLSearchParams({ user: username });
-            window.location.hash = `#/verify-otp?${params}`;
-            return;
-          }
-          document.cookie = `isLoggedIn=true; path=/; max-age=86400`;
-          window.location.hash = "#/";
-        } else {
-          const errors = Object.entries(data)
-            .map(([k, v]) => `${k}: ${v}`)
-            .join(", ");
-          console.error("Login failed: ", errors);
-          alert(i18next.t("login:errors.login"));
+      const response = await fetchWithHandling(
+        `${window.env.ACCOUNT_HOST}/accounts/login/`,
+        {
+          method: "POST",
+          body: { username, password },
+        },
+        "login:errors.login"
+      );
+      const data = await response.json();
+      if (response) {
+        console.log("Login success: ", data);
+        event.preventDefault();
+        changeLanguage(data.default_language);
+        if (data.redirect === "accounts:verify_otp") {
+          const params = new URLSearchParams({ user: username });
+          window.location.hash = `#/verify-otp?${params}`;
+          return;
         }
-      } catch (error) {
-        console.error("An error occurred: ", error);
-        alert(i18next.t("login:errors.unknown"));
+        document.cookie = `isLoggedIn=true; path=/; max-age=86400`;
+        window.location.hash = "#/";
       }
     });
 

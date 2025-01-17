@@ -1,6 +1,9 @@
+import { fetchWithHandling } from "../../utils/fetchWithHandling.js";
+import { fetchHtml } from "../../utils/fetchHtml.js";
+
 const SignUp = {
   render: async () => {
-    return (await fetch("/views/templates/SignUp.html")).text();
+    return (await fetchHtml("/views/templates/SignUp.html"));
   },
 
   after_render: async () => {
@@ -21,33 +24,18 @@ const SignUp = {
       let email = document.getElementById("email").value;
       let default_language = document.querySelector('input[name="language"]:checked').id.replace("language-", "");
 
-      try {
-        const response = await fetch(
-          `${window.env.ACCOUNT_HOST}/accounts/signup/`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ username, password, email, default_language }),
-          }
-        );
-
-        const data = await response.json();
-
-        if (response.ok) {
-          console.log("Signup successful: ", data);
-          window.location.hash = "#/";
-        } else {
-          const errors = Object.entries(data)
-            .map(([k, v]) => `${k}: ${v}`)
-            .join(", ");
-          console.error("Signup failed: ", errors);
-          alert(i18next.t("signup:errors.signup"));
-        }
-      } catch (error) {
-        console.error("Error during signup: ", error);
-        alert(i18next.t("signup:errors.unknown"));
+      const response = await fetchWithHandling(
+        `${window.env.ACCOUNT_HOST}/accounts/signup/`,
+        {
+          method: "POST",
+          body: { username, password, email, default_language },
+        },
+        "signup:errors.signup"
+      );
+      const data = await response.json();
+      if (response) {
+        console.log("Signup successful: ", data);
+        window.location.hash = "#/";
       }
     });
   },

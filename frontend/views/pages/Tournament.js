@@ -1,6 +1,9 @@
+import { fetchWithHandling } from "../../utils/fetchWithHandling.js";
+import { fetchHtml } from "../../utils/fetchHtml.js";
+
 const Tournament = {
   render: async () => {
-    return (await fetch("/views/templates/Tournament.html")).text();
+    return (await fetchHtml("/views/templates/Tournament.html"));
   },
 
   after_render: async () => {
@@ -8,17 +11,12 @@ const Tournament = {
     sessionStorage.removeItem("winner");
 
     // トーナメントデータがあり、終了していない場合は続きを行う
-    try {
-      const response = await fetch(
-        `${
-          window.env.TOURNAMENT_HOST
-        }/tournament/save-data/${localStorage.getItem("tournamentId")}/`
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP Error Status: ${response.status}`);
-      }
-
+    const response = await fetchWithHandling(
+      `${
+        window.env.TOURNAMENT_HOST
+      }/tournament/save-data/${localStorage.getItem("tournamentId")}/`
+    );
+    if (response) {
       const tournamentData = await response.json();
       if (!sessionStorage.getItem("settingId")) {
         window.location.hash = "#/gamesetting";
@@ -27,7 +25,7 @@ const Tournament = {
         window.location.hash = "#/matches";
         return;
       }
-    } catch (error) {}
+    }
 
     sessionStorage.setItem("currentMatch", 1);
 
@@ -47,36 +45,19 @@ const Tournament = {
 
         const uniqueUsers = [...new Set(users)];
 
-        try {
-          const response = await fetch(
-            `${window.env.TOURNAMENT_HOST}/tournament/register/`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(uniqueUsers),
-            }
-          );
-
-          const data = await response.json();
-
-          if (response.ok) {
-            console.log(data);
-            localStorage.setItem("tournamentId", data.id);
-            window.location.hash = "#/gamesetting";
-          } else {
-            const errors = Object.entries(data)
-              .map(([k, v]) => {
-                return `${k}: ${v}`;
-              })
-              .join(", ");
-            console.error("Tournament register failed", errors);
-            alert(i18next.t("tournament:errors.register"));
-          }
-        } catch (error) {
-          console.error("Unknown error: ", error);
-          alert(i18next.t("tournament:errors.unknown"));
+        const response = await fetchWithHandling(
+          `${window.env.TOURNAMENT_HOST}/tournament/register/`,
+          {
+            method: "POST",
+            body: uniqueUsers,
+          },
+          "tournament:errors.register"
+        );
+        const data = await response.json();
+        if (response) {
+          console.log(data);
+          localStorage.setItem("tournamentId", data.id);
+          window.location.hash = "#/gamesetting";
         }
       });
   },

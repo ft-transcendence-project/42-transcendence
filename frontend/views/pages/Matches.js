@@ -1,6 +1,8 @@
+import { fetchHtml } from "../../utils/fetchHtml.js";
+
 const Matches = {
   render: async () => {
-    return (await fetch("/views/templates/Matches.html")).text();
+    return (await fetchHtml("/views/templates/Matches.html"));
   },
 
   after_render: async function () {
