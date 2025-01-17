@@ -2,6 +2,9 @@ from web3 import Web3
 import json
 import os
 from eth_account import Account
+import logging
+
+logger = logging.getLogger("tournament")
 
 ABI_PATH = "/usr/src/app/contracts/TournamentData.json"
 ADDRESS_PATH = "/usr/src/app/addresses/contract_address.json"
@@ -23,7 +26,7 @@ class TournamentContract:
     def connect_to_ganache(self):
         web3 = Web3(Web3.HTTPProvider(self.ganache_url))
         if web3.is_connected():
-            print("Successfully connected to Ganache")
+            logger.info("Successfully connected to Ganache")
             return web3
         else:
             raise ConnectionError("Failed to connect to Ganache")
@@ -62,8 +65,8 @@ class TournamentContract:
         account = Account.from_mnemonic(self.mnemonic, account_path=account_path)
         private_key = account.key
         address = account.address
-        print(f"Address: {address}")
-        print(f"Private Key: {private_key.hex()}")
+        logger.info(f"Address: {address}")
+        logger.info(f"Private Key: {private_key.hex()}")
         return address, private_key
 
     # トランザクションのビルドと送信
@@ -103,6 +106,22 @@ class TournamentContract:
     def get_match(self, tournament_id, match_number):
         match_details = self.contract.functions.getMatch(tournament_id, match_number).call()
         return match_details
+    
+    # イベントフィルタの作成とログの取得
+    def get_event_logs(self, event_name, from_block=0, to_block='latest'):
+        try:
+            # キーワード引数を使用してイベントフィルタを作成
+            event_filter = self.contract.events[event_name].create_filter(
+                from_block=from_block,
+                to_block=to_block
+            )
+            # フィルタに一致するすべてのエントリを取得
+            for event in event_filter.get_all_entries():
+                logger.info(f"Event: {event}")
+                logger.info(f"Event Args: {event['args']}")
+        except Exception as e:
+            logger.error(f"An error occurred while getting event logs: {e}")
+
 
 def record_match_on_blockchain(
     tournament_id,
@@ -122,11 +141,11 @@ def record_match_on_blockchain(
         try:
             tournament_details = tournament_contract.contract.functions.tournaments(tournament_id).call()
             if not tournament_details[0]:  # トーナメントIDが0の場合は存在しないとみなす
-                print(f"Tournament with ID {tournament_id} does not exist. Creating new tournament.")
+                logger.info(f"Tournament with ID {tournament_id} does not exist. Creating new tournament.")
                 tournament_contract.create_tournament(f"Auto Tournament {tournament_id}", timestamp)
         except Exception as e:
-            print(f"Error while checking tournament existence: {e}")
-            print(f"Creating new tournament with ID {tournament_id}")
+            logger.info(f"Error while checking tournament existence: {e}")
+            logger.info(f"Creating new tournament with ID {tournament_id}")
             tournament_contract.create_tournament(f"Auto Tournament {tournament_id}", timestamp)
 
         # 試合の記録
@@ -140,18 +159,21 @@ def record_match_on_blockchain(
             player1_score=player1_score,
             player2_score=player2_score
         )
+
+        # イベントログの取得
+        tournament_contract.get_event_logs("MatchRecorded")
         return receipt
 
     except Exception as e:
-        print(f"An error occurred while recording match on blockchain: {e}")
+        logger.info(f"An error occurred while recording match on blockchain: {e}")
         raise
 
 def get_match_from_blockchain(tournament_id, match_number):
     try:
         tournament_contract = TournamentContract()
         match_details = tournament_contract.get_match(tournament_id, match_number)
-        print(f"Match details: {match_details}")
+        logger.info(f"Match details: {match_details}")
         return match_details
     except Exception as e:
-        print(f"An error occurred while retrieving match from blockchain: {e}")
+        logger.info(f"An error occurred while retrieving match from blockchain: {e}")
         raise
