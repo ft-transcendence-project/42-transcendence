@@ -22,13 +22,17 @@ services:
     restart: unless-stopped
 
   tournament:
-    volumes: !reset []
+    volumes: !override
+      - contract_data:/usr/src/app/build/contracts
     entrypoint: !override "/usr/src/app/entrypoint.sh"
     environment: !override
       - ENVIRONMENT=production
     development: !reset []
     ports: !reset []
     restart: unless-stopped
+    depends_on:
+      - ganache
+      - truffle
 
   db:
     volumes: !reset []
