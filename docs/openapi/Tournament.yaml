@@ -2,21 +2,19 @@ openapi: 3.0.0
 info:
   title: Tournament Management API
   description: |
-    トーナメント管理システムのAPI仕様
-    - トーナメントの作成と管理
-    - 試合結果の記録
-    - プレイヤー情報の管理
+    Tournament management system API specification
+    - Tournament creation and management
+    - Match result recording
+    - Player information management
   version: 1.0.0
-servers:
-- url: https://virtserver.swaggerhub.com/SHAHRUKH4062_1/Tournament/1.0.0
-  description: SwaggerHub API Auto Mocking
+
 paths:
-  /api/tournaments/register:
+  /tournament/register:
     post:
       tags:
-      - tournaments
-      summary: トーナメント登録
-      description: 8人のプレイヤーでトーナメントを作成します
+        - tournament
+      summary: Register tournament
+      description: Create a tournament with 8 players
       requestBody:
         content:
           application/json:
@@ -27,24 +25,24 @@ paths:
               items:
                 type: string
               example:
-              - Player 1
-              - Player 2
-              - Player 3
-              - Player 4
-              - Player 5
-              - Player 6
-              - Player 7
-              - Player 8
+                - Player 1
+                - Player 2
+                - Player 3
+                - Player 4
+                - Player 5
+                - Player 6
+                - Player 7
+                - Player 8
         required: true
       responses:
-        "201":
-          description: トーナメント作成成功
+        '201':
+          description: Tournament created successfully
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TournamentDetail'
-        "400":
-          description: バリデーションエラー
+        '400':
+          description: Validation error
           content:
             application/json:
               schema:
@@ -53,8 +51,8 @@ paths:
                   error:
                     type: string
                     example: Require 8 players
-        "500":
-          description: サーバーエラー
+        '500':
+          description: Server error
           content:
             application/json:
               schema:
@@ -63,27 +61,27 @@ paths:
                   error:
                     type: string
 
-  /api/tournaments/{tournament_id}:
+  /tournament/save-data/{pk}:
     get:
       tags:
-      - tournaments
-      summary: トーナメント情報取得
-      description: 指定されたIDのトーナメント情報を取得します
+        - tournament
+      summary: Get tournament information
+      description: Get tournament information by ID
       parameters:
-        - name: tournament_id
+        - name: pk
           in: path
           required: true
           schema:
             type: integer
       responses:
-        "200":
-          description: トーナメント情報取得成功
+        '200':
+          description: Tournament information retrieved successfully
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TournamentDetail'
-        "404":
-          description: トーナメントが見つかりません
+        '404':
+          description: Tournament not found
           content:
             application/json:
               schema:
@@ -92,14 +90,14 @@ paths:
                   error:
                     type: string
                     example: No tournament found
-    
+
     put:
       tags:
-      - tournaments
-      summary: 試合結果の更新
-      description: トーナメントの試合結果を更新します
+        - tournament
+      summary: Update match results
+      description: Update tournament match results and handle tournament progression
       parameters:
-        - name: tournament_id
+        - name: pk
           in: path
           required: true
           schema:
@@ -114,8 +112,8 @@ paths:
                 currentMatch:
                   $ref: '#/components/schemas/MatchUpdate'
       responses:
-        "200":
-          description: 試合結果更新成功
+        '200':
+          description: Match results updated successfully
           content:
             application/json:
               schema:
@@ -129,8 +127,8 @@ paths:
                         type: boolean
                       winner:
                         type: string
-        "400":
-          description: バリデーションエラー
+        '400':
+          description: Validation error
           content:
             application/json:
               schema:
@@ -139,8 +137,8 @@ paths:
                   error:
                     type: string
                     example: No match data provided
-        "404":
-          description: 試合が見つかりません
+        '404':
+          description: Match not found
           content:
             application/json:
               schema:
@@ -149,6 +147,16 @@ paths:
                   error:
                     type: string
                     example: Match not found
+        '500':
+          description: Blockchain recording error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: An error occurred while recording match on blockchain
 
 components:
   schemas:
@@ -159,11 +167,11 @@ components:
           type: integer
         name:
           type: string
-          example: Tournament 2024-12-28 15:30
+          example: Tournament 2024-01-17 15:30
         date:
           type: string
           format: date
-          example: 2024-12-28
+          example: 2024-01-17
         is_over:
           type: boolean
         winner:

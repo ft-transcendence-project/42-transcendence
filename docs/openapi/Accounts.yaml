@@ -12,7 +12,7 @@ servers:
     description: SwaggerHub API Auto Mocking
 
 paths:
-  /api/login:
+  /login:
     post:
       tags:
         - authentication
@@ -37,7 +37,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /api/logout/:
+  /logout/:
     post:
       tags:
         - authentication
@@ -62,7 +62,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /api/signup:
+  /signup:
     post:
       tags:
         - authentication
@@ -87,7 +87,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /api/setup-otp:
+  /setup-otp:
     get:
       tags:
         - otp
@@ -122,7 +122,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/inline_response_200_2'
 
-  /api/verify-otp:
+  /verify-otp:
     post:
       tags:
         - otp
