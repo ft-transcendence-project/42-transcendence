@@ -24,21 +24,10 @@ const SignUp = {
       let email = document.getElementById("email").value;
       let default_language = document.querySelector('input[name="language"]:checked').id.replace("language-", "");
 
-      function getCSRFToken() {
-        return document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("csrftoken="))
-          ?.split("=")[1];
-      }
-
-      const response = await fetchWithHandling(
+      const response = await fetch(
         `${window.env.ACCOUNT_HOST}/accounts/api/signup/`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCSRFToken(),
-          },
           body: { username, password, email, default_language },
         },
         "signup:errors.signup"

@@ -5,8 +5,6 @@ services:
     container_name: ganache
     ports:
       - "8545:8545"
-    volumes:
-      - ganache_data:/data
     environment:
       MNEMONIC: "${MNEMONIC}"
     command:
@@ -23,8 +21,13 @@ services:
     depends_on:
       - ganache
     command:
-      ["sh", "-c", "truffle migrate --network development && tail -f /dev/null"]
+      ["sh", "-c", "truffle compile && truffle migrate --network development --reset && tail -f /dev/null"]
+    volumes:
+      - contract_data:/app/build/contracts
+      - address_data:/app/addresses
 
 volumes:
-  ganache_data:
+  contract_data:
+    driver: local
+  address_data:
     driver: local

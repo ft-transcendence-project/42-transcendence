@@ -12,31 +12,25 @@ const VerifyOtp = {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      function getCSRFToken() {
-        return document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("csrftoken="))
-          ?.split("=")[1];
-      }
-
-      const user = sessionStorage.getItem("user");
+      const urlParams = new URLSearchParams(
+        window.location.hash.split("?")[1]
+      );
+      const user = urlParams.get("user");
       const otp_token = document.getElementById("id_otp_token").value;
       const response = await fetchWithHandling(
-        `${window.env.ACCOUNT_HOST}/accounts/api/verify-otp/`,
+        `${
+          window.env.ACCOUNT_HOST
+        }/accounts/api/verify-otp/?user=${encodeURIComponent(user)}`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCSRFToken(),
-          },
-          body: { user, otp_token },
+          body: { otp_token },
         },
         "verifyotp:errors.verify"
       );
       const data = await response.json();
       if (response.ok) {
         console.log("Login successful:", data);
-        document.cookie = `token=${data.token}; path=/; Secure; SameSite=Strict; max-age=86400`;
+        document.cookie = `isLoggedIn=true; path=/; max-age=86400`;
         window.location.hash = "#/";
       }
     });

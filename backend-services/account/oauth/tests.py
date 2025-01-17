@@ -1,10 +1,12 @@
+import os
 from unittest.mock import patch
 
-from accounts.models import CustomUser
 from django.conf import settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
+
+from accounts.models import CustomUser
 
 
 class OAuthViewTests(APITestCase):
@@ -13,10 +15,22 @@ class OAuthViewTests(APITestCase):
         self.client.defaults["wsgi.url_scheme"] = "https"
 
     def test_oauth_view_redirect(self):
-        """OAuth認証ページにリダイレクトされることを確認する"""
+        """OAuth認証ページへのリダイレクトを確認する"""
         response = self.client.get(reverse("oauth:oauth"))
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertIn("https://api.intra.42.fr/oauth/authorize", response.url)
+
+        expected_redirect_uri = (
+            "https://localhost:8443/42pong.api/account/oauth/callback/"
+            if not settings.DEBUG
+            else "http://localhost:8000/oauth/callback/"
+        )
+        expected_url = (
+            f"https://api.intra.42.fr/oauth/authorize?"
+            f"client_id={os.environ.get('UID')}&"
+            f"redirect_uri={expected_redirect_uri}&"
+            f"response_type=code"
+        )
+        self.assertEqual(response.url, expected_url)
 
 
 class OAuthCallbackViewTests(APITestCase):
@@ -26,21 +40,47 @@ class OAuthCallbackViewTests(APITestCase):
 
     @patch("requests.post")
     @patch("requests.get")
-    def test_oauth_callback_view_success(self, mock_get, mock_post):
-        """OAuthコールバックが成功し、ユーザーが作成されログインされることを確認する"""
+    def test_oauth_callback_success_without_otp(self, mock_get, mock_post):
+        """OTPが無効な場合のOAuthコールバック成功をテストする"""
         mock_post.return_value.json.return_value = {"access_token": "test_token"}
         mock_get.return_value.json.return_value = {"login": "testuser"}
 
         response = self.client.get(reverse("oauth:callback"), {"code": "test_code"})
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        if settings.DEBUG == False:
-            self.assertEqual(response.url, "https://localhost:8443/#/")
-        else:
-            self.assertEqual(response.url, "http://localhost:3000/#/")
 
-        user = CustomUser.objects.get(username="testuser")
-        self.assertIsNotNone(user)
-        self.assertTrue(user.is_authenticated)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        expected_redirect = (
+            "https://localhost:8443/#/"
+            if not settings.DEBUG
+            else "http://localhost:3000/#/"
+        )
+        self.assertEqual(response.url, expected_redirect)
+
+        # Cookieの検証
+        self.assertIn("isLoggedIn", response.cookies)
+        self.assertIn("jwt", response.cookies)
+        self.assertEqual(response.cookies["isLoggedIn"].value, "true")
+
+    @patch("requests.post")
+    @patch("requests.get")
+    def test_oauth_callback_success_with_otp(self, mock_get, mock_post):
+        """OTPが有効な場合のOAuthコールバック成功をテストする"""
+        user = CustomUser.objects.create_user(username="testuser")
+        user.otp_enabled = True
+        user.save()
+
+        mock_post.return_value.json.return_value = {"access_token": "test_token"}
+        mock_get.return_value.json.return_value = {"login": "testuser"}
+
+        response = self.client.get(reverse("oauth:callback"), {"code": "test_code"})
+
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        expected_redirect = (
+            "https://localhost:8443/#/verify-otp"
+            if not settings.DEBUG
+            else "http://localhost:3000/#/verify-otp"
+        )
+        self.assertIn(expected_redirect, response.url)
+        self.assertIn("user=testuser", response.url)
 
     def test_oauth_callback_view_error(self):
         """エラーが発生した場合、エラーメッセージが返されることを確認する"""

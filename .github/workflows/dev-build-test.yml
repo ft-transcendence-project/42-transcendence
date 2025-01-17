@@ -42,7 +42,7 @@ jobs:
       - name: Build and run Docker Compose
         run: |
           mv .env_template .env
-          docker compose up -d --build --wait
+          docker compose up -d --build 
 
       - name: Wait for services to be healthy
         run: |
