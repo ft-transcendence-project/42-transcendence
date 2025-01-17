@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real-time API(websocket含む) ドキュメント(AsyncAPI)</title>
+    <title>Real-time API ドキュメント(AsyncAPI)</title>
     
     <!-- Tailwind CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
@@ -13,19 +12,36 @@
     
     <style>
         asyncapi-component {
-            height: calc(100vh - 64px);
-            width: 100%;
-            display: block;
+        height: calc(100vh - 64px);
+        width: 100%;
+        display: block;
         }
         .header {
             height: 64px;
+        }
+        
+        /* AsyncAPIの2カラムレイアウトを1カラムに修正 */
+        :root {
+            --width-primary: 100% !important;
+            --width-secondary: 100% !important;
+        }
+        
+        /* パネルのレイアウトを調整 */
+        .asyncapi div[role="main"],
+        .asyncapi__main {
+            display: block !important;
+        }
+        
+        /* サイドバーとメインコンテンツを縦に並べる */
+        .asyncapi .container {
+            flex-direction: column !important;
         }
     </style>
 </head>
 <body class="bg-gray-100">
     <nav class="header bg-gray-800 text-white p-4">
-        <div class="container mx-auto">
-            <h1 class="text-2xl font-bold">Real-time API(websocket含む) ドキュメント(AsyncAPI)</h1>
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Real-time API ドキュメント(AsyncAPI)</h1>
             <a href="../index.html" class="text-white hover:text-gray-300">Back to Home</a>
         </div>
     </nav>
