@@ -1,10 +1,9 @@
 import { fetchWithHandling } from "../../utils/fetchWithHandling.js";
+import { fetchHtml } from "../../utils/fetchHtml.js";
 
 const SetupOtp = {
   render: async () => {
-    const template = await fetchWithHandling("/views/templates/SetupOtp.html").then(
-      (response) => response.text()
-    );
+    const template = await fetchHtml("/views/templates/SetupOtp.html");
 
     const token = document.cookie.replace(
       /(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/,
@@ -25,7 +24,7 @@ const SetupOtp = {
     console.log(data);
 
     if (data.message === "OTP already set up") {
-      return (await fetchWithHandling("/views/templates/AlreadySetupOtp.html")).text();
+      return (await fetchHtml("/views/templates/AlreadySetupOtp.html"));
     }
 
     return template

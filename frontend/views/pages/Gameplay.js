@@ -1,8 +1,9 @@
 import { fetchWithHandling } from "../../utils/fetchWithHandling.js";
+import { fetchHtml } from "../../utils/fetchHtml.js";
 
 const Gameplay = {
 	render: async () => {
-		return (await fetchWithHandling("/views/templates/Gameplay.html")).text();
+		return (await fetchHtml("/views/templates/Gameplay.html"));
 	},
 
 	isPaddleMoving: {

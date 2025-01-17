@@ -1,9 +1,10 @@
 import { updateContent } from "../../../utils/i18n.js";
 import { fetchWithHandling } from "../../utils/fetchWithHandling.js"
+import { fetchHtml } from "../../utils/fetchHtml.js";
 
 const GameSetting = {
   render: async () => {
-    return (await fetchWithHandling("/views/templates/GameSetting.html")).text();
+    return (await fetchHtml("/views/templates/GameSetting.html"));
   },
   after_render: async () => {
     updateContent();

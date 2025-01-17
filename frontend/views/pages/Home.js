@@ -1,8 +1,9 @@
 import { fetchWithHandling } from "../../utils/fetchWithHandling.js";
+import { fetchHtml } from "../../utils/fetchHtml.js";
 
 const Home = {
   render: async () => {
-    return (await fetchWithHandling("/views/templates/Home.html")).text();
+    return (await fetchHtml("/views/templates/Home.html"));
   },
   after_render: async () => {},
 };

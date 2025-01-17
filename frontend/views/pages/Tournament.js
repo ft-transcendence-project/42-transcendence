@@ -1,8 +1,9 @@
 import { fetchWithHandling } from "../../utils/fetchWithHandling.js";
+import { fetchHtml } from "../../utils/fetchHtml.js";
 
 const Tournament = {
   render: async () => {
-    return (await fetchWithHandling("/views/templates/Tournament.html")).text();
+    return (await fetchHtml("/views/templates/Tournament.html"));
   },
 
   after_render: async () => {
