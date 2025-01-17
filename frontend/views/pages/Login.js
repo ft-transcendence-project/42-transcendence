@@ -30,41 +30,29 @@ const Login = {
           ?.split("=")[1];
       }
 
-      try {
-        const response = await fetch(
-          `${window.env.ACCOUNT_HOST}/accounts/api/login/`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRFToken": getCSRFToken(),
-            },
-            body: JSON.stringify({ username, password }),
-          }
-        );
-
-        const data = await response.json();
-
-        if (response.ok) {
-          console.log("Login success: ", data);
-          event.preventDefault();
-          changeLanguage(data.default_language);
-          if (data.redirect === "accounts:verify_otp") {
-            sessionStorage.setItem("user", username);
-            window.location.hash = "#/verify-otp";
-            return;
-          }
-          window.location.hash = "#/";
-        } else {
-          const errors = Object.entries(data)
-            .map(([k, v]) => `${k}: ${v}`)
-            .join(", ");
-          console.error("Login failed: ", errors);
-          alert(i18next.t("login:errors.login"));
+      const response = await fetchWithHandling(
+        `${window.env.ACCOUNT_HOST}/accounts/api/login/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken(),
+          },
+          body: { username, password },
+        },
+        "login:errors.login"
+      );
+      const data = await response.json();
+      if (response) {
+        console.log("Login success: ", data);
+        event.preventDefault();
+        changeLanguage(data.default_language);
+        if (data.redirect === "accounts:verify_otp") {
+          sessionStorage.setItem("user", username);
+          window.location.hash = "#/verify-otp";
+          return;
         }
-      } catch (error) {
-        console.error("An error occurred: ", error);
-        alert(i18next.t("login:errors.unknown"));
+        window.location.hash = "#/";
       }
     });
 

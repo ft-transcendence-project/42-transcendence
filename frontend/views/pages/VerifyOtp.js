@@ -18,37 +18,25 @@ const VerifyOtp = {
           ?.split("=")[1];
       }
 
-      try {
-        const user = sessionStorage.getItem("user");
-        const otp_token = document.getElementById("id_otp_token").value;
-        const response = await fetch(
-          `${window.env.ACCOUNT_HOST}/accounts/api/verify-otp/`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRFToken": getCSRFToken(),
-            },
-            body: JSON.stringify({ user, otp_token }),
-          }
-        );
-
-        const data = await response.json();
-
-        if (response.ok) {
-          console.log("Login successful:", data);
-          document.cookie = `token=${data.token}; path=/; Secure; SameSite=Strict; max-age=86400`;
-          window.location.hash = "#/";
-        } else {
-          const errors = Object.entries(data)
-            .map(([k, v]) => `${k}: ${v}`)
-            .join(", ");
-          console.error("OTP verification failed: ", errors);
-          alert(i18next.t("verifyotp:errors.verify"));
-        }
-      } catch (error) {
-        console.error("Error during OTP verification:", error);
-        alert(i18next.t("verifyotp:errors.unknown"));
+      const user = sessionStorage.getItem("user");
+      const otp_token = document.getElementById("id_otp_token").value;
+      const response = await fetchWithHandling(
+        `${window.env.ACCOUNT_HOST}/accounts/api/verify-otp/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken(),
+          },
+          body: { user, otp_token },
+        },
+        "verifyotp:errors.verify"
+      );
+      const data = await response.json();
+      if (response.ok) {
+        console.log("Login successful:", data);
+        document.cookie = `token=${data.token}; path=/; Secure; SameSite=Strict; max-age=86400`;
+        window.location.hash = "#/";
       }
     });
   },

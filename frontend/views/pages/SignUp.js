@@ -30,34 +30,22 @@ const SignUp = {
           ?.split("=")[1];
       }
 
-      try {
-        const response = await fetch(
-          `${window.env.ACCOUNT_HOST}/accounts/api/signup/`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRFToken": getCSRFToken(),
-            },
-            body: JSON.stringify({ username, password, email, default_language }),
-          }
-        );
-
-        const data = await response.json();
-
-        if (response.ok) {
-          console.log("Signup successful: ", data);
-          window.location.hash = "#/";
-        } else {
-          const errors = Object.entries(data)
-            .map(([k, v]) => `${k}: ${v}`)
-            .join(", ");
-          console.error("Signup failed: ", errors);
-          alert(i18next.t("signup:errors.signup"));
-        }
-      } catch (error) {
-        console.error("Error during signup: ", error);
-        alert(i18next.t("signup:errors.unknown"));
+      const response = await fetchWithHandling(
+        `${window.env.ACCOUNT_HOST}/accounts/api/signup/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken(),
+          },
+          body: { username, password, email, default_language },
+        },
+        "signup:errors.signup"
+      );
+      const data = await response.json();
+      if (response) {
+        console.log("Signup successful: ", data);
+        window.location.hash = "#/";
       }
     });
   },

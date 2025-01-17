@@ -44,36 +44,19 @@ const Tournament = {
 
         const uniqueUsers = [...new Set(users)];
 
-        try {
-          const response = await fetch(
-            `${window.env.TOURNAMENT_HOST}/tournament/api/register/`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(uniqueUsers),
-            }
-          );
-
-          const data = await response.json();
-
-          if (response.ok) {
-            console.log(data);
-            localStorage.setItem("tournamentId", data.id);
-            window.location.hash = "#/gamesetting";
-          } else {
-            const errors = Object.entries(data)
-              .map(([k, v]) => {
-                return `${k}: ${v}`;
-              })
-              .join(", ");
-            console.error("Tournament register failed", errors);
-            alert(i18next.t("tournament:errors.register"));
-          }
-        } catch (error) {
-          console.error("Unknown error: ", error);
-          alert(i18next.t("tournament:errors.unknown"));
+        const response = await fetchWithHandling(
+          `${window.env.TOURNAMENT_HOST}/tournament/api/register/`,
+          {
+            method: "POST",
+            body: uniqueUsers,
+          },
+          "tournament:errors.register"
+        );
+        const data = await response.json();
+        if (response) {
+          console.log(data);
+          localStorage.setItem("tournamentId", data.id);
+          window.location.hash = "#/gamesetting";
         }
       });
   },
