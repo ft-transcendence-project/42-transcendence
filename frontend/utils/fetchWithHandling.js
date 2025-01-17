@@ -1,4 +1,4 @@
-export async function fetchWithHandling(url, options = {}) {
+export async function fetchWithHandling(url, options = {}, errorMessage = "") {
     const defaultOptions = {
         method: "GET",
         headers: {
@@ -31,6 +31,9 @@ export async function fetchWithHandling(url, options = {}) {
         return response;
     } catch (error) {
         console.error("Fetch Error:", error);
-        throw error;
+        if (errorMessage) {
+            alert(i18next.t(errorMessage));
+        }
+        return null;
     }
 }
