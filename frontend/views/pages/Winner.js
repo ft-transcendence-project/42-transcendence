@@ -1,6 +1,8 @@
+import { fetchWithHandling } from "../../utils/fetchWithHandling.js";
+
 const WinnerPage = {
   render: async () => {
-    return (await fetch("/views/templates/Winner.html")).text();
+    return (await fetchWithHandling("/views/templates/Winner.html")).text();
   },
 
   after_render: async () => {

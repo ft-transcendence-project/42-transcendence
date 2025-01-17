@@ -1,6 +1,8 @@
+import { fetchWithHandling } from "../../utils/fetchWithHandling.js";
+
 const VerifyOtp = {
   render: async () => {
-    return (await fetch("/views/templates/VerifyOtp.html")).text();
+    return (await fetchWithHandling("/views/templates/VerifyOtp.html")).text();
   },
 
   after_render: async () => {
