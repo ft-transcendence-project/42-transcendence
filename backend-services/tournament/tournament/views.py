@@ -9,8 +9,7 @@ from rest_framework.views import APIView
 from .models import Match, Player, Tournament
 from .serializers import MatchDetailSerializer, TournamentDetailSerializer
 
-from .web3_ganache_connect import record_match_on_blockchain, get_match_from_blockchain
-
+from .web3_ganache_connect import record_match_on_blockchain
 logger = logging.getLogger("tournament")
 
 
