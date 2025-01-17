@@ -12,19 +12,30 @@ from rest_framework.response import Response
 from accounts.models import CustomUser
 from accounts.utils.auth import generate_jwt
 
-logger = logging.getLogger("oauth")
+# OAuth設定
+OAUTH_CONSTANTS = {
+    'AUTH_URL': 'https://api.intra.42.fr/oauth/authorize',
+    'TOKEN_URL': 'https://api.intra.42.fr/oauth/token',
+    'USER_INFO_URL': 'https://api.intra.42.fr/v2/me',
+    'PROD': {
+        'REDIRECT_URI': 'https://localhost:8443/42pong.api/account/oauth/callback/',
+        'FRONTEND_URL': 'https://localhost:8443',
+    },
+    'DEV': {
+        'REDIRECT_URI': 'http://localhost:8000/oauth/callback/',
+        'FRONTEND_URL': 'http://localhost:3000',
+    }
+}
 
+logger = logging.getLogger("oauth")
+env = 'PROD' if not settings.DEBUG else 'DEV'
 
 @api_view(["GET"])
 def oauth_view(request):
     logger.info("Initiating OAuth authorization flow")
-    if settings.DEBUG == False:
-        redirect_url = f"https://api.intra.42.fr/oauth/authorize?client_id={os.environ.get('UID')}&redirect_uri=https://localhost:8443/42pong.api/account/oauth/callback/&response_type=code"
-    else:
-        redirect_url = f"https://api.intra.42.fr/oauth/authorize?client_id={os.environ.get('UID')}&redirect_uri=http://localhost:8000/oauth/callback/&response_type=code"
+    redirect_url = f"{OAUTH_CONSTANTS['AUTH_URL']}?client_id={os.environ.get('UID')}&redirect_uri={OAUTH_CONSTANTS[env]['REDIRECT_URI']}&response_type=code"
     logger.debug(f"Redirecting to: {redirect_url}")
     return redirect(redirect_url)
-
 
 @api_view(["GET"])
 def oauth_callback_view(request):
@@ -44,34 +55,23 @@ def oauth_callback_view(request):
 
     if code:
         logger.debug("Exchanging authorization code for access token")
-        if settings.DEBUG == False:
-            response = requests.post(
-                "https://api.intra.42.fr/oauth/token",
-                data={
-                    "grant_type": "authorization_code",
-                    "client_id": os.environ.get("UID"),
-                    "client_secret": os.environ.get("SECRET"),
-                    "code": code,
-                    "redirect_uri": "https://localhost:8443/42pong.api/account/oauth/callback/",
-                },
-            )
-        else:
-            response = requests.post(
-                "https://api.intra.42.fr/oauth/token",
-                data={
-                    "grant_type": "authorization_code",
-                    "client_id": os.environ.get("UID"),
-                    "client_secret": os.environ.get("SECRET"),
-                    "code": code,
-                    "redirect_uri": "http://localhost:8000/oauth/callback/",
-                },
-            )
+        response = requests.post(
+            OAUTH_CONSTANTS['TOKEN_URL'],
+            data={
+                "grant_type": "authorization_code",
+                "client_id": os.environ.get("UID"),
+                "client_secret": os.environ.get("SECRET"),
+                "code": code,
+                "redirect_uri": OAUTH_CONSTANTS[env]['REDIRECT_URI'],
+            },
+        )
+        
         token_data = response.json()
         access_token = token_data.get("access_token")
 
         if access_token:
             user_info_response = requests.get(
-                "https://api.intra.42.fr/v2/me",
+                OAUTH_CONSTANTS['USER_INFO_URL'],
                 headers={"Authorization": f"Bearer {access_token}"},
             )
 
@@ -87,17 +87,12 @@ def oauth_callback_view(request):
 
             logger.info(f"Successfully authenticated user: {username}")
 
-            if settings.DEBUG == False and user.otp_enabled:
+            if user.otp_enabled:
                 params = urlencode({"user": user.username})
-                return redirect(f"https://localhost:8443/#/verify-otp?{params}")
-            elif user.otp_enabled:
-                params = urlencode({"user": user.username})
-                return redirect(f"http://localhost:3000/#/verify-otp?{params}")
+                return redirect(f"{OAUTH_CONSTANTS[env]['FRONTEND_URL']}/#/verify-otp?{params}")
 
-            if settings.DEBUG == False:
-                response = redirect("https://localhost:8443/#/")
-            else:
-                response = redirect("http://localhost:3000/#/")
+            response = redirect(f"{OAUTH_CONSTANTS[env]['FRONTEND_URL']}/#/")
+            jwt_token = generate_jwt(user)
 
             response.set_cookie(
                 key="isLoggedIn",

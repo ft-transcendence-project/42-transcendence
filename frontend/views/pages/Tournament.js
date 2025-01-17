@@ -12,7 +12,7 @@ const Tournament = {
       const response = await fetch(
         `${
           window.env.TOURNAMENT_HOST
-        }/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`
+        }/tournament/save-data/${localStorage.getItem("tournamentId")}/`
       );
 
       if (!response.ok) {
@@ -49,7 +49,7 @@ const Tournament = {
 
         try {
           const response = await fetch(
-            `${window.env.TOURNAMENT_HOST}/tournament/api/register/`,
+            `${window.env.TOURNAMENT_HOST}/tournament/register/`,
             {
               method: "POST",
               headers: {

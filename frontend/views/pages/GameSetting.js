@@ -22,9 +22,9 @@ const GameSetting = {
 
       try {
         // PUTリクエストを送信
-        console.log(`${window.env.GAMEPLAY_HOST}/gamesetting/api/`);
+        console.log(`${window.env.GAMEPLAY_HOST}/gamesetting/`);
         const response = await fetch(
-          `${window.env.GAMEPLAY_HOST}/gamesetting/api/`, {
+          `${window.env.GAMEPLAY_HOST}/gamesetting/`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
