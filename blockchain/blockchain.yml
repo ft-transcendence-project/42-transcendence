@@ -26,9 +26,12 @@ services:
       ["sh", "-c", "truffle compile && truffle migrate --network development --reset && tail -f /dev/null"]
     volumes:
       - contract_data:/app/build/contracts
+      - address_data:/app/addresses
 
 volumes:
   ganache_data:
     driver: local
   contract_data:
+    driver: local
+  address_data:
     driver: local

@@ -11,5 +11,5 @@ module.exports = async function(deployer) {
   const addressData = {
     address: contractAddress
   };
-  fs.writeFileSync('build/contracts/contract_address.json', JSON.stringify(addressData, null, 2));
+  fs.writeFileSync('addresses/contract_address.json', JSON.stringify(addressData, null, 2));
 };

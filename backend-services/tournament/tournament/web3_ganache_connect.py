@@ -3,9 +3,8 @@ import json
 import os
 from eth_account import Account
 
-CONTRACT_PATH = "/usr/src/app/build/contracts/"
-ABI_PATH = os.path.join(CONTRACT_PATH, "TournamentData.json")
-ADDRESS_PATH = os.path.join(CONTRACT_PATH, "contract_address.json")
+ABI_PATH = "/usr/src/app/contracts/TournamentData.json"
+ADDRESS_PATH = "/usr/src/app/addresses/contract_address.json"
 
 
 class TournamentContract:

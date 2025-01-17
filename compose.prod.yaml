@@ -23,7 +23,8 @@ services:
 
   tournament:
     volumes: !override
-      - contract_data:/usr/src/app/build/contracts
+      - contract_data:/usr/src/app/contracts
+      - address_data:/usr/src/app/addresses
     entrypoint: !override "/usr/src/app/entrypoint.sh"
     environment: !override
       - ENVIRONMENT=production
