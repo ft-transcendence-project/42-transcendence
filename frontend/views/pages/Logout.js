@@ -1,3 +1,5 @@
+import { fetchWithHandling } from "../../utils/fetchWithHandling.js";
+
 const Logout = {
   render: async () => {
     try {
@@ -9,7 +11,7 @@ const Logout = {
       return;
     }
 
-    return (await fetch("/views/templates/Logout.html")).text();
+    return (await fetchWithHandling("/views/templates/Logout.html")).text();
   },
 
   after_render: async () => {

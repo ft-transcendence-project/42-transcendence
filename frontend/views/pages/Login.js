@@ -1,8 +1,9 @@
 import { changeLanguage } from "../../utils/i18n.js";
+import { fetchWithHandling } from "../../utils/fetchWithHandling.js";
 
 const Login = {
   render: async () => {
-    return (await fetch("/views/templates/Login.html")).text();
+    return (await fetchWithHandling("/views/templates/Login.html")).text();
   },
 
   after_render: async () => {
