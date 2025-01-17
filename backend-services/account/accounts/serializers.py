@@ -40,11 +40,18 @@ class SignUpSerializer(serializers.ModelSerializer):
 
 
 class OTPSerializer(serializers.Serializer):
-    user = serializers.CharField()
     otp_token = serializers.CharField(max_length=6)
 
-    def validate_user(self, value):
+    def validate(self, data):
+        request = self.context.get("request")
+        username = request.GET.get("user")
+
+        if not username:
+            raise serializers.ValidationError("Username is required")
+
         try:
-            return CustomUser.objects.get(username=value)
+            user = CustomUser.objects.get(username=username)
+            data["user"] = user
+            return data
         except CustomUser.DoesNotExist:
             raise serializers.ValidationError("User not found")

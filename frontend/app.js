@@ -44,8 +44,10 @@ const router = async () => {
   const body = null || document.getElementById("body_container");
   const footer = null || document.getElementById("footer_container");
 
-  let location = window.location.hash.slice(1).toLowerCase() || "/";
-  console.log(location);
+  const hash = window.location.hash.slice(1);
+  const [path, query] = hash.split("?");
+  const location = path.toLowerCase() || "/";
+  console.log("Path:", location, "Query:", query);
 
   const gameplayMatch = location.match(/^\/gameplay\.(\d+)/);  // 数字の部分をキャッチ
   if (gameplayMatch) {
@@ -59,10 +61,10 @@ const router = async () => {
   }
 
   const page = routes[location];
-  console.log(page);
+  console.log("Page component:", page);
   window.currentPage = page;
 
-  if (getCookie("token")) {
+  if (getCookie("isLoggedIn") === "true") {
     const loginButton = document.getElementById("navbar:login");
     if (loginButton) {
       loginButton.setAttribute("href", "#/logout");
@@ -70,12 +72,10 @@ const router = async () => {
       loginButton.id = "navbar:logout";
       loginButton.textContent = "Logout";
     }
-    if (getCookie("token") != "dummy") {
-      const setupOtpButton = document.getElementById("navbar:setup-otp");
-      if (setupOtpButton) {
-        setupOtpButton.setAttribute("href", "#/setup-otp");
-        setupOtpButton.classList.remove("disabled");
-      }
+    const setupOtpButton = document.getElementById("navbar:setup-otp");
+    if (setupOtpButton) {
+      setupOtpButton.setAttribute("href", "#/setup-otp");
+      setupOtpButton.classList.remove("disabled");
     }
   }
 
