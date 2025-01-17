@@ -121,7 +121,7 @@ const Gameplay = {
 
                 		const response = await fetchWithHandling(`${window.env.TOURNAMENT_HOST}/tournament/save-data/${localStorage.getItem("tournamentId")}/`, {
                 		    method: "PUT",
-                		    body: currentMatch,
+                		    body: { currentMatch },
                 		});
 						const responseData = await response.json();
                 		console.log("Tournament data updated successfully:", responseData);
