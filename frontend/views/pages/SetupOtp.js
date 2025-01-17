@@ -6,7 +6,7 @@ const SetupOtp = {
     const template = await fetchHtml("/views/templates/SetupOtp.html");
 
     const response = await fetch(
-      `${window.env.ACCOUNT_HOST}/accounts/api/setup-otp/`,
+      `${window.env.ACCOUNT_HOST}/accounts/setup-otp/`,
       {
         method: "GET",
         credentials: "include",
@@ -32,7 +32,7 @@ const SetupOtp = {
         e.preventDefault();
 
         const response = await fetchWithHandling(
-          `${window.env.ACCOUNT_HOST}/accounts/api/setup-otp/`,
+          `${window.env.ACCOUNT_HOST}/accounts/setup-otp/`,
           {
             method: "POST",
             credentials: "include",

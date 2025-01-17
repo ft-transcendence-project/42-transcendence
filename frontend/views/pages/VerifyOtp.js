@@ -20,7 +20,7 @@ const VerifyOtp = {
       const response = await fetchWithHandling(
         `${
           window.env.ACCOUNT_HOST
-        }/accounts/api/verify-otp/?user=${encodeURIComponent(user)}`,
+        }/accounts/verify-otp/?user=${encodeURIComponent(user)}`,
         {
           method: "POST",
           body: { otp_token },

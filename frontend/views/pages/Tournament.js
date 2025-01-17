@@ -14,7 +14,7 @@ const Tournament = {
     const response = await fetchWithHandling(
       `${
         window.env.TOURNAMENT_HOST
-      }/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`
+      }/tournament/save-data/${localStorage.getItem("tournamentId")}/`
     );
     if (response) {
       const tournamentData = await response.json();
@@ -46,7 +46,7 @@ const Tournament = {
         const uniqueUsers = [...new Set(users)];
 
         const response = await fetchWithHandling(
-          `${window.env.TOURNAMENT_HOST}/tournament/api/register/`,
+          `${window.env.TOURNAMENT_HOST}/tournament/register/`,
           {
             method: "POST",
             body: uniqueUsers,

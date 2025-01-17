@@ -25,7 +25,7 @@ const SignUp = {
       let default_language = document.querySelector('input[name="language"]:checked').id.replace("language-", "");
 
       const response = await fetchWithHandling(
-        `${window.env.ACCOUNT_HOST}/accounts/api/signup/`,
+        `${window.env.ACCOUNT_HOST}/accounts/signup/`,
         {
           method: "POST",
           body: { username, password, email, default_language },

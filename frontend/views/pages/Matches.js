@@ -25,7 +25,7 @@ const Matches = {
     const response = await fetch(
       `${
         window.env.TOURNAMENT_HOST
-      }/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`
+      }/tournament/save-data/${localStorage.getItem("tournamentId")}/`
     );
     if (!response.ok) throw new Error(`HTTP Error Status: ${response.status}`);
     return response;

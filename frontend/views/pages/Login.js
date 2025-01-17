@@ -25,7 +25,7 @@ const Login = {
       let password = document.getElementById("id_password").value;
 
       const response = await fetchWithHandling(
-        `${window.env.ACCOUNT_HOST}/accounts/api/login/`,
+        `${window.env.ACCOUNT_HOST}/accounts/login/`,
         {
           method: "POST",
           body: { username, password },

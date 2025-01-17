@@ -104,7 +104,7 @@ const Gameplay = {
 			}
 
             if (sessionStorage.getItem("isTournament") === "true") {
-                const tournamentResponse = await fetchWithHandling(`${window.env.TOURNAMENT_HOST}/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`);
+                const tournamentResponse = await fetchWithHandling(`${window.env.TOURNAMENT_HOST}/tournament/save-data/${localStorage.getItem("tournamentId")}/`);
 				if (tournamentResponse) {	
 					const tournamentData = await tournamentResponse.json();
                 	console.log("Tournament data get successfully:", tournamentData);
@@ -119,7 +119,7 @@ const Gameplay = {
                 		currentMatch.winner = winner;
 						console.log("currentMatch", currentMatch);
 
-                		const response = await fetchWithHandling(`${window.env.TOURNAMENT_HOST}/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`, {
+                		const response = await fetchWithHandling(`${window.env.TOURNAMENT_HOST}/tournament/save-data/${localStorage.getItem("tournamentId")}/`, {
                 		    method: "PUT",
                 		    body: currentMatch,
                 		});
@@ -277,7 +277,7 @@ const Gameplay = {
 		}
 	
 		if (sessionStorage.getItem('settingId') && sessionStorage.getItem("isTournament") !== "true") {
-			await fetchWithHandling(`${window.env.GAMEPLAY_HOST}/gamesetting/api/${window.sessionStorage.getItem('settingId')}/`, {
+			await fetchWithHandling(`${window.env.GAMEPLAY_HOST}/gamesetting/${window.sessionStorage.getItem('settingId')}/`, {
 			  method: "DELETE",
 			});
 	

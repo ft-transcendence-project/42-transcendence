@@ -4,7 +4,7 @@ import { fetchHtml } from "../../utils/fetchHtml.js";
 const Logout = {
   render: async () => {
     const response = await fetchWithHandling(
-      `${window.env.ACCOUNT_HOST}/accounts/api/logout/`,
+      `${window.env.ACCOUNT_HOST}/accounts/logout/`,
       {
         method: "POST",
         credentials: "include",

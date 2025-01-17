@@ -23,7 +23,7 @@ const GameSetting = {
       };
 
       // PUTリクエストを送信
-      console.log(`${window.env.GAMEPLAY_HOST}/gamesetting/api/`);
+      console.log(`${window.env.GAMEPLAY_HOST}/gamesetting/`);
       const response = await fetchWithHandling(
         `${window.env.GAMEPLAY_HOST}/gamesetting/api/`, {
         method: "POST",
