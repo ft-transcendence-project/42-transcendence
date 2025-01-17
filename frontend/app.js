@@ -92,8 +92,8 @@ const router = async () => {
   // footer
 
   body.innerHTML = await page.render();
-  await page.after_render();
   updateContent();
+  await page.after_render();
 };
 
 window.addEventListener("hashchange", router);
