@@ -5,7 +5,7 @@ const SetupOtp = {
     );
 
     const response = await fetch(
-      `${window.env.ACCOUNT_HOST}/accounts/api/setup-otp/`,
+      `${window.env.ACCOUNT_HOST}/accounts/setup-otp/`,
       {
         method: "GET",
         credentials: "include",
@@ -32,7 +32,7 @@ const SetupOtp = {
 
         try {
           const response = await fetch(
-            `${window.env.ACCOUNT_HOST}/accounts/api/setup-otp/`,
+            `${window.env.ACCOUNT_HOST}/accounts/setup-otp/`,
             {
               method: "POST",
               credentials: "include",

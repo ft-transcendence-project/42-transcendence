@@ -24,7 +24,7 @@ const Login = {
 
       try {
         const response = await fetch(
-          `${window.env.ACCOUNT_HOST}/accounts/api/login/`,
+          `${window.env.ACCOUNT_HOST}/accounts/login/`,
           {
             method: "POST",
             headers: {
