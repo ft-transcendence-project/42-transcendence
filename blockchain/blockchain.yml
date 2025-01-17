@@ -5,8 +5,6 @@ services:
     container_name: ganache
     ports:
       - "8545:8545"
-    volumes:
-      - ganache_data:/data
     environment:
       MNEMONIC: "${MNEMONIC}"
     command:
@@ -29,8 +27,6 @@ services:
       - address_data:/app/addresses
 
 volumes:
-  ganache_data:
-    driver: local
   contract_data:
     driver: local
   address_data:
