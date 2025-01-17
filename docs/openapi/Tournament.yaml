@@ -2,10 +2,10 @@ openapi: 3.0.0
 info:
   title: Tournament Management API
   description: |
-    Tournament management system API specification
-    - Tournament creation and management
-    - Match result recording
-    - Player information management
+    トーナメント管理システム API 仕様
+    - トーナメントの作成と管理
+    - 試合結果の記録
+    - プレイヤー情報の管理
   version: 1.0.0
 
 paths:
@@ -13,8 +13,8 @@ paths:
     post:
       tags:
         - tournament
-      summary: Register tournament
-      description: Create a tournament with 8 players
+      summary: トーナメントの登録
+      description: トーナメントを８人のプレーヤーで作成
       requestBody:
         content:
           application/json:
@@ -65,8 +65,8 @@ paths:
     get:
       tags:
         - tournament
-      summary: Get tournament information
-      description: Get tournament information by ID
+      summary: トーナメント情報の取得
+      description: IDによるトーナメント情報の取得
       parameters:
         - name: pk
           in: path
@@ -94,8 +94,8 @@ paths:
     put:
       tags:
         - tournament
-      summary: Update match results
-      description: Update tournament match results and handle tournament progression
+      summary: 試合結果の更新
+      description: トーナメントの試合結果を更新し、トーナメントの進行を管理
       parameters:
         - name: pk
           in: path
@@ -120,17 +120,15 @@ paths:
                 oneOf:
                   - $ref: '#/components/schemas/Match'
                   - type: object
-                    properties:
-                      match:
-                        $ref: '#/components/schemas/Match'
-                      tournament_complete:
-                        type: boolean
-                      winner:
-                        type: string
-        '400':
-          description: Validation error
-          content:
-            application/json:
+
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: No match data provided
+        '404':
+          description: Match not found
               schema:
                 type: object
                 properties:
@@ -142,9 +140,12 @@ paths:
           content:
             application/json:
               schema:
+          content:
+            application/json:
+              schema:
                 type: object
                 properties:
-                  error:
+                  error:203-open-swagger-api-page
                     type: string
                     example: Match not found
         '500':
@@ -184,7 +185,7 @@ components:
         id:
           type: integer
         name:
-          type: string
+          type: string203-open-swagger-api-page
           example: Player 1
 
     Match:
