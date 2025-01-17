@@ -10,8 +10,6 @@ info:
 servers:
 - url: https://virtserver.swaggerhub.com/SHAHRUKH4062_1/Tournament/1.0.0
   description: SwaggerHub API Auto Mocking
-- url: http://localhost:8000
-  description: 開発サーバー
 paths:
   /api/tournaments/register:
     post:

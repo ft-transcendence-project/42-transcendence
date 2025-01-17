@@ -10,8 +10,6 @@ info:
 servers:
   - url: https://virtserver.swaggerhub.com/SHAHRUKH4062_1/Accounts/1.0.0
     description: SwaggerHub API Auto Mocking
-  - url: http://localhost:3000
-    description: トラセン用のサーバー
 
 paths:
   /login:
