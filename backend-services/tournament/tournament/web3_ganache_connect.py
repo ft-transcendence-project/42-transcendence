@@ -3,8 +3,13 @@ import json
 import os
 from eth_account import Account
 
+CONTRACT_PATH = "/usr/src/app/build/contracts/"
+ABI_PATH = os.path.join(CONTRACT_PATH, "TournamentData.json")
+ADDRESS_PATH = os.path.join(CONTRACT_PATH, "contract_address.json")
+
+
 class TournamentContract:
-    def __init__(self, ganache_url="http://ganache:8545", abi_path="/usr/src/app/build/contracts/TournamentData.json", address_path="/usr/src/app/build/contracts/contract_address.json", mnemonic=None, account_index=0):
+    def __init__(self, ganache_url="http://ganache:8545", abi_path=ABI_PATH, address_path=ADDRESS_PATH, mnemonic=None, account_index=0):
         self.ganache_url = ganache_url
         self.abi_path = abi_path
         self.address_path = address_path
