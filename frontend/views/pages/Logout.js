@@ -3,29 +3,19 @@ import { fetchHtml } from "../../utils/fetchHtml.js";
 
 const Logout = {
   render: async () => {
-    try {
-      const response = await fetch(
-        `${window.env.ACCOUNT_HOST}/accounts/api/logout/`,
-        {
-          method: "POST",
-          credentials: "include",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Logout failed");
+    const response = await fetchWithHandling(
+      `${window.env.ACCOUNT_HOST}/accounts/api/logout/`,
+      {
+        method: "POST",
+        credentials: "include",
       }
-
+    );
+    if (response) {
       document.cookie =
         "isLoggedIn=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
       document.cookie = "default_language=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    } catch (error) {
-      console.error("Failed to logout:", error);
-      alert(i18next.t("login:errors.logout"));
-      return;
+      return (await fetchHtml("/views/templates/Logout.html"));
     }
-
-    return (await fetchHtml("/views/templates/Logout.html"));
   },
 
   after_render: async () => {

@@ -1,5 +1,5 @@
 import { changeLanguage } from "../../utils/i18n.js";
-import { fetchWithHandling, fetchWithHandling } from "../../utils/fetchWithHandling.js";
+import { fetchWithHandling } from "../../utils/fetchWithHandling.js";
 import { fetchHtml } from "../../utils/fetchHtml.js";
 
 const Login = {

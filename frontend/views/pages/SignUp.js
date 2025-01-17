@@ -24,7 +24,7 @@ const SignUp = {
       let email = document.getElementById("email").value;
       let default_language = document.querySelector('input[name="language"]:checked').id.replace("language-", "");
 
-      const response = await fetch(
+      const response = await fetchWithHandling(
         `${window.env.ACCOUNT_HOST}/accounts/api/signup/`,
         {
           method: "POST",
