@@ -2,7 +2,7 @@ const Logout = {
   render: async () => {
     try {
       const response = await fetch(
-        `${window.env.ACCOUNT_HOST}/accounts/api/logout/`,
+        `${window.env.ACCOUNT_HOST}/accounts/logout/`,
         {
           method: "POST",
           credentials: "include",
