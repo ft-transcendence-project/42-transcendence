@@ -11,7 +11,7 @@ const SetupOtp = {
       "$1"
     );
 
-    const response = await fetchWithHandling(
+    const response = await fetch(
       `${window.env.ACCOUNT_HOST}/accounts/api/setup-otp/`,
       {
         method: "GET",
@@ -19,20 +19,18 @@ const SetupOtp = {
           Authorization: `JWT ${token}`,
         },
       }
-    );
-    if (response) {
-      const data = await response.json();
+    ).catch((error) => console.error(error));
+    const data = await response.json();
 
-      console.log(data);
-      
-      if (data.message === "OTP already set up") {
-        return (await fetch("/views/templates/AlreadySetupOtp.html")).text();
-      }
-    
-      return template
-        .replace("{{ otpauth_url }}", encodeURIComponent(data.otpauth_url))
-        .replace("{{ secret_key }}", data.secret_key);
+    console.log(data);
+
+    if (data.message === "OTP already set up") {
+      return (await fetchWithHandling("/views/templates/AlreadySetupOtp.html")).text();
     }
+
+    return template
+      .replace("{{ otpauth_url }}", encodeURIComponent(data.otpauth_url))
+      .replace("{{ secret_key }}", data.secret_key);
   },
 
   after_render: async () => {
@@ -52,7 +50,6 @@ const SetupOtp = {
           /(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/,
           "$1"
         );
-
         const response = await fetchWithHandling(
           `${window.env.ACCOUNT_HOST}/accounts/api/setup-otp/`,
           {
