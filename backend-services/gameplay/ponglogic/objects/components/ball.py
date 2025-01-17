@@ -12,11 +12,11 @@ class Ball:
     SMALL_RADIUS = 5
 
     def __init__(self):
-        self.radius = 10
+        self.radius = self.NORMAL_RADIUS
         self.x = 500
         self.y = 300
         self.angle = 0
-        self.velocity = 20
+        self.velocity = self.NORMAL_VELOCITY
         self.direction = {
             "facing_up": False,
             "facing_down": False,
