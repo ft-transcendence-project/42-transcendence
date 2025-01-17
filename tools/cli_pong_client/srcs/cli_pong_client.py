@@ -6,17 +6,23 @@ import os
 import tty
 import termios
 import select
+import requests
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from .utils import Utils
 
-base_url = "wss://localhost:8443/gameplay.ws/ponglogic/"
+base_ws_url = "wss://localhost:8443/gameplay.ws/ponglogic/"
+game_setting_url = "https://localhost:8443/42pong.api/gameplay/gamesetting/api/"
+login_url = "https://localhost:8443/42pong.api/account/accounts/api/login/"
 
 class PaddleControl:
     def __init__(self):
+        self.username = ""
+        self.password = ""
+        self.login_token = ""
         self.game_id = None
-        self.url = ""
+        self.ws_url = ""
         self.running = True
         self.paddle_side = ""
         self.down_key = ""
@@ -57,6 +63,7 @@ class PaddleControl:
 
     def start(self, ws):
         Utils.print_colored_message("green", "Start by typing the space key!")
+        Utils.print_colored_message("red", "(Press Q to quit.)")
         while (True):
             user_input = sys.stdin.readline().rstrip('\n')
             if user_input == ' ':
@@ -65,6 +72,8 @@ class PaddleControl:
                 }
                 ws.send(json.dumps(message))
                 break
+            elif user_input in ['Q', 'q']:
+                sys.exit(0)
 
         if self.paddle_side == 'left':
             Utils.print_colored_message("white", "Controls: D - down, E - up, Q - Quit")
@@ -111,20 +120,129 @@ class PaddleControl:
     def on_close(self, ws, close_status_code, close_msg):
         Utils.print_colored_message("red", "Disconnected\n")
 
-    def first_setup(self):
-        Utils.print_colored_message("green", "Welcome to Pong Game!!!\n")
-
+    def join_game(self):
         Utils.print_colored_message("green", "Please type game id you want to play. ")
+        Utils.print_colored_message("red", "(Press Q to quit.)")
         while (True):
             self.game_id = sys.stdin.readline().strip()
             if self.game_id.isnumeric():
-                self.url = base_url + self.game_id + "/"
+                self.ws_url = base_ws_url + self.game_id + "/"
                 break
+            elif self.game_id in ['Q', 'q']:
+                sys.exit(0)
             else:
                 Utils.print_colored_message("red", "Invalid input. Please type a number. ")
         Utils.print_colored_message("yellow", f"\nOK. The Game id is \n\n\" ----- " + self.game_id + " ----- \"\n")
-    
+
+    def post_game_setting(self, ball_velocity, ball_size, map):
+        game_setting = {
+            "ball_velocity": ball_velocity,
+            "ball_size": ball_size,
+            "map": map
+        }
+        headers = {
+            "Content-Type": "application/json",  # 必須: JSON形式を指定
+        }
+
+        try:
+            response = requests.post(game_setting_url, json=game_setting, headers=headers, verify=False)
+
+            # レスポンスのステータスコードをチェック
+            if response.status_code == 201:
+                self.game_id = response.json().get('id')
+                self.ws_url = base_ws_url + str(self.game_id) + "/"
+                Utils.print_colored_message("yellow", f"Game created successfully. The Game id is \n\n\" ----- " + str(self.game_id) + " ----- \"\n")
+            else:
+                Utils.print_colored_message("red", f"Failed to create game. Server responded with status code {response.status_code}.")
+                sys.exit(1)
+
+        except requests.RequestException as e:
+            # リクエストのエラー（接続エラーなど）
+            Utils.print_colored_message("red", f"Error occurred while creating game: {str(e)}")
+            sys.exit(1)
+
+    def create_game(self):
+        Utils.print_colored_message("green", "Let's set up a new game.\n")
+        ball_velocity = ""
+        ball_size = ""
+        map = ""
+        Utils.print_colored_message("green", "Select ball velocity.\nType 1(Fast), 2(Normal), or 3(Slow)")
+        Utils.print_colored_message("red", "(Press Q to quit.)")
+        while (True):
+            user_input = sys.stdin.readline().strip()
+            if user_input == '1':
+                ball_velocity = "fast"
+                break
+            elif user_input == '2':
+                ball_velocity = "normal"
+                break
+            elif user_input == '3':
+                ball_velocity = "slow"
+                break
+            elif user_input in ['Q', 'q']:
+                sys.exit(0)
+            else:
+                Utils.print_colored_message("red", "Invalid input. Please type 1(Fast) or 2(Normal) or 3(Slow).")
+
+        Utils.print_colored_message("green", "Select ball size.\nType 1(Big), 2(Normal), or 3(Small)")
+        Utils.print_colored_message("red", "(Press Q to quit.)")
+        while (True):
+            user_input = sys.stdin.readline().strip()
+            if user_input == '1':
+                ball_size = "big"
+                break
+            elif user_input == '2':
+                ball_size = "normal"
+                break
+            elif user_input == '3':
+                ball_size = "small"
+                break
+            elif user_input in ['Q', 'q']:
+                sys.exit(0)
+            else:
+                Utils.print_colored_message("red", "Invalid input. Please type 1(Big) or 2(Normal) or 3(Small).")
+
+        Utils.print_colored_message("green", "Select map.\nType 1(A), 2(B), or 3(C)")
+        Utils.print_colored_message("red", "(Press Q to quit.)")
+        while (True):
+            user_input = sys.stdin.readline().strip()
+            if user_input == '1':
+                map = "a"
+                break
+            elif user_input == '2':
+                map = "b"
+                break
+            elif user_input == '3':
+                map = "c"
+                break
+            elif user_input in ['Q', 'q']:
+                sys.exit(0)
+            else:
+                Utils.print_colored_message("red", "Invalid input. Please type 1(Big) or 2(Normal) or 3(Small).")
+
+        self.post_game_setting(ball_velocity, ball_size, map)
+        Utils.print_colored_message("white", "Please access the following URL from the browser.")
+        Utils.print_colored_message("yellow", f"https://localhost:8443/#/gameplay.{self.game_id}/\n")
+
+    def first_setup(self):
+        Utils.print_colored_message("green", "Welcome to Pong Game!!!\n")
+        Utils.print_colored_message("green", "Press 1 to join an existing game, or 2 to create your own!")
+        Utils.print_colored_message("red", "(Press Q to quit.)")
+        while (True):
+            user_input = sys.stdin.readline().strip()
+            if user_input == '1':
+                self.join_game()
+                break
+            elif user_input == '2':
+                self.create_game()
+                break
+            elif user_input in ['Q', 'q']:
+                sys.exit(0)
+            else:
+                Utils.print_colored_message("red", "Invalid input. Please type 1(Join) or 2(Create).")
+
         Utils.print_colored_message("green", "Which paddle do you want to control?\nType D(Left) or K(Right)")
+        Utils.print_colored_message("red", "(Press Q to quit.)")
         while (True):
             user_input = sys.stdin.readline().strip()
             print(user_input)
@@ -134,20 +252,68 @@ class PaddleControl:
             elif user_input in ['K', 'k']:
                 self.paddle_side = 'right'
                 break
+            elif user_input in ['Q', 'q']:
+                sys.exit(0)
             else:
                 Utils.print_colored_message("red", "Invalid input. Please type D(Left) or K(Right).")
         Utils.print_colored_message("yellow", "\nOK. You control \n\n\" ----- " + ("Left" if self.paddle_side == "left" else "Right") + " ----- \"\n")
 
+    def post_login(self):
+        headers = {
+            "Content-Type": "application/json",
+        }
+
+        Utils.print_colored_message("green", "Please type your username.")
+        self.username = sys.stdin.readline().strip()
+
+        Utils.print_colored_message("green", "Please type your password.")
+        self.password = sys.stdin.readline().strip()
+
+        login_info = {
+            "username": self.username,
+            "password": self.password
+        }
+
+        try:
+            response = requests.post(login_url, headers=headers, json=login_info, verify=False)
+
+            if response.status_code == 200:
+                Utils.print_colored_message("green", "Logged in successfully!\n")
+                self.login_token = response.json().get('token')
+            else:
+                Utils.print_colored_message("red", "Failed to log in. Please check your username and password.\n")
+                self.login()
+        except Exception as e:
+            Utils.print_colored_message("red", f"An error occurred:{e}\n")
+            sys.exit(1)
+
+    def login(self):
+        Utils.print_colored_message("green", "Do you want to log in? (Y/N)")
+        Utils.print_colored_message("red", "(Press Q to quit.)")
+        while (True):
+            user_input = sys.stdin.readline().strip()
+            if user_input in ['Y', 'y']:
+                self.post_login()
+                break
+            elif user_input in ['N', 'n']:
+                break
+            elif user_input in ['Q', 'q']:
+                sys.exit(0)
+            else:
+                Utils.print_colored_message("red", "Invalid input. Please type Y(Yes) or N(No).")
+
     def main(self):
+        self.login()
+
         self.first_setup()
     
         Utils.print_colored_message("white", "Connecting to: ")
-        Utils.print_colored_message("yellow", self.url + "\n")
+        Utils.print_colored_message("yellow", self.ws_url + "\n")
     
         # WebSocketの設定と接続
         websocket.enableTrace(False)  # デバッグ情報を出力
         ws_app = websocket.WebSocketApp(
-            self.url,
+            self.ws_url,
             on_open=self.on_open,
             on_message=self.on_message,
             on_error=self.on_error,

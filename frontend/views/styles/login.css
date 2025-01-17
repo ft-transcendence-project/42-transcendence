@@ -1,0 +1,9 @@
+.form-signin-min-height {
+    min-height: 80vh;
+}
+
+.form-signin-width {
+    max-width: 20vw;
+    min-width: 240px;
+}
+

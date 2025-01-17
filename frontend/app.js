@@ -44,18 +44,27 @@ const router = async () => {
   const body = null || document.getElementById("body_container");
   const footer = null || document.getElementById("footer_container");
 
-  const location = window.location.hash.slice(1).toLowerCase() || "/";
-  console.log(location);
+  const hash = window.location.hash.slice(1);
+  const [path, query] = hash.split("?");
+  let location = path.toLowerCase() || "/";
+  console.log("Path:", location, "Query:", query);
+
+  const gameplayMatch = location.match(/^\/gameplay\.(\d+)/);  // 数字の部分をキャッチ
+  if (gameplayMatch) {
+    const settingId = gameplayMatch[1];  // settingId（例: '1'）を取得
+    sessionStorage.setItem("settingId", settingId);  // sessionStorage に保存
+    location = '/gameplay'; // locationを'/gameplay'に変更して遷移させる
+  }
 
   if (window.currentPage && window.currentPage.cleanup) {
     window.currentPage.cleanup();
   }
 
   const page = routes[location];
-  console.log(page);
+  console.log("Page component:", page);
   window.currentPage = page;
 
-  if (getCookie("token")) {
+  if (getCookie("isLoggedIn") === "true") {
     const loginButton = document.getElementById("navbar:login");
     if (loginButton) {
       loginButton.setAttribute("href", "#/logout");
@@ -63,12 +72,10 @@ const router = async () => {
       loginButton.id = "navbar:logout";
       loginButton.textContent = "Logout";
     }
-    if (getCookie("token") != "dummy") {
-      const setupOtpButton = document.getElementById("navbar:setup-otp");
-      if (setupOtpButton) {
-        setupOtpButton.setAttribute("href", "#/setup-otp");
-        setupOtpButton.classList.remove("disabled");
-      }
+    const setupOtpButton = document.getElementById("navbar:setup-otp");
+    if (setupOtpButton) {
+      setupOtpButton.setAttribute("href", "#/setup-otp");
+      setupOtpButton.classList.remove("disabled");
     }
   }
 
@@ -84,9 +91,9 @@ const router = async () => {
 
   // footer
 
-  body.innerHTML = await page.render();
-  await page.after_render();
+  body.innerHTML = DOMPurify.sanitize(await page.render());
   updateContent();
+  await page.after_render();
 };
 
 window.addEventListener("hashchange", router);

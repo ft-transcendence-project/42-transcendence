@@ -1,3 +1,5 @@
+import { changeLanguage } from "../../utils/i18n.js";
+
 const Login = {
   render: async () => {
     return (await fetch("/views/templates/Login.html")).text();
@@ -20,13 +22,6 @@ const Login = {
       let username = document.getElementById("id_username").value;
       let password = document.getElementById("id_password").value;
 
-      function getCSRFToken() {
-        return document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("csrftoken="))
-          ?.split("=")[1];
-      }
-
       try {
         const response = await fetch(
           `${window.env.ACCOUNT_HOST}/accounts/api/login/`,
@@ -34,7 +29,6 @@ const Login = {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "X-CSRFToken": getCSRFToken(),
             },
             body: JSON.stringify({ username, password }),
           }
@@ -44,11 +38,14 @@ const Login = {
 
         if (response.ok) {
           console.log("Login success: ", data);
+          event.preventDefault();
+          changeLanguage(data.default_language);
           if (data.redirect === "accounts:verify_otp") {
-            sessionStorage.setItem("user", username);
-            window.location.hash = "#/verify-otp";
+            const params = new URLSearchParams({ user: username });
+            window.location.hash = `#/verify-otp?${params}`;
             return;
           }
+          document.cookie = `isLoggedIn=true; path=/; max-age=86400`;
           window.location.hash = "#/";
         } else {
           const errors = Object.entries(data)

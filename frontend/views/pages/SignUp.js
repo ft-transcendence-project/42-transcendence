@@ -19,13 +19,7 @@ const SignUp = {
       let username = document.getElementById("username").value;
       let password = document.getElementById("password").value;
       let email = document.getElementById("email").value;
-
-      function getCSRFToken() {
-        return document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("csrftoken="))
-          ?.split("=")[1];
-      }
+      let default_language = document.querySelector('input[name="language"]:checked').id.replace("language-", "");
 
       try {
         const response = await fetch(
@@ -34,9 +28,8 @@ const SignUp = {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "X-CSRFToken": getCSRFToken(),
             },
-            body: JSON.stringify({ username, password, email }),
+            body: JSON.stringify({ username, password, email, default_language }),
           }
         );
 

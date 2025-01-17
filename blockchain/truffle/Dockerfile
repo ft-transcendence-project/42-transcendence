@@ -15,3 +15,6 @@ RUN npm install -g truffle
 
 # プロジェクトのファイルをコンテナにコピー
 COPY . .
+
+# コントラクトアドレス保存用のディレクトリを作成
+RUN mkdir -p /app/addresses

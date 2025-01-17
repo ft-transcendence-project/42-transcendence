@@ -1,10 +1,7 @@
 import logging
 
-from django.contrib.auth import login, logout
-from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
-from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.debug import sensitive_post_parameters
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from rest_framework import status
@@ -30,15 +27,20 @@ class CustomLoginView(APIView):
                 return Response(
                     {"redirect": "accounts:verify_otp"}, status=status.HTTP_200_OK
                 )
-            token = generate_jwt(user)
-            login(request, user)
+            jwt = generate_jwt(user)
             logger.info(f"Login successful for user: {user.username}")
-            response = Response(
-                {"token": token, "redirect": "homepage"}, status=status.HTTP_200_OK
+            response = Response({"redirect": "homepage"}, status=status.HTTP_200_OK)
+            response.set_cookie(
+                key="jwt",
+                value=jwt,
+                max_age=86400,
+                secure=True,
+                httponly=True,
+                samesite="Strict",
             )
             response.set_cookie(
-                key="token",
-                value=token,
+                key="default_language",
+                value=user.default_language,
                 max_age=86400,
                 secure=True,
                 samesite="Strict",
@@ -101,7 +103,7 @@ class SetupOTPView(APIView):
 @method_decorator([sensitive_post_parameters()], name="dispatch")
 class VerifyOTPView(APIView):
     def post(self, request):
-        serializer = OTPSerializer(data=request.data)
+        serializer = OTPSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             user = serializer.validated_data["user"]
             otp = serializer.validated_data["otp_token"]
@@ -109,12 +111,18 @@ class VerifyOTPView(APIView):
 
             logger.info(f"OTP verification attempt for user: {user.username}")
             if device and device.verify_token(otp):
-                token = generate_jwt(user)
-                login(request, user)
+                jwt = generate_jwt(user)
                 logger.info(f"OTP verification successful for user: {user.username}")
-                return Response(
-                    {"token": token, "redirect": "homepage"}, status=status.HTTP_200_OK
+                response = Response({"redirect": "homepage"}, status=status.HTTP_200_OK)
+                response.set_cookie(
+                    key="jwt",
+                    value=jwt,
+                    max_age=86400,
+                    secure=True,
+                    httponly=True,
+                    samesite="Strict",
                 )
+                return response
             else:
                 logger.warning(f"Invalid OTP provided for user: {user.username}")
                 return Response(
@@ -122,3 +130,16 @@ class VerifyOTPView(APIView):
                 )
         logger.warning(f"OTP verification failed with errors: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@method_decorator([never_cache], name="dispatch")
+class LogoutView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        logger.info(f"Logout attempt for user: {request.user.username}")
+        response = Response({"message": "Logout successful"}, status=status.HTTP_200_OK)
+        response.delete_cookie("jwt")
+        logger.info(f"Logout successful for user: {request.user.username}")
+        return response

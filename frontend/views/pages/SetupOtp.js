@@ -4,18 +4,11 @@ const SetupOtp = {
       (response) => response.text()
     );
 
-    const token = document.cookie.replace(
-      /(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/,
-      "$1"
-    );
-
     const response = await fetch(
       `${window.env.ACCOUNT_HOST}/accounts/api/setup-otp/`,
       {
         method: "GET",
-        headers: {
-          Authorization: `JWT ${token}`,
-        },
+        credentials: "include",
       }
     ).catch((error) => console.error(error));
     const data = await response.json();
@@ -37,27 +30,14 @@ const SetupOtp = {
       .addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        function getCSRFToken() {
-          return document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("csrftoken="))
-            ?.split("=")[1];
-        }
-
         try {
-          const token = document.cookie.replace(
-            /(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/,
-            "$1"
-          );
-
           const response = await fetch(
             `${window.env.ACCOUNT_HOST}/accounts/api/setup-otp/`,
             {
               method: "POST",
+              credentials: "include",
               headers: {
-                Authorization: `JWT ${token}`,
                 "Content-Type": "application/json",
-                "X-CSRFToken": getCSRFToken(),
               },
             }
           );

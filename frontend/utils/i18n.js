@@ -5,9 +5,15 @@ i18next
     fallbackLng: 'en', // ブラウザの言語が取得できない場合のデフォルト言語
     debug: false,
     ns: ['navbar', 'home', 'login', 'signup', 'tournament', 'matches', 'gamesetting', 
-    'logout', 'setupotp', 'verifyotp', 'gameplay', 'winner'], // 翻訳キーの名前空間
+    'logout', 'setupotp', 'verifyotp', 'gameplay', 'winner', 'footer', 'alreadysetupotp'], // 翻訳キーの名前空間
     backend: {
       loadPath: './utils/locales/{{lng}}/{{ns}}.json', // 見つからない場合fallbackLngを参照
+    },
+    detection: {
+      // 言語検出の順序を設定
+      order: ['cookie', 'navigator'],
+      lookupCookie: 'default_language', // cookieのキー名を指定
+      caches: [], // キャッシュしない
     },
   }, (err, t) => {
     if (err) return console.error('i18next init error:', err);
@@ -32,7 +38,7 @@ export function updateContent() {
         // 子要素を持つ場合
         const childElements = Array.from(el.children).map(child => child.outerHTML);
         const translatedText = i18next.t(key);
-        el.innerHTML = translatedText + childElements.join('');
+        el.innerHTML = DOMPurify.sanitize(translatedText + childElements.join(''));
       } else {
         // 通常のテキスト翻訳
         el.textContent = i18next.t(key);
@@ -43,7 +49,6 @@ export function updateContent() {
 
 export function changeLanguage(lng) {
   i18next.changeLanguage(lng); // 言語設定を変更し、languageChangedイベント
-  localStorage.setItem('lang', lng); // 言語設定をローカルストレージに保存
 }
 
 // languageChangedイベントによりトリガー

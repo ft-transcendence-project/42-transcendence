@@ -46,7 +46,7 @@ const GameSetting = {
             window.location.hash = `#/matches`; // Matches画面へ遷移
             return;
         }
-        window.location.hash = `#/gameplay`; // Gameplay画面へ遷移
+        window.location.hash = `#/gameplay.${settingId}/`; // Gameplay画面へ遷移
         const tournamentButton = document.getElementById("navbar:tournament");
         if (tournamentButton) {
             tournamentButton.removeAttribute("href");

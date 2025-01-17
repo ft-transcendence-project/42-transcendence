@@ -25,27 +25,28 @@ class JWTAuthentication(BaseAuthentication):
     model = None
 
     def authenticate(self, request):
-        auth = get_authorization_header(request).split()
-
-        if not auth or auth[0].lower() != self.keyword.lower().encode():
-            return None
-
-        if len(auth) == 1:
-            raise exceptions.AuthenticationFailed("Invalid authorization")
-        elif len(auth) > 2:
-            raise exceptions.AuthenticationFailed("Invalid authorization no space")
-
         try:
-            jwt_token = auth[1]
-            jwt_info = jwt.decode(jwt_token, SECRET_KEY, algorithms=["HS256"])
+            token = request.COOKIES.get('jwt')
+            if not token:
+                return None
+
+            jwt_info = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
             userid = jwt_info.get("userid")
+            if userid is None:
+                raise exceptions.AuthenticationFailed("Token does not contain user ID")
+
             try:
                 user = CustomUser.objects.get(pk=userid)
-                return (user, jwt_token)
-            except:
-                raise exceptions.AuthenticationFailed("User does not exist")
+                return (user, token)
+            except CustomUser.DoesNotExist:
+                raise exceptions.AuthenticationFailed("User not found in database")
+
         except jwt.ExpiredSignatureError:
-            raise exceptions.AuthenticationFailed("Token expired")
+            raise exceptions.AuthenticationFailed("Token has expired")
+        except jwt.InvalidTokenError:
+            raise exceptions.AuthenticationFailed("Invalid token format")
+        except Exception as e:
+            raise exceptions.AuthenticationFailed(f"Authentication error: {str(e)}")
 
     def authentication_header(self, request):
         pass

@@ -3,6 +3,10 @@
     "username": "用户名",
     "password": "密码",
     "email": "电子邮件",
+    "default_language": "默认语言",
+    "english": "英语",
+    "japanese": "日语",
+    "chinese": "中文",
     "signupButton": "注册",
     "errors": {
         "unknown": "未知错误",

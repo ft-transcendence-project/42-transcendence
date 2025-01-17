@@ -1,6 +1,5 @@
 import time
 
-from django.test import TestCase
 from django.urls import reverse
 from django_otp.oath import TOTP
 from django_otp.plugins.otp_totp.models import TOTPDevice
@@ -26,23 +25,25 @@ class CustomLoginViewTests(APITestCase):
             {"username": "testuser", "password": "password123"},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn("token", response.data)
         self.assertEqual(response.data["redirect"], "homepage")
-        self.assertTrue(response.wsgi_request.user.is_authenticated)
+
+        # Cookieの検証
+        self.assertIn("jwt", response.cookies)
+        self.assertTrue(response.cookies["jwt"]["httponly"])
+        self.assertEqual(response.cookies["jwt"]["samesite"], "Strict")
 
     def test_custom_login_view_valid_login_with_otp(self):
         """正しいユーザー名とパスワードでログインできることを確認する、OTPが有効な場合"""
         self.user.otp_enabled = True
         self.user.save()
-        self.user.refresh_from_db()
         response = self.client.post(
             reverse("accounts:login"),
             {"username": "testuser", "password": "password123"},
-            follow=True,
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, {"redirect": "accounts:verify_otp"})
-        self.assertFalse(response.wsgi_request.user.is_authenticated)
+        self.assertEqual(response.data["redirect"], "accounts:verify_otp")
+        # OTPが有効な場合はJWTを発行しない
+        self.assertNotIn("jwt", response.cookies)
 
     def test_custom_login_view_invalid_login(self):
         """間違ったパスワードでログインできないことを確認する"""
@@ -95,14 +96,15 @@ class SetupOTPViewTests(APITestCase):
         self.user = CustomUser.objects.create_user(
             username="testuser", password="password123"
         )
-        self.client.login(username="testuser", password="password123")
         self.client.defaults["HTTP_X_FORWARDED_PROTO"] = "https"
         self.client.defaults["wsgi.url_scheme"] = "https"
         self.token = generate_jwt(self.user)
-        self.client.credentials(HTTP_AUTHORIZATION=f"JWT {self.token}")
+        # JWTトークンの設定とユーザー認証を別々に行う
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
     def test_setup_otp_view_get(self):
         """OTPセットアップのGETリクエストが成功することを確認する"""
+        self.client.force_authenticate(user=self.user)  # このテストの前に認証
         response = self.client.get(reverse("accounts:setup_otp"))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("otpauth_url", response.data)
@@ -110,21 +112,29 @@ class SetupOTPViewTests(APITestCase):
 
     def test_setup_otp_view_post(self):
         """OTPセットアップのPOSTリクエストが成功することを確認する"""
-        TOTPDevice.objects.create(user=self.user, confirmed=False)
+        self.client.force_authenticate(user=self.user)  # このテストの前に認証
+        # デバイスを事前に作成
+        device = TOTPDevice.objects.create(user=self.user, confirmed=False)
         response = self.client.post(reverse("accounts:setup_otp"))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # デバイスとユーザーの状態を確認
+        device.refresh_from_db()
         self.user.refresh_from_db()
+        self.assertTrue(device.confirmed)
         self.assertTrue(self.user.otp_enabled)
 
     def test_setup_otp_view_get_without_jwt(self):
         """JWTトークンがない場合にOTPセットアップのGETリクエストが失敗することを確認する"""
         self.client.credentials()  # JWTトークンをクリア
+        self.client.force_authenticate(user=None)  # 認証をクリア
         response = self.client.get(reverse("accounts:setup_otp"))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_setup_otp_view_post_without_jwt(self):
         """JWTトークンがない場合にOTPセットアップのPOSTリクエストが失敗することを確認する"""
         self.client.credentials()  # JWTトークンをクリア
+        self.client.force_authenticate(user=None)  # 認証をクリア
         response = self.client.post(reverse("accounts:setup_otp"))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -149,36 +159,33 @@ class VerifyOTPViewTests(APITestCase):
         )
         totp.time = time.time()
         valid_token = totp.token()
+
         response = self.client.post(
-            reverse("accounts:verify_otp"),
-            {"user": self.user.username, "otp_token": valid_token},
+            f"{reverse('accounts:verify_otp')}?user={self.user.username}",
+            {"otp_token": valid_token},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn("token", response.data)
         self.assertEqual(response.data["redirect"], "homepage")
+
+        # Cookieの検証
+        self.assertIn("jwt", response.cookies)
+        self.assertTrue(response.cookies["jwt"]["httponly"])
+        self.assertEqual(response.cookies["jwt"]["samesite"], "Strict")
 
     def test_verify_otp_view_post_invalid_otp(self):
         """間違ったOTPトークンでOTP確認が失敗することを確認する"""
         response = self.client.post(
-            reverse("accounts:verify_otp"),
-            {"user": self.user.username, "otp_token": "123456"},
+            f"{reverse('accounts:verify_otp')}?user={self.user.username}",
+            {"otp_token": "123456"},
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
+        self.assertEqual(response.data["error"], "Invalid OTP")
 
-    def test_verify_otp_view_post_invalid_user(self):
-        """存在しないユーザーでOTP確認が失敗することを確認する"""
-        totp = TOTP(
-            key=self.device.bin_key,
-            step=self.device.step,
-            t0=self.device.t0,
-            digits=self.device.digits,
-        )
-        totp.time = time.time()
-        valid_token = totp.token()
+    def test_verify_otp_view_post_without_username(self):
+        """ユーザー名なしでOTP確認が失敗することを確認する"""
         response = self.client.post(
             reverse("accounts:verify_otp"),
-            {"user": "nonexistent", "otp_token": valid_token},
+            {"otp_token": "123456"},
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("user", response.data)
+        self.assertIn("Username is required", str(response.data))
