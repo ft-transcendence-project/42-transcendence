@@ -92,7 +92,6 @@ def oauth_callback_view(request):
                 return redirect(f"{OAUTH_CONSTANTS[env]['FRONTEND_URL']}/#/verify-otp?{params}")
 
             response = redirect(f"{OAUTH_CONSTANTS[env]['FRONTEND_URL']}/#/")
-            jwt_token = generate_jwt(user)
 
             response.set_cookie(
                 key="isLoggedIn",
