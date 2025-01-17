@@ -1,6 +1,8 @@
+import { fetchWithHandling } from "../../utils/fetchWithHandling.js";
+
 const Tournament = {
   render: async () => {
-    return (await fetch("/views/templates/Tournament.html")).text();
+    return (await fetchWithHandling("/views/templates/Tournament.html")).text();
   },
 
   after_render: async () => {
@@ -8,17 +10,12 @@ const Tournament = {
     sessionStorage.removeItem("winner");
 
     // トーナメントデータがあり、終了していない場合は続きを行う
-    try {
-      const response = await fetch(
-        `${
-          window.env.TOURNAMENT_HOST
-        }/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP Error Status: ${response.status}`);
-      }
-
+    const response = await fetchWithHandling(
+      `${
+        window.env.TOURNAMENT_HOST
+      }/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`
+    );
+    if (response) {
       const tournamentData = await response.json();
       if (!sessionStorage.getItem("settingId")) {
         window.location.hash = "#/gamesetting";
@@ -27,7 +24,7 @@ const Tournament = {
         window.location.hash = "#/matches";
         return;
       }
-    } catch (error) {}
+    }
 
     sessionStorage.setItem("currentMatch", 1);
 

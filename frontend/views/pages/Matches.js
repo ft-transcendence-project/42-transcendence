@@ -1,6 +1,8 @@
+import { fetchWithHandling } from "../../utils/fetchWithHandling.js";
+
 const Matches = {
   render: async () => {
-    return (await fetch("/views/templates/Matches.html")).text();
+    return (await fetchWithHandling("/views/templates/Matches.html")).text();
   },
 
   after_render: async function () {
