@@ -57,6 +57,7 @@ services:
     entrypoint: "tournament/entrypoint.sh"
     volumes:
       - ./backend-services:/usr/src/app
+      - ./blockchain:/usr/src/app/blockchain
     env_file: .env
     environment:
       - ENVIRONMENT=development
@@ -133,6 +134,3 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
-
-include:
-  - ./blockchain/blockchain.yml

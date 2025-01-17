@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 from .models import Match, Player, Tournament
 from .serializers import MatchDetailSerializer, TournamentDetailSerializer
 
+from .web3_ganache_connect import record_match_on_blockchain
 logger = logging.getLogger("tournament")
 
 
@@ -95,6 +96,25 @@ class SaveDataView(APIView):
                 )
             )
             match.save()
+
+            #ブロックチェーンに試合結果を記録
+            try:
+                receipt = record_match_on_blockchain(
+                    tournament_id=pk,
+                    round=match.round,
+                    match_number=match.match_number,
+                    timestamp=int(match.timestamp.timestamp()),
+                    player1_id=match.player1.id,
+                    player2_id=match.player2.id,
+                    player1_score=match.player1_score,
+                    player2_score=match.player2_score
+                )
+                print(f"Blockchain transaction receipt: {receipt}")
+            except Exception as e:
+                return Response(
+                    {"error": f"An error occurred while recording match on blockchain: {e}"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
 
             current_round_matches = Match.objects.filter(
                 tournament_id=pk,

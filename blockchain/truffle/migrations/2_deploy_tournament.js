@@ -1,9 +1,9 @@
 const fs = require('fs');
-const Tournament = artifacts.require("Tournament");
+const TournamentData = artifacts.require("TournamentData");
 
 module.exports = async function(deployer) {
-  await deployer.deploy(Tournament);
-  const deployedInstance = await Tournament.deployed();
+  await deployer.deploy(TournamentData);
+  const deployedInstance = await TournamentData.deployed();
   const contractAddress = deployedInstance.address;
   console.log("Deployed contract address:", contractAddress);
 
@@ -11,5 +11,5 @@ module.exports = async function(deployer) {
   const addressData = {
     address: contractAddress
   };
-  fs.writeFileSync('contract_address.json', JSON.stringify(addressData, null, 2));
+  fs.writeFileSync('addresses/contract_address.json', JSON.stringify(addressData, null, 2));
 };

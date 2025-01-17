@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
+from unittest.mock import patch
 
 from .models import Match, Player, Tournament
 
@@ -197,7 +198,8 @@ class SaveDataViewTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["id"], self.tournament.id)
 
-    def test_save_match_data_and_create_next_round(self):
+    @patch("tournament.views.record_match_on_blockchain", return_value="mock_receipt")
+    def test_save_match_data_and_create_next_round(self, mock_blockchain):
         # 各マッチのデータを順番に保存
         for match in [self.match1, self.match2, self.match3, self.match4]:
             data = {
@@ -246,7 +248,8 @@ class SaveDataViewTest(APITestCase):
         response = self.client.put(self.url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_save_match_data(self):
+    @patch("tournament.views.record_match_on_blockchain", return_value="mock_receipt")
+    def test_save_match_data(self, mock_blockchain):
         match_data = {
             "currentMatch": {
                 "match_number": self.match1.match_number,
@@ -267,7 +270,8 @@ class SaveDataViewTest(APITestCase):
         self.assertEqual(updated_match.player2_score, 5)
         self.assertEqual(updated_match.winner, self.player1)
 
-    def test_tournament_completion(self):
+    @patch("tournament.views.record_match_on_blockchain", return_value="mock_receipt")
+    def test_tournament_completion(self, mock_blockchain):
         # 決勝戦のマッチを作成
         final_match = Match.objects.create(
             tournament=self.tournament,
