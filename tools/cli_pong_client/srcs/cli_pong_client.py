@@ -13,8 +13,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from .utils import Utils
 
 base_ws_url = "wss://localhost:8443/gameplay.ws/ponglogic/"
-game_setting_url = "https://localhost:8443/42pong.api/gameplay/gamesetting/api/"
-login_url = "https://localhost:8443/42pong.api/account/accounts/api/login/"
+game_setting_url = "https://localhost:8443/42pong.api/gameplay/gamesetting/"
+login_url = "https://localhost:8443/42pong.api/account/accounts/login/"
 
 class PaddleControl:
     def __init__(self):
