@@ -46,7 +46,7 @@ const router = async () => {
 
   const hash = window.location.hash.slice(1);
   const [path, query] = hash.split("?");
-  const location = path.toLowerCase() || "/";
+  let location = path.toLowerCase() || "/";
   console.log("Path:", location, "Query:", query);
 
   const gameplayMatch = location.match(/^\/gameplay\.(\d+)/);  // 数字の部分をキャッチ
