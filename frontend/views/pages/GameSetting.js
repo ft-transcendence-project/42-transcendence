@@ -1,8 +1,9 @@
 import { updateContent } from "../../../utils/i18n.js";
+import { fetchWithHandling } from "../../utils/fetchWithHandling.js"
 
 const GameSetting = {
   render: async () => {
-    return (await fetch("/views/templates/GameSetting.html")).text();
+    return (await fetchWithHandling("/views/templates/GameSetting.html")).text();
   },
   after_render: async () => {
     updateContent();
@@ -20,22 +21,18 @@ const GameSetting = {
         map: map,
       };
 
-      try {
-        // PUTリクエストを送信
-        console.log(`${window.env.GAMEPLAY_HOST}/gamesetting/api/`);
-        const response = await fetch(
-          `${window.env.GAMEPLAY_HOST}/gamesetting/api/`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(settings),
-        });
+      // PUTリクエストを送信
+      console.log(`${window.env.GAMEPLAY_HOST}/gamesetting/api/`);
+      const response = await fetchWithHandling(
+        `${window.env.GAMEPLAY_HOST}/gamesetting/api/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: settings,
+      });
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
+      if (response) {
         // 成功時の処理
         const responseData = await response.json();
         const settingId = responseData.id;
@@ -52,8 +49,6 @@ const GameSetting = {
             tournamentButton.removeAttribute("href");
             tournamentButton.classList.replace("active", "disabled");
         } // トーナメントボタンを無効に
-      } catch (error) {
-        console.error("Failed to update settings:", error);
       }
     });
   },
