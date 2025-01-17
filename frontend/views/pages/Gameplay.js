@@ -104,29 +104,31 @@ const Gameplay = {
 
             if (sessionStorage.getItem("isTournament") === "true") {
                 const tournamentResponse = await fetchWithHandling(`${window.env.TOURNAMENT_HOST}/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`);
-				const tournamentData = await tournamentResponse.json();
-                console.log("Tournament data get successfully:", tournamentData);
-    
-                const currentMatchId = parseInt(sessionStorage.getItem("currentMatch")) - 1;
+				if (tournamentResponse) {	
+					const tournamentData = await tournamentResponse.json();
+                	console.log("Tournament data get successfully:", tournamentData);
+	
+                	const currentMatchId = parseInt(sessionStorage.getItem("currentMatch")) - 1;
 
-                if (tournamentData && tournamentData.matches) {
-					let currentMatch = tournamentData.matches[currentMatchId];
+                	if (tournamentData && tournamentData.matches) {
+						let currentMatch = tournamentData.matches[currentMatchId];
 
-                	currentMatch.player1_score = data.left_score;
-                	currentMatch.player2_score = data.right_score;
-                	currentMatch.winner = winner;
-					console.log("currentMatch", currentMatch);
+                		currentMatch.player1_score = data.left_score;
+                		currentMatch.player2_score = data.right_score;
+                		currentMatch.winner = winner;
+						console.log("currentMatch", currentMatch);
 
-                	const response = await fetchWithHandling(`${window.env.TOURNAMENT_HOST}/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`, {
-                	    method: "PUT",
-                	    body: currentMatch,
-                	});
-					const responseData = await response.json();
-                	console.log("Tournament data updated successfully:", responseData);
-                }
+                		const response = await fetchWithHandling(`${window.env.TOURNAMENT_HOST}/tournament/api/save-data/${localStorage.getItem("tournamentId")}/`, {
+                		    method: "PUT",
+                		    body: currentMatch,
+                		});
+						const responseData = await response.json();
+                		console.log("Tournament data updated successfully:", responseData);
+					}
 
 				alert(`${i18next.t("gameplay:popup.game_over")} ${winner}`);
                 document.getElementById('nextGameButton').style.display = 'block';
+				}
             } else {
 				alert(`${i18next.t("gameplay:popup.game_over")} ${winner}`);
                 document.getElementById('gameOverButton').style.display = 'block';
