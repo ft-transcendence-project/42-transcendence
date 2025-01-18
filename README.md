@@ -24,8 +24,6 @@
 
 - 42 OAuth認証による安全なログイン
 - Google Authenticatorによる2要素認証(OTP)
-- プロフィール管理機能
-- 対戦成績の記録と表示
 
 ### 🌐 マルチ言語対応
 
@@ -47,6 +45,7 @@
 - JavaScript (Vanilla JS)
   - モジュール化されたコンポーネント設計
   - カスタムルーター実装
+  - SPA
 - HTML5 Canvas
   - ゲーム描画エンジン
   - アニメーション処理
@@ -146,6 +145,7 @@ openapi
 - アカウント管理API
 - トーナメントAPI
 - OAuth認証API
+- ゲーム設定API
 
 - WebSocket API (AsyncAPI):
 
@@ -154,14 +154,15 @@ asyncapi
 - ゲームロジックAPI
 - リアルタイム通信仕様
 
-### デバッグツール
+### CLIツール
 
 - CLIクライアント:
 
 cli_pong_client
 
-- WebSocket接続テスト
-- ゲームロジックデバッグ
+- API統合によるCLIでのアプリケーション
+- WebSocket接続でプレイ可能
+- ログイン機能あり
 
 ### ログ管理
 
