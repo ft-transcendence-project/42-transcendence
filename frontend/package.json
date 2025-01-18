@@ -1,5 +1,10 @@
 {
-    "scripts": {
-        "server": "node server.js"
-    }
+  "scripts": {
+    "server": "node server.js"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "eslint": "^9.18.0",
+    "globals": "^15.14.0"
+  }
 }
