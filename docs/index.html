@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>API Documentation</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-gray-800 text-white p-4">
+        <div class="container mx-auto">
+            <h1 class="text-2xl font-bold">API Documentation</h1>
+        </div>
+    </nav>
+    
+    <main class="container mx-auto mt-8 p-4">
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4">REST APIドキュメント(OpenAPI)</h2>
+                <p class="mb-4">Account, Oauth, Tournamentに関するAPI</p>
+                <a href="openapi/index.html" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">OpenAPI Docs へ</a>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4">Real-time API(websocket含む) ドキュメント(AsyncAPI)</h2>
+                <p class="mb-4">Gameplay に関するAPI</p>
+                <a href="asyncapi/index.html" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">AsyncAPI Docs へ</a>
+            </div>
+        </div>
+    </main>
+    
+    <footer class="mt-8 p-4 text-center text-gray-600">
+        <p>Ⓒ 四二高校東京分校卓球愛好会</p>
+    </footer>
+</body>
+</html>

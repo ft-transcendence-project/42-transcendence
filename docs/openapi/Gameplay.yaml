@@ -1,0 +1,145 @@
+openapi: 3.0.0
+info:
+  title: GameSetting API
+  version: 1.0.0
+  description: ゲーム設定を作成するためのREST API
+servers:
+  - url: https://localhost:8443/42pong.api/gameplay
+    description: ローカルサーバー
+paths:
+  /gamesettings/:
+    get:
+      summary: ゲーム設定を取得
+      tags:
+        - ゲーム設定
+      responses:
+        "200":
+          description: ゲーム設定のリスト
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GameSetting'
+        "500":
+          description: 内部サーバーエラー
+    post:
+      summary: ゲーム設定の作成
+      tags:
+        - ゲーム設定
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameSetting'
+      responses:
+        "201":
+          description: ゲーム設定が正常に作成されました
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameSetting'
+        "400":
+          description: 無効な入力
+  /gamesettings/{id}/:
+    get:
+      summary: 指定したIDのゲーム設定を取得
+      tags:
+        - ゲーム設定
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ゲーム設定のID
+      responses:
+        "200":
+          description: 特定のゲーム設定の詳細
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameSetting'
+        "404":
+          description: ゲーム設定が見つかりません
+        "500":
+          description: 内部サーバーエラー
+    put:
+      summary: 指定したIDのゲーム設定を更新
+      tags:
+        - ゲーム設定
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 更新するゲーム設定のID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameSetting'
+      responses:
+        "200":
+          description: ゲーム設定が正常に更新されました
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameSetting'
+        "400":
+          description: 無効な入力
+        "404":
+          description: ゲーム設定が見つかりません
+        "500":
+          description: 内部サーバーエラー
+    delete:
+      summary: 指定したIDのゲーム設定を削除
+      tags:
+        - ゲーム設定
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 削除するゲーム設定のID
+      responses:
+        "204":
+          description: ゲーム設定が正常に削除されました
+        "404":
+          description: ゲーム設定が見つかりません
+        "500":
+          description: 内部サーバーエラー
+components:
+  schemas:
+    GameSetting:
+      type: object
+      properties:
+        ball_velocity:
+          type: string
+          enum:
+            - slow
+            - normal
+            - fast
+          description: ボールの速度
+        ball_size:
+          type: string
+          enum:
+            - small
+            - normal
+            - large
+          description: ボールの大きさ
+        map:
+          type: string
+          enum:
+            - A
+            - B
+            - C
+          description: マップ
+      required:
+        - ball_velocity
+        - ball_size
+        - map

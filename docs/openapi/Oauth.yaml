@@ -1,0 +1,125 @@
+openapi: 3.0.0
+info:
+  title: 42 OAuth API
+  description: |
+    42 School OAuth認証システムのAPI仕様
+    - ユーザー認証とコールバック処理
+    - アクセストークンの取得と検証
+    - ユーザー情報の取得と登録
+  version: 1.0.0
+
+servers:
+  - url: https://virtserver.swaggerhub.com/SHAHRUKH4062_1/Oauth/1.0.0
+    description: SwaggerHub API Auto Mocking
+
+paths:
+  /oauth:
+    get:
+      tags:
+        - oauth
+      summary: 42認証の開始
+      description: |
+        42 OAuth認証フローを開始します。
+        環境に応じて適切なリダイレクトURIを使用します。
+      responses:
+        '302':
+          description: 42認証ページへリダイレクト
+          headers:
+            Location:
+              schema:
+                type: string
+                example: "https://api.intra.42.fr/oauth/authorize?client_id={UID}&redirect_uri={CALLBACK_URL}&response_type=code"
+
+  /oauth/callback:
+    get:
+      tags:
+        - oauth
+      summary: OAuth認証コールバック
+      description: |
+        42からの認証コールバックを処理し、
+        アクセストークンの取得とユーザー情報の登録を行います。
+      parameters:
+        - name: code
+          in: query
+          description: 42から受け取る認証コード
+          required: false
+          schema:
+            type: string
+        - name: error
+          in: query
+          description: エラーコード
+          required: false
+          schema:
+            type: string
+        - name: error_description
+          in: query
+          description: エラーの詳細説明
+          required: false
+          schema:
+            type: string
+      responses:
+        '302':
+          description: 認証成功時のリダイレクト
+          headers:
+            Location:
+              schema:
+                type: string
+                example: "https://localhost:8443/#/"
+            Set-Cookie:
+              schema:
+                type: string
+                example: "token=dummy; Max-Age=86400; Secure; SameSite=Lax"
+        '400':
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthError'
+
+components:
+  schemas:
+    OAuthError:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: エラーコード
+          enum:
+            - access_denied
+            - no_code_provided
+        error_description:
+          type: string
+          description: エラーの詳細説明
+
+    TokenResponse:
+      type: object
+      required:
+        - access_token
+        - token_type
+      properties:
+        access_token:
+          type: string
+          description: アクセストークン
+        token_type:
+          type: string
+          example: Bearer
+          enum: [Bearer]
+
+    UserInfo:
+      type: object
+      required:
+        - login
+      properties:
+        login:
+          type: string
+          description: 42のユーザーログイン名
+          example: jdoe
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: 42 APIへのアクセスに使用するBearerトークン
+      bearerFormat: JWT
