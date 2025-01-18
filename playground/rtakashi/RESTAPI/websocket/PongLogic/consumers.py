@@ -1,10 +1,12 @@
+import asyncio
 import json
+import math
+import random
 
 from channels.generic.websocket import AsyncWebsocketConsumer
-import asyncio
-import random
-import math
+
 from .utils import Utils
+
 
 class PongLogic(AsyncWebsocketConsumer):
     class game_window:
@@ -56,6 +58,7 @@ class PongLogic(AsyncWebsocketConsumer):
 
     def get_game_state():
         from .models import GameState
+
         return GameState.objects.all()
 
     async def game_loop(self):

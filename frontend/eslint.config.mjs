@@ -9,7 +9,7 @@ export default [
         ...globals.browser,
         ...globals.node,
         i18next: "readonly",
-        i18nextHttpBackend: "readonly", 
+        i18nextHttpBackend: "readonly",
         i18nextBrowserLanguageDetector: "readonly",
       },
     },

@@ -47,11 +47,11 @@ const router = async () => {
   let location = path.toLowerCase() || "/";
   console.log("Path:", location, "Query:", query);
 
-  const gameplayMatch = location.match(/^\/gameplay\.(\d+)/);  // 数字の部分をキャッチ
+  const gameplayMatch = location.match(/^\/gameplay\.(\d+)/); // 数字の部分をキャッチ
   if (gameplayMatch) {
-    const settingId = gameplayMatch[1];  // settingId（例: '1'）を取得
-    sessionStorage.setItem("settingId", settingId);  // sessionStorage に保存
-    location = '/gameplay'; // locationを'/gameplay'に変更して遷移させる
+    const settingId = gameplayMatch[1]; // settingId（例: '1'）を取得
+    sessionStorage.setItem("settingId", settingId); // sessionStorage に保存
+    location = "/gameplay"; // locationを'/gameplay'に変更して遷移させる
   }
 
   if (window.currentPage && window.currentPage.cleanup) {

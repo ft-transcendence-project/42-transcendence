@@ -20,7 +20,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/GameSetting'
+                  $ref: "#/components/schemas/GameSetting"
         "500":
           description: 内部サーバーエラー
     post:
@@ -32,14 +32,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GameSetting'
+              $ref: "#/components/schemas/GameSetting"
       responses:
         "201":
           description: ゲーム設定が正常に作成されました
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GameSetting'
+                $ref: "#/components/schemas/GameSetting"
         "400":
           description: 無効な入力
   /gamesettings/{id}/:
@@ -60,7 +60,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GameSetting'
+                $ref: "#/components/schemas/GameSetting"
         "404":
           description: ゲーム設定が見つかりません
         "500":
@@ -81,14 +81,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GameSetting'
+              $ref: "#/components/schemas/GameSetting"
       responses:
         "200":
           description: ゲーム設定が正常に更新されました
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GameSetting'
+                $ref: "#/components/schemas/GameSetting"
         "400":
           description: 無効な入力
         "404":

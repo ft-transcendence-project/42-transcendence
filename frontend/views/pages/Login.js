@@ -4,7 +4,7 @@ import { fetchHtml } from "../../utils/fetchHtml.js";
 
 const Login = {
   render: async () => {
-    return (await fetchHtml("/views/templates/Login.html"));
+    return await fetchHtml("/views/templates/Login.html");
   },
 
   after_render: async () => {
@@ -30,7 +30,7 @@ const Login = {
           method: "POST",
           body: { username, password },
         },
-        "login:errors.login"
+        "login:errors.login",
       );
       const data = await response.json();
       if (response) {

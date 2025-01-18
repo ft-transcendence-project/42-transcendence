@@ -13,5 +13,5 @@ urlpatterns = [
         "save-data/<int:pk>/",
         SaveDataView.as_view(),
         name="save-data",
-    )
+    ),
 ]

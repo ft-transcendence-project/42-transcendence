@@ -1,7 +1,8 @@
-import math
 import logging
+import math
 
-logger = logging.getLogger('ponglogic')
+logger = logging.getLogger("ponglogic")
+
 
 class Utils:
     @staticmethod
@@ -9,7 +10,9 @@ class Utils:
         ball_size_choise = game_setting.ball_size
         ball_v_choise = game_setting.ball_velocity
         map_choise = game_setting.map
-        logger.info(f"map: {map_choise}, ball_size: {ball_size_choise}, ball_v: {ball_v_choise}")
+        logger.info(
+            f"map: {map_choise}, ball_size: {ball_size_choise}, ball_v: {ball_v_choise}"
+        )
         if ball_size_choise == "big":
             pong_info.ball.radius = pong_info.ball.BIG_RADIUS
         elif ball_size_choise == "normal":
@@ -31,7 +34,9 @@ class Utils:
         elif map_choise == "c":
             pong_info.blind.width = 300
             pong_info.blind.height = 600
-        logger.info(f"map: {map_choise}, ball_size: {pong_info.ball.radius}, ball_v: {pong_info.ball.velocity}")
+        logger.info(
+            f"map: {map_choise}, ball_size: {pong_info.ball.radius}, ball_v: {pong_info.ball.velocity}"
+        )
 
     @staticmethod
     def normalize_angle(angle):
@@ -53,10 +58,7 @@ class Utils:
 
     @staticmethod
     def walls_collision(ball_velocity, pong_info):
-        if (
-            Utils.has_collided_with_wall(pong_info.ball, pong_info.game_window)
-            == True
-        ):
+        if Utils.has_collided_with_wall(pong_info.ball, pong_info.game_window) == True:
             ball_velocity["y"] *= -1
             pong_info.ball.angle = 2 * math.pi - pong_info.ball.angle
             pong_info.ball.angle = Utils.normalize_angle(pong_info.ball.angle)
@@ -130,9 +132,7 @@ class Utils:
     @staticmethod
     def left_paddle_collision(ball_velocity, pong_info):
         if (
-            Utils.has_collided_with_paddle_left(
-                pong_info.ball, pong_info.paddle
-            )
+            Utils.has_collided_with_paddle_left(pong_info.ball, pong_info.paddle)
             == True
         ):
             is_left = True
@@ -146,9 +146,7 @@ class Utils:
                 is_top = True
             else:
                 is_top = False
-            Utils.update_ball_angle(
-                pong_info.ball, pong_info.paddle, is_left, is_top
-            )
+            Utils.update_ball_angle(pong_info.ball, pong_info.paddle, is_left, is_top)
             ball_velocity["x"], ball_velocity["y"] = Utils.update_ball_velocity(
                 is_top, ball_velocity
             )
@@ -173,9 +171,7 @@ class Utils:
                 is_top = True
             else:
                 is_top = False
-            Utils.update_ball_angle(
-                pong_info.ball, pong_info.paddle, is_left, is_top
-            )
+            Utils.update_ball_angle(pong_info.ball, pong_info.paddle, is_left, is_top)
             ball_velocity["x"], ball_velocity["y"] = Utils.update_ball_velocity(
                 is_top, ball_velocity
             )
@@ -187,24 +183,38 @@ class Utils:
 
     @staticmethod
     def has_collided_with_obstacle_top_or_bottom(ball, obstacle):
-        if ((ball.x + ball.radius > obstacle.x and ball.x - ball.radius < obstacle.x + obstacle.width)
-            and (ball.y + ball.radius == obstacle.y or ball.y - ball.radius == obstacle.y + obstacle.height)):
+        if (
+            ball.x + ball.radius > obstacle.x
+            and ball.x - ball.radius < obstacle.x + obstacle.width
+        ) and (
+            ball.y + ball.radius == obstacle.y
+            or ball.y - ball.radius == obstacle.y + obstacle.height
+        ):
             return True
-        
+
     @staticmethod
     def has_collided_with_obstacle_left_or_right(ball, obstacle):
-        if ((ball.x + ball.radius == obstacle.x or ball.x - ball.radius == obstacle.x + obstacle.width)
-            and ball.y + ball.radius >= obstacle.y and ball.y - ball.radius <= obstacle.y + obstacle.height):
+        if (
+            (
+                ball.x + ball.radius == obstacle.x
+                or ball.x - ball.radius == obstacle.x + obstacle.width
+            )
+            and ball.y + ball.radius >= obstacle.y
+            and ball.y - ball.radius <= obstacle.y + obstacle.height
+        ):
             return True
 
     @staticmethod
     def obstacles_collision(ball_velocity, pong_info):
-        if (pong_info.is_obstacle_exist == True):
+        if pong_info.is_obstacle_exist == True:
             if (
-                Utils.has_collided_with_obstacle_top_or_bottom(pong_info.ball, pong_info.obstacle1)
+                Utils.has_collided_with_obstacle_top_or_bottom(
+                    pong_info.ball, pong_info.obstacle1
+                )
                 == True
-                or
-                Utils.has_collided_with_obstacle_top_or_bottom(pong_info.ball, pong_info.obstacle2)
+                or Utils.has_collided_with_obstacle_top_or_bottom(
+                    pong_info.ball, pong_info.obstacle2
+                )
                 == True
             ):
                 ball_velocity["y"] *= -1
@@ -212,10 +222,13 @@ class Utils:
                 pong_info.ball.angle = Utils.normalize_angle(pong_info.ball.angle)
                 pong_info.ball.set_direction()
             if (
-                Utils.has_collided_with_obstacle_left_or_right(pong_info.ball, pong_info.obstacle1)
+                Utils.has_collided_with_obstacle_left_or_right(
+                    pong_info.ball, pong_info.obstacle1
+                )
                 == True
-                or
-                Utils.has_collided_with_obstacle_left_or_right(pong_info.ball, pong_info.obstacle2)
+                or Utils.has_collided_with_obstacle_left_or_right(
+                    pong_info.ball, pong_info.obstacle2
+                )
                 == True
             ):
                 ball_velocity["x"] *= -1
@@ -275,7 +288,9 @@ class Utils:
                 )
 
     @staticmethod
-    def adjust_ball_position(ball, paddle, velocity, game_window, obstacle_exist, obstacle1, obstacle2):
+    def adjust_ball_position(
+        ball, paddle, velocity, game_window, obstacle_exist, obstacle1, obstacle2
+    ):
         # 左パドルに衝突しそうかどうか
         if (
             ball.x - ball.radius > paddle.width
@@ -301,39 +316,75 @@ class Utils:
         if ball.y + ball.radius > game_window.height:
             ball.y = game_window.height - ball.radius
         # 障害物1に衝突しそうかどうか
-        if (obstacle_exist == True):
-            if (ball.y + ball.radius > obstacle1.y and ball.y + ball.radius - obstacle1.y <= abs(velocity["y"])
-                and ball.x + ball.radius > obstacle1.x and ball.x - ball.radius < obstacle1.x + obstacle1.width
-                and ball.direction["facing_down"]):
+        if obstacle_exist == True:
+            if (
+                ball.y + ball.radius > obstacle1.y
+                and ball.y + ball.radius - obstacle1.y <= abs(velocity["y"])
+                and ball.x + ball.radius > obstacle1.x
+                and ball.x - ball.radius < obstacle1.x + obstacle1.width
+                and ball.direction["facing_down"]
+            ):
                 ball.y = obstacle1.y - ball.radius
-            elif (ball.y - ball.radius < obstacle1.y + obstacle1.height and obstacle1.y + obstacle1.height - ball.y + ball.radius <= abs(velocity["y"])
-                  and ball.x + ball.radius > obstacle1.x and ball.x - ball.radius < obstacle1.x + obstacle1.width
-                  and ball.direction["facing_up"]):
+            elif (
+                ball.y - ball.radius < obstacle1.y + obstacle1.height
+                and obstacle1.y + obstacle1.height - ball.y + ball.radius
+                <= abs(velocity["y"])
+                and ball.x + ball.radius > obstacle1.x
+                and ball.x - ball.radius < obstacle1.x + obstacle1.width
+                and ball.direction["facing_up"]
+            ):
                 ball.y = obstacle1.y + obstacle1.height + ball.radius
-            if (ball.y + ball.radius >= obstacle1.y and ball.y - ball.radius <= obstacle1.y + obstacle1.height
-                and ball.x + ball.radius > obstacle1.x and ball.x + ball.radius - obstacle1.x <= abs(velocity["x"])
-                and ball.direction["facing_right"]):
+            if (
+                ball.y + ball.radius >= obstacle1.y
+                and ball.y - ball.radius <= obstacle1.y + obstacle1.height
+                and ball.x + ball.radius > obstacle1.x
+                and ball.x + ball.radius - obstacle1.x <= abs(velocity["x"])
+                and ball.direction["facing_right"]
+            ):
                 ball.x = obstacle1.x - ball.radius
-            elif (ball.y + ball.radius >= obstacle1.y and ball.y - ball.radius <= obstacle1.y + obstacle1.height
-                  and ball.x - ball.radius < obstacle1.x + obstacle1.width and obstacle1.x + obstacle1.width - ball.x + ball.radius <= abs(velocity["x"])
-                  and ball.direction["facing_left"]):
+            elif (
+                ball.y + ball.radius >= obstacle1.y
+                and ball.y - ball.radius <= obstacle1.y + obstacle1.height
+                and ball.x - ball.radius < obstacle1.x + obstacle1.width
+                and obstacle1.x + obstacle1.width - ball.x + ball.radius
+                <= abs(velocity["x"])
+                and ball.direction["facing_left"]
+            ):
                 ball.x = obstacle1.x + obstacle1.width + ball.radius
             # 障害物2に衝突しそうかどうか
-            if (ball.y + ball.radius > obstacle2.y and ball.y + ball.radius - obstacle2.y <= abs(velocity["y"])
-                and ball.x + ball.radius > obstacle2.x and ball.x - ball.radius < obstacle2.x + obstacle2.width
-                and ball.direction["facing_down"]):
+            if (
+                ball.y + ball.radius > obstacle2.y
+                and ball.y + ball.radius - obstacle2.y <= abs(velocity["y"])
+                and ball.x + ball.radius > obstacle2.x
+                and ball.x - ball.radius < obstacle2.x + obstacle2.width
+                and ball.direction["facing_down"]
+            ):
                 ball.y = obstacle2.y - ball.radius
-            elif (ball.y - ball.radius < obstacle2.y + obstacle2.height and obstacle2.y + obstacle2.height - ball.y + ball.radius <= abs(velocity["y"])
-                  and ball.x + ball.radius > obstacle2.x and ball.x - ball.radius < obstacle2.x + obstacle2.width
-                  and ball.direction["facing_up"]):
+            elif (
+                ball.y - ball.radius < obstacle2.y + obstacle2.height
+                and obstacle2.y + obstacle2.height - ball.y + ball.radius
+                <= abs(velocity["y"])
+                and ball.x + ball.radius > obstacle2.x
+                and ball.x - ball.radius < obstacle2.x + obstacle2.width
+                and ball.direction["facing_up"]
+            ):
                 ball.y = obstacle2.y + obstacle2.height + ball.radius
-            if (ball.y + ball.radius >= obstacle2.y and ball.y - ball.radius <= obstacle2.y + obstacle2.height
-                and ball.x + ball.radius > obstacle2.x and ball.x + ball.radius - obstacle2.x <= abs(velocity["x"])
-                and ball.direction["facing_right"]):
+            if (
+                ball.y + ball.radius >= obstacle2.y
+                and ball.y - ball.radius <= obstacle2.y + obstacle2.height
+                and ball.x + ball.radius > obstacle2.x
+                and ball.x + ball.radius - obstacle2.x <= abs(velocity["x"])
+                and ball.direction["facing_right"]
+            ):
                 ball.x = obstacle2.x - ball.radius
-            elif (ball.y + ball.radius >= obstacle2.y and ball.y - ball.radius <= obstacle2.y + obstacle2.height
-                  and ball.x - ball.radius < obstacle2.x + obstacle2.width and obstacle2.x + obstacle2.width - ball.x + ball.radius <= abs(velocity["x"])
-                  and ball.direction["facing_left"]):
+            elif (
+                ball.y + ball.radius >= obstacle2.y
+                and ball.y - ball.radius <= obstacle2.y + obstacle2.height
+                and ball.x - ball.radius < obstacle2.x + obstacle2.width
+                and obstacle2.x + obstacle2.width - ball.x + ball.radius
+                <= abs(velocity["x"])
+                and ball.direction["facing_left"]
+            ):
                 ball.x = obstacle2.x + obstacle2.width + ball.radius
 
     def update_ball_velocity(is_top, velocity):
@@ -357,29 +408,31 @@ class Utils:
             "left_score": pong_info.score.left,
             "right_score": pong_info.score.right,
         }
-        if (first):
-            pong_data.update({
-                "obstacle1_x": pong_info.obstacle1.x,
-                "obstacle1_y": pong_info.obstacle1.y,
-                "obstacle1_width": pong_info.obstacle1.width,
-                "obstacle1_height": pong_info.obstacle1.height,
-                "obstacle2_x": pong_info.obstacle2.x,
-                "obstacle2_y": pong_info.obstacle2.y,
-                "obstacle2_width": pong_info.obstacle2.width,
-                "obstacle2_height": pong_info.obstacle2.height,
-                "blind_x": pong_info.blind.x,
-                "blind_y": pong_info.blind.y,
-                "blind_width": pong_info.blind.width,
-                "blind_height": pong_info.blind.height,
-            })
+        if first:
+            pong_data.update(
+                {
+                    "obstacle1_x": pong_info.obstacle1.x,
+                    "obstacle1_y": pong_info.obstacle1.y,
+                    "obstacle1_width": pong_info.obstacle1.width,
+                    "obstacle1_height": pong_info.obstacle1.height,
+                    "obstacle2_x": pong_info.obstacle2.x,
+                    "obstacle2_y": pong_info.obstacle2.y,
+                    "obstacle2_width": pong_info.obstacle2.width,
+                    "obstacle2_height": pong_info.obstacle2.height,
+                    "blind_x": pong_info.blind.x,
+                    "blind_y": pong_info.blind.y,
+                    "blind_width": pong_info.blind.width,
+                    "blind_height": pong_info.blind.height,
+                }
+            )
         return pong_data
-    
+
     @staticmethod
     def generate_game_over_message(pong_info, winner):
         game_over_message = {
             "type": "game_over",
             "winner": winner,
             "left_score": pong_info.score.left,
-            "right_score": pong_info.score.right
+            "right_score": pong_info.score.right,
         }
         return game_over_message

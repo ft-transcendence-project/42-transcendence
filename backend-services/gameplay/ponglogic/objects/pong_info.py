@@ -1,5 +1,7 @@
 import asyncio
-from .components import Ball, Paddle, Score, Obstacle, Blind, GameWindow
+
+from .components import Ball, Blind, GameWindow, Obstacle, Paddle, Score
+
 
 class PongInfo:
     def __init__(self, setting_id, group_name, channel_name):

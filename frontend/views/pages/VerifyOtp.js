@@ -3,7 +3,7 @@ import { fetchHtml } from "../../utils/fetchHtml.js";
 
 const VerifyOtp = {
   render: async () => {
-    return (await fetchHtml("/views/templates/VerifyOtp.html"));
+    return await fetchHtml("/views/templates/VerifyOtp.html");
   },
 
   after_render: async () => {
@@ -12,9 +12,7 @@ const VerifyOtp = {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const urlParams = new URLSearchParams(
-        window.location.hash.split("?")[1]
-      );
+      const urlParams = new URLSearchParams(window.location.hash.split("?")[1]);
       const user = urlParams.get("user");
       const otp_token = document.getElementById("id_otp_token").value;
       const response = await fetchWithHandling(
@@ -25,7 +23,7 @@ const VerifyOtp = {
           method: "POST",
           body: { otp_token },
         },
-        "verifyotp:errors.verify"
+        "verifyotp:errors.verify",
       );
       const data = await response.json();
       if (response.ok) {

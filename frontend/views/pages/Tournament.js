@@ -3,7 +3,7 @@ import { fetchHtml } from "../../utils/fetchHtml.js";
 
 const Tournament = {
   render: async () => {
-    return (await fetchHtml("/views/templates/Tournament.html"));
+    return await fetchHtml("/views/templates/Tournament.html");
   },
 
   after_render: async () => {
@@ -14,7 +14,7 @@ const Tournament = {
     const response = await fetchWithHandling(
       `${
         window.env.TOURNAMENT_HOST
-      }/tournament/save-data/${localStorage.getItem("tournamentId")}/`
+      }/tournament/save-data/${localStorage.getItem("tournamentId")}/`,
     );
     if (response) {
       const tournamentData = await response.json();
@@ -51,7 +51,7 @@ const Tournament = {
             method: "POST",
             body: uniqueUsers,
           },
-          "tournament:errors.register"
+          "tournament:errors.register",
         );
         const data = await response.json();
         if (response) {

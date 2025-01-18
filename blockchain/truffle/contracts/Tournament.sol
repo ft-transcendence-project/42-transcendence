@@ -82,12 +82,12 @@ contract TournamentData {
     ) private {
         uint256 nextRound = currentRound + 1;
         uint256 numMatches = matchNumber / 2;
-        
+
         for (uint256 i = 1; i <= numMatches; i++) {
             uint256 newMatchNumber = (nextRound - 1) * 4 + i;
             uint256 winner1 = matches[tournamentId][i * 2 - 1].winnerId;
             uint256 winner2 = matches[tournamentId][i * 2].winnerId;
-            
+
             matches[tournamentId][newMatchNumber] = Match(
                 nextRound,
                 newMatchNumber,

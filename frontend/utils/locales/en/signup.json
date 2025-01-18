@@ -1,19 +1,19 @@
 {
-    "title": "Sign Up",
-    "username": "Username",
-    "password": "Password",
-    "email": "Email",
-    "default_language": "Default Language",
-    "english": "English",
-    "japanese": "Japanese",
-    "chinese": "Chinese",
-    "signupButton": "Sign Up",
-    "errors": {
-        "unknown": "Unknown error",
-        "signup": "An error occurred during signup. Please try again."
-    },
-    "validations": {
-        "required": "This field is required",
-        "invalidEmail": "Please enter a valid email address"
-    }
+  "title": "Sign Up",
+  "username": "Username",
+  "password": "Password",
+  "email": "Email",
+  "default_language": "Default Language",
+  "english": "English",
+  "japanese": "Japanese",
+  "chinese": "Chinese",
+  "signupButton": "Sign Up",
+  "errors": {
+    "unknown": "Unknown error",
+    "signup": "An error occurred during signup. Please try again."
+  },
+  "validations": {
+    "required": "This field is required",
+    "invalidEmail": "Please enter a valid email address"
+  }
 }

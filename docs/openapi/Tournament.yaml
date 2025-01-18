@@ -35,13 +35,13 @@ paths:
                 - Player 8
         required: true
       responses:
-        '201':
+        "201":
           description: Tournament created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TournamentDetail'
-        '400':
+                $ref: "#/components/schemas/TournamentDetail"
+        "400":
           description: Validation error
           content:
             application/json:
@@ -51,7 +51,7 @@ paths:
                   error:
                     type: string
                     example: Require 8 players
-        '500':
+        "500":
           description: Server error
           content:
             application/json:
@@ -74,13 +74,13 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
+        "200":
           description: Tournament information retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TournamentDetail'
-        '404':
+                $ref: "#/components/schemas/TournamentDetail"
+        "404":
           description: Tournament not found
           content:
             application/json:
@@ -110,24 +110,24 @@ paths:
               type: object
               properties:
                 currentMatch:
-                  $ref: '#/components/schemas/MatchUpdate'
+                  $ref: "#/components/schemas/MatchUpdate"
       responses:
-        '200':
+        "200":
           description: Match results updated successfully
           content:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/Match'
+                  - $ref: "#/components/schemas/Match"
                   - type: object
                     properties:
                       match:
-                        $ref: '#/components/schemas/Match'
+                        $ref: "#/components/schemas/Match"
                       tournament_complete:
                         type: boolean
                       winner:
                         type: string
-        '400':
+        "400":
           description: Validation error
           content:
             application/json:
@@ -137,7 +137,7 @@ paths:
                   error:
                     type: string
                     example: No match data provided
-        '404':
+        "404":
           description: Match not found
           content:
             application/json:
@@ -147,7 +147,7 @@ paths:
                   error:
                     type: string
                     example: Match not found
-        '500':
+        "500":
           description: Blockchain recording error
           content:
             application/json:
@@ -175,7 +175,7 @@ components:
         is_over:
           type: boolean
         winner:
-          $ref: '#/components/schemas/Player'
+          $ref: "#/components/schemas/Player"
           nullable: true
 
     Player:
@@ -193,7 +193,7 @@ components:
         id:
           type: integer
         tournament:
-          $ref: '#/components/schemas/Tournament'
+          $ref: "#/components/schemas/Tournament"
         match_number:
           type: integer
           minimum: 1
@@ -206,9 +206,9 @@ components:
           type: string
           format: date-time
         player1:
-          $ref: '#/components/schemas/Player'
+          $ref: "#/components/schemas/Player"
         player2:
-          $ref: '#/components/schemas/Player'
+          $ref: "#/components/schemas/Player"
         player1_score:
           type: integer
           minimum: 0
@@ -218,7 +218,7 @@ components:
           minimum: 0
           example: 0
         winner:
-          $ref: '#/components/schemas/Player'
+          $ref: "#/components/schemas/Player"
           nullable: true
 
     MatchUpdate:
@@ -263,4 +263,4 @@ components:
         matches:
           type: array
           items:
-            $ref: '#/components/schemas/Match'
+            $ref: "#/components/schemas/Match"

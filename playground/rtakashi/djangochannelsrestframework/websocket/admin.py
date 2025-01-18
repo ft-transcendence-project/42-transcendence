@@ -1,8 +1,9 @@
 from django.contrib import admin
 
+from .models import GameState
+
 # Register your models here.
 
-from .models import GameState
 
 
 class GameStateAdmin(admin.ModelAdmin):

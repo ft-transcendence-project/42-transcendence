@@ -1,14 +1,14 @@
 {
-	"username": "用户名",
-	"password": "密码",
-	"login": "登录",
-	"sign_up": "注册",
-	"login_with_42": "使用42登录",
-    "errors": {
-        "unknown": "未知错误",
-        "login": "登录过程中发生错误，请重试。"
-    },
-    "validations": {
-        "required": "必填项"
-    }
+  "username": "用户名",
+  "password": "密码",
+  "login": "登录",
+  "sign_up": "注册",
+  "login_with_42": "使用42登录",
+  "errors": {
+    "unknown": "未知错误",
+    "login": "登录过程中发生错误，请重试。"
+  },
+  "validations": {
+    "required": "必填项"
+  }
 }

@@ -1,15 +1,15 @@
 {
-	"title": "アプリケーション",
-	"navbar": "ナビゲーション",
-	"home": "ホーム",
-	"tournament": "トーナメント",
-	"setupotp": "OTPを設定",
-	"mypage": "マイページ",
-	"gameplay": "ゲームプレイ",
-	"login": "ログイン",
-	"logout": "ログアウト",
-	"language": "言語",
-	"english": "英語",
-	"japanese": "日本語",
-	"chinese": "中国語"
+  "title": "アプリケーション",
+  "navbar": "ナビゲーション",
+  "home": "ホーム",
+  "tournament": "トーナメント",
+  "setupotp": "OTPを設定",
+  "mypage": "マイページ",
+  "gameplay": "ゲームプレイ",
+  "login": "ログイン",
+  "logout": "ログアウト",
+  "language": "言語",
+  "english": "英語",
+  "japanese": "日本語",
+  "chinese": "中国語"
 }
