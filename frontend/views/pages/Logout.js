@@ -8,13 +8,14 @@ const Logout = {
       {
         method: "POST",
         credentials: "include",
-      }
+      },
     );
     if (response) {
       document.cookie =
         "isLoggedIn=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-      document.cookie = "default_language=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-      return (await fetchHtml("/views/templates/Logout.html"));
+      document.cookie =
+        "default_language=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      return await fetchHtml("/views/templates/Logout.html");
     }
   },
 

@@ -19,11 +19,11 @@ async function loadTemplate(filePath, fallbackContent) {
 async function loadTemplates() {
   headerContent = await loadTemplate(
     "/views/templates/Navbar.html",
-    "<div>Error loading header</div>"
+    "<div>Error loading header</div>",
   );
   footerContent = await loadTemplate(
     "/views/templates/Footer.html",
-    "<div>Error loading footer</div>"
+    "<div>Error loading footer</div>",
   );
 }
 
@@ -53,15 +53,15 @@ const server = http.createServer(async (req, res) => {
     const renderedContent = content
       .replace(
         '<div id="header_container"></div>',
-        `<div id="header_container">${headerContent}</div>`
+        `<div id="header_container">${headerContent}</div>`,
       )
       .replace(
         '<div id="body_container"></div>',
-        `<div id="body_container">${await renderPage(req.url)}</div>`
+        `<div id="body_container">${await renderPage(req.url)}</div>`,
       )
       .replace(
         '<div id="footer_container"></div>',
-        `<div id="footer_container">${footerContent}</div>`
+        `<div id="footer_container">${footerContent}</div>`,
       )
       .replace(
         '<script id="load_env"></script>',
@@ -72,7 +72,7 @@ const server = http.createServer(async (req, res) => {
             GAMEPLAY_WS_HOST: '${process.env.GAMEPLAY_WS_HOST ?? ""}',
             TOURNAMENT_HOST: '${process.env.TOURNAMENT_HOST ?? ""}'
           };
-        </script>`
+        </script>`,
       );
 
     res.writeHead(200, {
@@ -91,7 +91,10 @@ const getFilePath = (url) => {
   if (url.startsWith("/public/")) {
     return path.join(__dirname, url);
   }
-  return path.join(__dirname, url === "/" ? "/views/templates/index.html" : url);
+  return path.join(
+    __dirname,
+    url === "/" ? "/views/templates/index.html" : url,
+  );
 };
 
 const getContentType = (filePath) => {

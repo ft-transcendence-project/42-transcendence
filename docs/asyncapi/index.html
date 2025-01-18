@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Real-time API ドキュメント(AsyncAPI)</title>
-    
+
     <!-- Tailwind CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
-    
+
     <!-- AsyncAPI Generator Default Template -->
     <script src="https://unpkg.com/@asyncapi/web-component@1.0.0-next.47/lib/asyncapi-web-component.js" defer></script>
-    
+
     <style>
         asyncapi-component {
         height: calc(100vh - 64px);
@@ -19,19 +19,19 @@
         .header {
             height: 64px;
         }
-        
+
         /* AsyncAPIの2カラムレイアウトを1カラムに修正 */
         :root {
             --width-primary: 100% !important;
             --width-secondary: 100% !important;
         }
-        
+
         /* パネルのレイアウトを調整 */
         .asyncapi div[role="main"],
         .asyncapi__main {
             display: block !important;
         }
-        
+
         /* サイドバーとメインコンテンツを縦に並べる */
         .asyncapi .container {
             flex-direction: column !important;
@@ -45,7 +45,7 @@
             <a href="../index.html" class="text-white hover:text-gray-300">Back to Home</a>
         </div>
     </nav>
-    
+
     <asyncapi-component
         schema="asyncapi: 2.6.0
 info:

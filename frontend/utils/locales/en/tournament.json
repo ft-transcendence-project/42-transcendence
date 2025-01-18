@@ -1,15 +1,15 @@
 {
-    "player1": "Player 1",
-    "player2": "Player 2",
-    "player3": "Player 3",
-    "player4": "Player 4",
-    "player5": "Player 5",
-    "player6": "Player 6",
-    "player7": "Player 7",
-    "player8": "Player 8",
-    "submit": "Submit",
-    "errors": {
-        "unknown": "Unknown error",
-        "register": "Tournament register failed."
-    }
+  "player1": "Player 1",
+  "player2": "Player 2",
+  "player3": "Player 3",
+  "player4": "Player 4",
+  "player5": "Player 5",
+  "player6": "Player 6",
+  "player7": "Player 7",
+  "player8": "Player 8",
+  "submit": "Submit",
+  "errors": {
+    "unknown": "Unknown error",
+    "register": "Tournament register failed."
+  }
 }

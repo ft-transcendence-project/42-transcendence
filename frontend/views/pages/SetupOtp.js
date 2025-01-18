@@ -10,14 +10,14 @@ const SetupOtp = {
       {
         method: "GET",
         credentials: "include",
-      }
+      },
     ).catch((error) => console.error(error));
     const data = await response.json();
 
     console.log(data);
 
     if (data.message === "OTP already set up") {
-      return (await fetchHtml("/views/templates/AlreadySetupOtp.html"));
+      return await fetchHtml("/views/templates/AlreadySetupOtp.html");
     }
 
     return template
@@ -37,7 +37,7 @@ const SetupOtp = {
             method: "POST",
             credentials: "include",
           },
-          "setupotp:errors.setup"
+          "setupotp:errors.setup",
         );
         if (response) {
           window.location.hash = "#/";

@@ -1,10 +1,10 @@
 {
-    "game_start": "游戏开始",
-    "next_game_button": "进入下一场比赛",
-    "back_home_button": "返回主页",
-    "popup": {
-        "game_over": "游戏结束！获胜者：",
-        "left": "左方",
-        "right": "右方"
-    }
+  "game_start": "游戏开始",
+  "next_game_button": "进入下一场比赛",
+  "back_home_button": "返回主页",
+  "popup": {
+    "game_over": "游戏结束！获胜者：",
+    "left": "左方",
+    "right": "右方"
+  }
 }

@@ -1,18 +1,21 @@
-import json
-from asgiref.sync import sync_to_async
-from channels.generic.websocket import AsyncWebsocketConsumer
 import asyncio
+import json
 import logging
 import math
 from datetime import datetime
-from .utils import Utils
-from .objects.pong_info import PongInfo
 
-logger = logging.getLogger('ponglogic')
+from asgiref.sync import sync_to_async
+from channels.generic.websocket import AsyncWebsocketConsumer
+
+from .objects.pong_info import PongInfo
+from .utils import Utils
+
+logger = logging.getLogger("ponglogic")
 
 SCORE_TO_WIN = 15
 RESET_DURATION = 2
 UPDATE_RATE_HZ = 60
+
 
 class PongLogic(AsyncWebsocketConsumer):
     pong_info_map = {}
@@ -24,15 +27,21 @@ class PongLogic(AsyncWebsocketConsumer):
     async def game_loop(self):
         try:
             from gamesetting.models import GameSetting
-            game_setting = await sync_to_async(GameSetting.objects.get)(id=self.pong_info.setting_id)
+
+            game_setting = await sync_to_async(GameSetting.objects.get)(
+                id=self.pong_info.setting_id
+            )
             Utils.set_game_setting(self.pong_info, game_setting)
         except Exception as e:
             logger.error(f"Error retrieving for GameSetting: {e}")
         await self.send_pong_data(True)
-        while (self.pong_info.is_game_started == False):
+        while self.pong_info.is_game_started == False:
             await asyncio.sleep(1 / UPDATE_RATE_HZ)
         turn_count = 0
-        while self.pong_info.score.left < SCORE_TO_WIN and self.pong_info.score.right < SCORE_TO_WIN:
+        while (
+            self.pong_info.score.left < SCORE_TO_WIN
+            and self.pong_info.score.right < SCORE_TO_WIN
+        ):
             async with self.pong_info.lock:
                 if self.pong_info.state == "stop":
                     self.pong_info.ball.reset(turn_count)
@@ -66,7 +75,13 @@ class PongLogic(AsyncWebsocketConsumer):
             self.pong_info.ball.angle = Utils.normalize_angle(self.pong_info.ball.angle)
             self.pong_info.ball.set_direction()
             Utils.adjust_ball_position(
-                self.pong_info.ball, self.pong_info.paddle, ball_velocity, self.pong_info.game_window, self.pong_info.is_obstacle_exist, self.pong_info.obstacle1, self.pong_info.obstacle2
+                self.pong_info.ball,
+                self.pong_info.paddle,
+                ball_velocity,
+                self.pong_info.game_window,
+                self.pong_info.is_obstacle_exist,
+                self.pong_info.obstacle1,
+                self.pong_info.obstacle2,
             )
 
     async def check_game_state(self):
@@ -93,7 +108,9 @@ class PongLogic(AsyncWebsocketConsumer):
         await self.accept()
         await self.channel_layer.group_add(group_name, self.channel_name)
         if setting_id not in self.pong_info_map:
-            self.pong_info_map[setting_id] = self.pong_info = PongInfo(setting_id, group_name, self.channel_name)
+            self.pong_info_map[setting_id] = self.pong_info = PongInfo(
+                setting_id, group_name, self.channel_name
+            )
             try:
                 self.pong_info.task["game_loop"] = asyncio.create_task(self.game_loop())
             except Exception as e:
@@ -117,7 +134,9 @@ class PongLogic(AsyncWebsocketConsumer):
             else:
                 pong_info.paddle.set_instruction(pong_data)
         except KeyError:
-            logger.error(f"Error: setting_id '{setting_id}' is not found in pong_info_map.")
+            logger.error(
+                f"Error: setting_id '{setting_id}' is not found in pong_info_map."
+            )
 
     async def send_pong_data(self, first=False):
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
@@ -131,7 +150,9 @@ class PongLogic(AsyncWebsocketConsumer):
                 },
             )
         except KeyError:
-            logger.error(f"Error: setting_id '{setting_id}' is not found in pong_info_map.")
+            logger.error(
+                f"Error: setting_id '{setting_id}' is not found in pong_info_map."
+            )
 
     async def send_game_over_message(self, winner):
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
@@ -145,7 +166,9 @@ class PongLogic(AsyncWebsocketConsumer):
                 },
             )
         except KeyError:
-            logger.error(f"Error: setting_id '{setting_id}' is not found in pong_info_map.")
+            logger.error(
+                f"Error: setting_id '{setting_id}' is not found in pong_info_map."
+            )
 
     async def send_message(self, event):
         pong_data = event["content"]

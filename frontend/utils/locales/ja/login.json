@@ -1,14 +1,14 @@
 {
-	"username": "ユーザー名",
-	"password": "パスワード",
-	"login": "ログイン",
-	"sign_up": "アカウント作成",
-	"login_with_42": "42アカウントでログイン",
-    "errors": {
-        "unknown": "不明なエラーが発生しました",
-        "login": "ログイン中にエラーが発生しました。再度お試しください。"
-    },
-    "validations": {
-        "required": "必須項目です"
-    }
+  "username": "ユーザー名",
+  "password": "パスワード",
+  "login": "ログイン",
+  "sign_up": "アカウント作成",
+  "login_with_42": "42アカウントでログイン",
+  "errors": {
+    "unknown": "不明なエラーが発生しました",
+    "login": "ログイン中にエラーが発生しました。再度お試しください。"
+  },
+  "validations": {
+    "required": "必須項目です"
+  }
 }

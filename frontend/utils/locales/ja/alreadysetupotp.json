@@ -1,5 +1,5 @@
 {
-	"complete_message": "OTP設定完了",
-	"already_set_up_message": "OTPはすでに設定されています。これでログインできます。",
-	"go_to_home": "ホームへ"
+  "complete_message": "OTP設定完了",
+  "already_set_up_message": "OTPはすでに設定されています。これでログインできます。",
+  "go_to_home": "ホームへ"
 }

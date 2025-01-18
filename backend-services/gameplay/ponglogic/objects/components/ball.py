@@ -1,6 +1,8 @@
 import math
 import random
+
 from ponglogic.utils import Utils
+
 
 class Ball:
     FAST_VELOCITY = 15

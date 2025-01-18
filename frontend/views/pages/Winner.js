@@ -2,7 +2,7 @@ import { fetchHtml } from "../../utils/fetchHtml.js";
 
 const WinnerPage = {
   render: async () => {
-    return (await fetchHtml("/views/templates/Winner.html"));
+    return await fetchHtml("/views/templates/Winner.html");
   },
 
   after_render: async () => {

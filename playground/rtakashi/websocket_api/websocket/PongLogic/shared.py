@@ -1,6 +1,7 @@
+import asyncio
 import math
 import random
-import asyncio
+
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 

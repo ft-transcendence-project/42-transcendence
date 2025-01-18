@@ -1,15 +1,15 @@
 {
-	"title": "My Application",
-	"navbar": "Navbar",
-	"home": "Home",
-	"tournament": "Tournament",
-	"setupotp": "Setup Otp",
-	"mypage": "My Page",
-	"gameplay": "Gameplay",
-	"login": "Login",
-    "logout": "Logout",
-	"language": "Language",
-	"english": "English",
-	"japanese": "Japanese",
-	"chinese": "Chinese"
+  "title": "My Application",
+  "navbar": "Navbar",
+  "home": "Home",
+  "tournament": "Tournament",
+  "setupotp": "Setup Otp",
+  "mypage": "My Page",
+  "gameplay": "Gameplay",
+  "login": "Login",
+  "logout": "Logout",
+  "language": "Language",
+  "english": "English",
+  "japanese": "Japanese",
+  "chinese": "Chinese"
 }

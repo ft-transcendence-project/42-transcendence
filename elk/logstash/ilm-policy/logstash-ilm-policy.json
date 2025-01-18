@@ -8,10 +8,10 @@
       }
     },
     "phases": {
-      "hot": {                                
+      "hot": {
         "actions": {
           "rollover": {
-            "max_primary_shard_size": "50GB", 
+            "max_primary_shard_size": "50GB",
             "max_age": "30d"
           },
           "set_priority": {
@@ -37,9 +37,9 @@
         }
       },
       "delete": {
-        "min_age": "90d",                     
+        "min_age": "90d",
         "actions": {
-          "delete": {}                        
+          "delete": {}
         }
       }
     }

@@ -6,11 +6,11 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ponglogic', '0001_initial'),
+        ("ponglogic", "0001_initial"),
     ]
 
     operations = [
         migrations.DeleteModel(
-            name='GameSetting',
+            name="GameSetting",
         ),
     ]

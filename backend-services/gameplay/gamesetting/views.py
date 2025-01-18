@@ -1,12 +1,14 @@
 import logging
+
 from rest_framework import status
-from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from .models import GameSetting
 from .serializers import GameSettingSerializer
 
-
 logger = logging.getLogger("gamesetting")
+
 
 class GameSettingView(APIView):
     def get(self, request, pk=None):

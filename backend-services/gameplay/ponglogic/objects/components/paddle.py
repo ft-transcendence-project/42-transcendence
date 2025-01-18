@@ -1,6 +1,7 @@
 import logging
 
-logger = logging.getLogger('ponglogic')
+logger = logging.getLogger("ponglogic")
+
 
 class Paddle:
     def __init__(self):
@@ -9,16 +10,19 @@ class Paddle:
         self.left_y = 240
         self.right_y = 240
         self.velocity = 13
-        self.left_instruction = { "move_direction": "down",
-                                 "action": "stop" }
-        self.right_instruction = { "move_direction": "down",
-                                  "action": "stop" }
+        self.left_instruction = {"move_direction": "down", "action": "stop"}
+        self.right_instruction = {"move_direction": "down", "action": "stop"}
+
     @staticmethod
     def is_paddle_instruction_valid(paddle_instruction):
         side = paddle_instruction.get("side")
         move_direction = paddle_instruction.get("move_direction")
         action = paddle_instruction.get("action")
-        if side in ["left", "right"] and move_direction in ["up", "down"] and action in ["start", "stop"]:
+        if (
+            side in ["left", "right"]
+            and move_direction in ["up", "down"]
+            and action in ["start", "stop"]
+        ):
             return True
         logger.error(f"Invalid paddle instruction: {paddle_instruction}")
         return False

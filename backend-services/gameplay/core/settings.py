@@ -28,7 +28,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
-	"daphne",
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -36,9 +36,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
-	"gamesetting",
+    "gamesetting",
     "ponglogic",
-	"channels",
+    "channels",
     "corsheaders",
 ]
 
@@ -101,7 +101,6 @@ DATABASES = {
         "PORT": os.environ.get("POSTGRES_PORT"),
     }
 }
-
 
 
 # Password validation
@@ -181,15 +180,15 @@ LOGGING = {
             "handlers": ["console"],
             "propagate": True,
         },
-        'gamesetting': {
-            'handlers': ['console', 'logstash'],
-            'level': 'DEBUG',
-            'propagate': True,
+        "gamesetting": {
+            "handlers": ["console", "logstash"],
+            "level": "DEBUG",
+            "propagate": True,
         },
-        'ponglogic': {
-            'handlers': ['console', 'logstash'],
-            'level': 'DEBUG',
-            'propagate': True,
+        "ponglogic": {
+            "handlers": ["console", "logstash"],
+            "level": "DEBUG",
+            "propagate": True,
         },
     },
 }
@@ -210,7 +209,7 @@ if ENVIRONMENT == "production":
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_SECONDS = 31536000
-    SECURE_REDIRECT_EXEMPT = [r'^health/$']
+    SECURE_REDIRECT_EXEMPT = [r"^health/$"]
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     CORS_ALLOW_ALL_ORIGINS = False

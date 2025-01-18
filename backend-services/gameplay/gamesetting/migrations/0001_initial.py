@@ -7,17 +7,53 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='GameSetting',
+            name="GameSetting",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('ball_velocity', models.CharField(choices=[('fast', 'Fast'), ('normal', 'Normal'), ('slow', 'Slow')], default='normal', max_length=10)),
-                ('ball_size', models.CharField(choices=[('big', 'Big'), ('normal', 'Normal'), ('small', 'Small')], default='normal', max_length=10)),
-                ('map', models.CharField(choices=[('a', 'A'), ('b', 'B'), ('c', 'C')], default='a', max_length=10)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "ball_velocity",
+                    models.CharField(
+                        choices=[
+                            ("fast", "Fast"),
+                            ("normal", "Normal"),
+                            ("slow", "Slow"),
+                        ],
+                        default="normal",
+                        max_length=10,
+                    ),
+                ),
+                (
+                    "ball_size",
+                    models.CharField(
+                        choices=[
+                            ("big", "Big"),
+                            ("normal", "Normal"),
+                            ("small", "Small"),
+                        ],
+                        default="normal",
+                        max_length=10,
+                    ),
+                ),
+                (
+                    "map",
+                    models.CharField(
+                        choices=[("a", "A"), ("b", "B"), ("c", "C")],
+                        default="a",
+                        max_length=10,
+                    ),
+                ),
             ],
         ),
     ]

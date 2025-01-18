@@ -26,7 +26,7 @@ class JWTAuthentication(BaseAuthentication):
 
     def authenticate(self, request):
         try:
-            token = request.COOKIES.get('jwt')
+            token = request.COOKIES.get("jwt")
             if not token:
                 return None
 

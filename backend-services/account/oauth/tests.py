@@ -1,12 +1,11 @@
 import os
 from unittest.mock import patch
 
+from accounts.models import CustomUser
 from django.conf import settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-
-from accounts.models import CustomUser
 
 
 class OAuthViewTests(APITestCase):

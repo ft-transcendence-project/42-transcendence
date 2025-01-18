@@ -1,19 +1,19 @@
 {
-    "title": "新規登録",
-    "username": "ユーザー名",
-    "password": "パスワード",
-    "email": "メールアドレス",
-    "default_language": "デフォルト言語",
-    "english": "英語",
-    "japanese": "日本語",
-    "chinese": "中国語",
-    "signupButton": "登録",
-    "errors": {
-        "unknown": "不明なエラーが発生しました",
-        "signup": "登録中にエラーが発生しました。再度お試しください。"
-    },
-    "validations": {
-        "required": "必須項目です",
-        "invalidEmail": "有効なメールアドレスを入力してください"
-    }
+  "title": "新規登録",
+  "username": "ユーザー名",
+  "password": "パスワード",
+  "email": "メールアドレス",
+  "default_language": "デフォルト言語",
+  "english": "英語",
+  "japanese": "日本語",
+  "chinese": "中国語",
+  "signupButton": "登録",
+  "errors": {
+    "unknown": "不明なエラーが発生しました",
+    "signup": "登録中にエラーが発生しました。再度お試しください。"
+  },
+  "validations": {
+    "required": "必須項目です",
+    "invalidEmail": "有効なメールアドレスを入力してください"
+  }
 }
