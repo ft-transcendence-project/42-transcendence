@@ -1,5 +1,7 @@
 # 42-transcendence
 
+<img src="https://github.com/user-attachments/assets/383c1c16-6b16-47bd-b7d5-010c6e71c430" alt="42Webserv" height="325">
+
 ## 概要
 
 オンラインでPongゲームが対戦できるWebアプリケーションプラットフォームです。WebSocketによるリアルタイム通信を実装し、遅延の少ない快適な対戦を実現します。また、ブロックチェーン技術を活用して試合結果を改ざん不可能な形で記録します。
