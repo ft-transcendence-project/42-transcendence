@@ -93,10 +93,24 @@ const Gameplay = {
     const gameIdInput = document.getElementById("game-id");
     const rightButton = document.getElementById("remote-right");
     const leftButton = document.getElementById("remote-left");
-
+    let is_right = false;
+    let is_left = false;
     // ボタンにクリックイベントを追加
     gameStartButton.addEventListener("click", function () {
       console.log("Game Startボタンが押されました");
+      if (remoteButton.textContent === "Remote ON" && is_right) {
+        window.ws.send(JSON.stringify({ remote_mode: "remote_on",
+          player: "right",
+        game_id: gameIdInput.value}));
+      }
+      else if (remoteButton.textContent === "Remote ON" && is_left) {
+        window.ws.send(JSON.stringify({ remote_mode: "remote_on",
+          player: "left",
+        game_id: gameIdInput.value}));
+      }
+      else if (remoteButton.textContent === "Remote OFF") {
+        window.ws.send(JSON.stringify({ remote_mode: "remote_off" }));
+      }
       gameStartButton.style.display = "none";
       window.ws.send(JSON.stringify({ game_signal: "start" }));
     });
@@ -112,6 +126,34 @@ const Gameplay = {
         remoteButton.textContent = "Remote OFF";
         remoteOptions.style.display = "none";
         window.ws.send(JSON.stringify({ game_signal: "remote_off" }));
+      }
+    });
+
+    rightButton.addEventListener("click", function () {
+      console.log("右側リモートボタンが押されました");
+      if (is_right) {
+        is_left = false;
+        leftButton.style.backgroundColor = "white";
+      }
+      else {
+        is_right = true;
+        is_left = false;
+        rightButton.style.backgroundColor = "red";
+        leftButton.style.backgroundColor = "white";
+      }
+    });
+    
+    leftButton.addEventListener("click", function () {
+      console.log("右側リモートボタンが押されました");
+      if (is_left) {
+        is_right = false;
+        rightButton.style.backgroundColor = "white";
+      }
+      else {
+        is_left = true;
+        is_right = false;
+        leftButton.style.backgroundColor = "red";
+        rightButton.style.backgroundColor = "white";
       }
     });
 
