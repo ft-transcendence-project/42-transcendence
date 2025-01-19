@@ -88,12 +88,24 @@ const Gameplay = {
     };
 
     const gameStartButton = document.querySelector(".btn.btn-success.mt-3");
+    const remoteButton = document.querySelector(".btn.btn-warning.mt-3");
 
     // ボタンにクリックイベントを追加
     gameStartButton.addEventListener("click", function () {
       console.log("Game Startボタンが押されました");
       gameStartButton.style.display = "none";
       window.ws.send(JSON.stringify({ game_signal: "start" }));
+    });
+
+    remoteButton.addEventListener("click", function () {
+      console.log("リモートボタンが押されました");
+      if (remoteButton.textContent === "Remote OFF") {
+        remoteButton.textContent = "Remote ON";
+        window.ws.send(JSON.stringify({ game_signal: "remote_off" }));
+      }
+      else if (remoteButton.textContent === "Remote ON")
+        remoteButton.textContent = "Remote OFF";
+        window.ws.send(JSON.stringify({ game_signal: "remote_on" }));
     });
 
     async function gameOver(data) {
