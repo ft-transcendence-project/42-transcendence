@@ -87,8 +87,12 @@ const Gameplay = {
       animationFrameId = requestAnimationFrame(update);
     };
 
-    const gameStartButton = document.querySelector(".btn.btn-success.mt-3");
-    const remoteButton = document.querySelector(".btn.btn-warning.mt-3");
+    const gameStartButton = document.getElementById("game-start");
+    const remoteButton = document.getElementById("remote-mode");
+    const remoteOptions = document.getElementById("remote-options");
+    const gameIdInput = document.getElementById("game-id");
+    const rightButton = document.getElementById("remote-right");
+    const leftButton = document.getElementById("remote-left");
 
     // ボタンにクリックイベントを追加
     gameStartButton.addEventListener("click", function () {
@@ -101,11 +105,14 @@ const Gameplay = {
       console.log("リモートボタンが押されました");
       if (remoteButton.textContent === "Remote OFF") {
         remoteButton.textContent = "Remote ON";
+        remoteOptions.style.display = "block";
+        window.ws.send(JSON.stringify({ game_signal: "remote_on" }));
+      }
+      else if (remoteButton.textContent === "Remote ON"){
+        remoteButton.textContent = "Remote OFF";
+        remoteOptions.style.display = "none";
         window.ws.send(JSON.stringify({ game_signal: "remote_off" }));
       }
-      else if (remoteButton.textContent === "Remote ON")
-        remoteButton.textContent = "Remote OFF";
-        window.ws.send(JSON.stringify({ game_signal: "remote_on" }));
     });
 
     async function gameOver(data) {
