@@ -15,6 +15,9 @@ const Gameplay = {
 
   after_render: async () => {
     let settingId = sessionStorage.getItem("settingId");
+    console.log("SettingId in Gameplay:", settingId);
+    document.getElementById("gameId").innerText =
+      `game id = ${sessionStorage.getItem("settingId")}`;
     let player1 = sessionStorage.getItem("player1");
     if (player1) {
       document.getElementById("player1").textContent = player1;
@@ -24,15 +27,10 @@ const Gameplay = {
       document.getElementById("player2").textContent = player2;
     }
 
-    console.log("SettingId in Gameplay:", settingId);
-    document.getElementById("gameId").innerText =
-      `game id = ${sessionStorage.getItem("settingId")}`;
     const gameCanvas = document.getElementById("gameCanvas");
     const ctx = gameCanvas.getContext("2d");
-
     gameCanvas.width = 1000;
     gameCanvas.height = 600;
-  
     let first = true;
     const center_x = gameCanvas.width / 2;
     const center_y = gameCanvas.height / 2;
@@ -103,13 +101,52 @@ const Gameplay = {
     const gameIdInput = document.getElementById("game-id");
     const rightButton = document.getElementById("remote-right");
     const leftButton = document.getElementById("remote-left");
-    let is_remote_right = false;
-    let is_remote_left = false;
+    const remoteSetButton = document.getElementById("remote-set");
+
+    let isRemoteRight = false;
+    let isRemoteLeft = false;
+    let isRemote = false;
     // ボタンにクリックイベントを追加
-    gameStartButton.addEventListener("click", async function () {
-      console.log("Game Startボタンが押されました");
-      if (remoteButton.textContent === "Remote ON") {
-        console.log("リモートボタンがONになっています");
+    gameStartButton.addEventListener("click", async function (){
+      console.log("Game Startボタンが押されました"); 
+      if (window.ws.readyState === WebSocket.OPEN &&  (!isRemote || (isRemoteRight && isRemoteLeft))) {
+        gameStartButton.style.display = "none";
+        window.ws.send(JSON.stringify({ game_signal: "start" }));
+      }
+    });
+
+    remoteButton.addEventListener("click", function () {
+      console.log("リモートボタンが押されました");
+      if (remoteButton.textContent === "Remote OFF") {
+        remoteButton.textContent = "Remote ON";
+        remoteOptions.style.display = "block";
+        isRemote = true;
+      }
+      else if (remoteButton.textContent === "Remote ON"){
+        remoteButton.textContent = "Remote OFF";
+        remoteOptions.style.display = "none";
+        isRemote = false;
+      }
+    });
+
+    rightButton.addEventListener("click", function () {
+      console.log("右側リモートボタンが押されました");
+      isRemoteRight = true;
+      rightButton.style.backgroundColor = "orange";
+      leftButton.style.backgroundColor = "white";
+    });
+    
+    leftButton.addEventListener("click", function () {
+      console.log("左側リモートボタンが押されました");
+      isRemoteLeft = true;
+      leftButton.style.backgroundColor = "orange";
+      rightButton.style.backgroundColor = "white"; 
+    });
+
+    remoteSetButton.addEventListener("click", async function () {
+      console.log("リモート設定ボタンが押されました");
+        console.log("left",isRemoteLeft);
+        console.log("right",isRemoteRight);
         if (settingId != gameIdInput.value) {
           sessionStorage.setItem("settingId", gameIdInput.value);
           settingId = sessionStorage.getItem("settingId");
@@ -124,38 +161,7 @@ const Gameplay = {
           console.log("settingdata GET successfully:", responseData);
           url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${settingId}/`;
           createWebSocket(url);
-        }
       }
-      if (window.ws.readyState === WebSocket.OPEN){
-        gameStartButton.style.display = "none";
-        window.ws.send(JSON.stringify({ game_signal: "start" }));
-      }
-    });
-
-    remoteButton.addEventListener("click", function () {
-      console.log("リモートボタンが押されました");
-      if (remoteButton.textContent === "Remote OFF") {
-        remoteButton.textContent = "Remote ON";
-        remoteOptions.style.display = "block";
-      }
-      else if (remoteButton.textContent === "Remote ON"){
-        remoteButton.textContent = "Remote OFF";
-        remoteOptions.style.display = "none";
-      }
-    });
-
-    rightButton.addEventListener("click", function () {
-      console.log("右側リモートボタンが押されました");
-      is_remote_right = true;
-      rightButton.style.backgroundColor = "red";
-      leftButton.style.backgroundColor = "white";
-    });
-    
-    leftButton.addEventListener("click", function () {
-      console.log("左側リモートボタンが押されました");
-      is_remote_left = true;
-      leftButton.style.backgroundColor = "red";
-      rightButton.style.backgroundColor = "white"; 
     });
 
     async function gameOver(data) {
@@ -250,25 +256,25 @@ const Gameplay = {
 
     Gameplay.keydownListener = (event) => {
       let paddle_instruction = null;
-      if (!is_remote_right && (event.key === "D" || event.key === "d")) {
+      if (!isRemote || (isRemote && isRemoteLeft) && (event.key === "D" || event.key === "d")) {
         paddle_instruction = {
           move_direction: "down",
           action: "start",
           side: "left",
         };
-      } else if (!is_remote_right && (event.key === "E" || event.key === "e")) {
+      } else if (!isRemote || (isRemote && isRemoteLeft) && (event.key === "E" || event.key === "e")) {
         paddle_instruction = {
           move_direction: "up",
           action: "start",
           side: "left",
         };
-      } else if (!is_remote_left && (event.key === "I" || event.key === "i")) {
+      } else if (!isRemote || (isRemote && isRemoteRight) && (event.key === "I" || event.key === "i")) {
         paddle_instruction = {
           move_direction: "up",
           action: "start",
           side: "right",
         };
-      } else if (!is_remote_left && (event.key === "K" || event.key === "k")) {
+      } else if (!isRemote || (isRemote && isRemoteRight) && (event.key === "K" || event.key === "k")) {
         paddle_instruction = {
           move_direction: "down",
           action: "start",
