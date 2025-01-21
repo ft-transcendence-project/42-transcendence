@@ -74,18 +74,33 @@ const Gameplay = {
     };
 
     let animationFrameId = null;
-
-    // Websocket
+    let is_game_started = false;
     let url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${settingId}/`;
-    window.ws = new WebSocket(url);
-    console.log(url + " WebSocket created");
-
-    window.ws.onopen = () => {
-      console.log("WebSocket opened");
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
+    createWebSocket(url);
+    // Websocket
+    function createWebSocket(url) {
+      if (window.ws) {
+        window.ws.close();
+        console.log("Old WebSocket closed");
       }
-      animationFrameId = requestAnimationFrame(update);
+      window.ws = new WebSocket(url);
+      console.log(url + " WebSocket created");
+      window.ws.onopen = () => {
+        console.log("WebSocket opened");
+        window.location.hash = `#/gameplay.${settingId}/`;
+        if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
+        }
+        animationFrameId = requestAnimationFrame(update);
+        if (is_game_started) {
+            gameStartButton.style.display = "none";
+            window.ws.send(JSON.stringify({ game_signal: "start" }));
+        }
+      }
+    };
+
+    window.ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
     };
 
     const gameStartButton = document.getElementById("game-start");
@@ -99,7 +114,9 @@ const Gameplay = {
     // ボタンにクリックイベントを追加
     gameStartButton.addEventListener("click", async function () {
       console.log("Game Startボタンが押されました");
-      if (remoteButton.textContent === "Remote ON" && is_right) {
+      is_game_started = true;
+      if (remoteButton.textContent === "Remote ON") {
+        console.log("リモートボタンがONになっています");
         if (settingId != gameIdInput.value) {
           sessionStorage.setItem("settingId", gameIdInput.value);
           settingId = sessionStorage.getItem("settingId");
@@ -128,20 +145,10 @@ const Gameplay = {
             console.log("WebSocket closed");
           }
           url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${settingId}/`;
-          window.ws = new WebSocket(url);
-          console.log(url + " WebSocket created");
+          createWebSocket(url);
+          first = true;
         }
       }
-      else if (remoteButton.textContent === "Remote ON" && is_left) {
-        window.ws.send(JSON.stringify({ remote_mode: "remote_on",
-          player: "left",
-        game_id: gameIdInput.value}));
-      }
-      else if (remoteButton.textContent === "Remote OFF") {
-        window.ws.send(JSON.stringify({ remote_mode: "remote_off" }));
-      }
-      gameStartButton.style.display = "none";
-      window.ws.send(JSON.stringify({ game_signal: "start" }));
     });
 
     remoteButton.addEventListener("click", function () {
@@ -149,41 +156,25 @@ const Gameplay = {
       if (remoteButton.textContent === "Remote OFF") {
         remoteButton.textContent = "Remote ON";
         remoteOptions.style.display = "block";
-        // window.ws.send(JSON.stringify({ game_signal: "remote_on" }));
       }
       else if (remoteButton.textContent === "Remote ON"){
         remoteButton.textContent = "Remote OFF";
         remoteOptions.style.display = "none";
-        // window.ws.send(JSON.stringify({ game_signal: "remote_off" }));
       }
     });
 
     rightButton.addEventListener("click", function () {
       console.log("右側リモートボタンが押されました");
-      if (is_right) {
-        is_left = false;
-        leftButton.style.backgroundColor = "white";
-      }
-      else {
-        is_right = true;
-        is_left = false;
-        rightButton.style.backgroundColor = "red";
-        leftButton.style.backgroundColor = "white";
-      }
+      is_right = true;
+      rightButton.style.backgroundColor = "red";
+      leftButton.style.backgroundColor = "white";
     });
     
     leftButton.addEventListener("click", function () {
-      console.log("右側リモートボタンが押されました");
-      if (is_left) {
-        is_right = false;
-        rightButton.style.backgroundColor = "white";
-      }
-      else {
-        is_left = true;
-        is_right = false;
-        leftButton.style.backgroundColor = "red";
-        rightButton.style.backgroundColor = "white";
-      }
+      console.log("左側リモートボタンが押されました");
+      is_left = true;
+      leftButton.style.backgroundColor = "red";
+      rightButton.style.backgroundColor = "white"; 
     });
 
     async function gameOver(data) {
