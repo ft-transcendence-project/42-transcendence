@@ -14,6 +14,7 @@ const Gameplay = {
   keyupListener: null,
 
   after_render: async () => {
+    // 後で関数化
     let settingId = sessionStorage.getItem("settingId");
     let player1 = sessionStorage.getItem("player1");
     if (player1) {
@@ -96,23 +97,40 @@ const Gameplay = {
     let is_right = false;
     let is_left = false;
     // ボタンにクリックイベントを追加
-    gameStartButton.addEventListener("click", function () {
+    gameStartButton.addEventListener("click", async function () {
       console.log("Game Startボタンが押されました");
       if (remoteButton.textContent === "Remote ON" && is_right) {
-        sessionStorage.setItem("settingId", gameIdInput.value);
-        settingId = sessionStorage.getItem("settingId");
-        player1 = sessionStorage.getItem("player1");
-        if (player1) {
-          document.getElementById("player1").textContent = player1;
+        if (settingId != gameIdInput.value) {
+          sessionStorage.setItem("settingId", gameIdInput.value);
+          settingId = sessionStorage.getItem("settingId");
+          player1 = sessionStorage.getItem("player1");
+          if (player1) {
+            document.getElementById("player1").textContent = player1;
+          }
+          player2 = sessionStorage.getItem("player2");
+          if (player2) {
+            document.getElementById("player2").textContent = player2;
+          }
+          console.log("SettingId in Gameplay:", settingId);
+          document.getElementById("gameId").innerText =
+            `game id = ${sessionStorage.getItem("settingId")}`;
+          const response = await fetchWithHandling(
+            `${window.env.GAMEPLAY_HOST}/gamesetting/${window.sessionStorage.getItem("settingId")}/`,
+            {
+              method: "GET",
+            },
+          );
+          const responseData = await response.json();
+          // 404が帰ってきた時のエラーを書く
+          console.log("settingdata GET successfully:", responseData);
+          if (window.ws) {
+            window.ws.close();
+            console.log("WebSocket closed");
+          }
+          url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${settingId}/`;
+          window.ws = new WebSocket(url);
+          console.log(url + " WebSocket created");
         }
-        player2 = sessionStorage.getItem("player2");
-        if (player2) {
-          document.getElementById("player2").textContent = player2;
-        }
-        console.log("SettingId in Gameplay:", settingId);
-        document.getElementById("gameId").innerText =
-          `game id = ${sessionStorage.getItem("settingId")}`;
-        
       }
       else if (remoteButton.textContent === "Remote ON" && is_left) {
         window.ws.send(JSON.stringify({ remote_mode: "remote_on",
