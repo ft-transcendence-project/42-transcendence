@@ -14,7 +14,6 @@ const Gameplay = {
   keyupListener: null,
 
   after_render: async () => {
-    // 後で関数化
     let settingId = sessionStorage.getItem("settingId");
     let player1 = sessionStorage.getItem("player1");
     if (player1) {
@@ -75,7 +74,6 @@ const Gameplay = {
 
     let animationFrameId = null;
     let url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${settingId}/`;
-    createWebSocket(url);
     // Websocket
     function createWebSocket(url) {
       if (window.ws) {
@@ -93,6 +91,7 @@ const Gameplay = {
         animationFrameId = requestAnimationFrame(update);
       }
     };
+    createWebSocket(url);
 
     window.ws.onerror = (error) => {
       console.error("WebSocket error:", error);
@@ -111,21 +110,9 @@ const Gameplay = {
       console.log("Game Startボタンが押されました");
       if (remoteButton.textContent === "Remote ON") {
         console.log("リモートボタンがONになっています");
-
         if (settingId != gameIdInput.value) {
           sessionStorage.setItem("settingId", gameIdInput.value);
           settingId = sessionStorage.getItem("settingId");
-          player1 = sessionStorage.getItem("player1");
-          if (player1) {
-            document.getElementById("player1").textContent = player1;
-          }
-          player2 = sessionStorage.getItem("player2");
-          if (player2) {
-            document.getElementById("player2").textContent = player2;
-          }
-          console.log("SettingId in Gameplay:", settingId);
-          document.getElementById("gameId").innerText =
-            `game id = ${sessionStorage.getItem("settingId")}`;
           const response = await fetchWithHandling(
             `${window.env.GAMEPLAY_HOST}/gamesetting/${window.sessionStorage.getItem("settingId")}/`,
             {
