@@ -33,7 +33,7 @@ const Gameplay = {
 
     gameCanvas.width = 1000;
     gameCanvas.height = 600;
-
+  
     let first = true;
     const center_x = gameCanvas.width / 2;
     const center_y = gameCanvas.height / 2;
@@ -104,13 +104,14 @@ const Gameplay = {
     const gameIdInput = document.getElementById("game-id");
     const rightButton = document.getElementById("remote-right");
     const leftButton = document.getElementById("remote-left");
-    let is_right = false;
-    let is_left = false;
+    let is_remote_right = false;
+    let is_remote_left = false;
     // ボタンにクリックイベントを追加
     gameStartButton.addEventListener("click", async function () {
       console.log("Game Startボタンが押されました");
       if (remoteButton.textContent === "Remote ON") {
         console.log("リモートボタンがONになっています");
+
         if (settingId != gameIdInput.value) {
           sessionStorage.setItem("settingId", gameIdInput.value);
           settingId = sessionStorage.getItem("settingId");
@@ -140,10 +141,9 @@ const Gameplay = {
           }
           url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${settingId}/`;
           createWebSocket(url);
-          first = true;
         }
       }
-      if(window.ws.readyState === WebSocket.OPEN){
+      if (window.ws.readyState === WebSocket.OPEN){
         gameStartButton.style.display = "none";
         window.ws.send(JSON.stringify({ game_signal: "start" }));
       }
@@ -163,14 +163,14 @@ const Gameplay = {
 
     rightButton.addEventListener("click", function () {
       console.log("右側リモートボタンが押されました");
-      is_right = true;
+      is_remote_right = true;
       rightButton.style.backgroundColor = "red";
       leftButton.style.backgroundColor = "white";
     });
     
     leftButton.addEventListener("click", function () {
       console.log("左側リモートボタンが押されました");
-      is_left = true;
+      is_remote_left = true;
       leftButton.style.backgroundColor = "red";
       rightButton.style.backgroundColor = "white"; 
     });
@@ -267,25 +267,25 @@ const Gameplay = {
 
     Gameplay.keydownListener = (event) => {
       let paddle_instruction = null;
-      if (event.key === "D" || event.key === "d") {
+      if (!is_remote_right && (event.key === "D" || event.key === "d")) {
         paddle_instruction = {
           move_direction: "down",
           action: "start",
           side: "left",
         };
-      } else if (event.key === "E" || event.key === "e") {
+      } else if (!is_remote_right && (event.key === "E" || event.key === "e")) {
         paddle_instruction = {
           move_direction: "up",
           action: "start",
           side: "left",
         };
-      } else if (event.key === "I" || event.key === "i") {
+      } else if (!is_remote_left && (event.key === "I" || event.key === "i")) {
         paddle_instruction = {
           move_direction: "up",
           action: "start",
           side: "right",
         };
-      } else if (event.key === "K" || event.key === "k") {
+      } else if (!is_remote_left && (event.key === "K" || event.key === "k")) {
         paddle_instruction = {
           move_direction: "down",
           action: "start",
