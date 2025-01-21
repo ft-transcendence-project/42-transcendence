@@ -30,7 +30,7 @@ const GameSetting = {
           map: map,
         };
 
-        // PUTリクエストを送信
+        // POSTリクエストを送信
         console.log(`${window.env.GAMEPLAY_HOST}/gamesetting/`);
         const response = await fetchWithHandling(
           `${window.env.GAMEPLAY_HOST}/gamesetting/`,

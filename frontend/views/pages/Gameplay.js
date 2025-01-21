@@ -14,12 +14,12 @@ const Gameplay = {
   keyupListener: null,
 
   after_render: async () => {
-    const settingId = sessionStorage.getItem("settingId");
-    const player1 = sessionStorage.getItem("player1");
+    let settingId = sessionStorage.getItem("settingId");
+    let player1 = sessionStorage.getItem("player1");
     if (player1) {
       document.getElementById("player1").textContent = player1;
     }
-    const player2 = sessionStorage.getItem("player2");
+    let player2 = sessionStorage.getItem("player2");
     if (player2) {
       document.getElementById("player2").textContent = player2;
     }
@@ -75,7 +75,7 @@ const Gameplay = {
     let animationFrameId = null;
 
     // Websocket
-    const url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${settingId}/`;
+    let url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${settingId}/`;
     window.ws = new WebSocket(url);
     console.log(url + " WebSocket created");
 
@@ -99,9 +99,20 @@ const Gameplay = {
     gameStartButton.addEventListener("click", function () {
       console.log("Game Startボタンが押されました");
       if (remoteButton.textContent === "Remote ON" && is_right) {
-        window.ws.send(JSON.stringify({ remote_mode: "remote_on",
-          player: "right",
-        game_id: gameIdInput.value}));
+        sessionStorage.setItem("settingId", gameIdInput.value);
+        settingId = sessionStorage.getItem("settingId");
+        player1 = sessionStorage.getItem("player1");
+        if (player1) {
+          document.getElementById("player1").textContent = player1;
+        }
+        player2 = sessionStorage.getItem("player2");
+        if (player2) {
+          document.getElementById("player2").textContent = player2;
+        }
+        console.log("SettingId in Gameplay:", settingId);
+        document.getElementById("gameId").innerText =
+          `game id = ${sessionStorage.getItem("settingId")}`;
+        
       }
       else if (remoteButton.textContent === "Remote ON" && is_left) {
         window.ws.send(JSON.stringify({ remote_mode: "remote_on",
@@ -120,12 +131,12 @@ const Gameplay = {
       if (remoteButton.textContent === "Remote OFF") {
         remoteButton.textContent = "Remote ON";
         remoteOptions.style.display = "block";
-        window.ws.send(JSON.stringify({ game_signal: "remote_on" }));
+        // window.ws.send(JSON.stringify({ game_signal: "remote_on" }));
       }
       else if (remoteButton.textContent === "Remote ON"){
         remoteButton.textContent = "Remote OFF";
         remoteOptions.style.display = "none";
-        window.ws.send(JSON.stringify({ game_signal: "remote_off" }));
+        // window.ws.send(JSON.stringify({ game_signal: "remote_off" }));
       }
     });
 
