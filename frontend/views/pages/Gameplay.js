@@ -74,7 +74,6 @@ const Gameplay = {
     };
 
     let animationFrameId = null;
-    let is_game_started = false;
     let url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${settingId}/`;
     createWebSocket(url);
     // Websocket
@@ -92,10 +91,6 @@ const Gameplay = {
           cancelAnimationFrame(animationFrameId);
         }
         animationFrameId = requestAnimationFrame(update);
-        if (is_game_started) {
-            gameStartButton.style.display = "none";
-            window.ws.send(JSON.stringify({ game_signal: "start" }));
-        }
       }
     };
 
@@ -114,7 +109,6 @@ const Gameplay = {
     // ボタンにクリックイベントを追加
     gameStartButton.addEventListener("click", async function () {
       console.log("Game Startボタンが押されました");
-      is_game_started = true;
       if (remoteButton.textContent === "Remote ON") {
         console.log("リモートボタンがONになっています");
         if (settingId != gameIdInput.value) {
@@ -148,6 +142,10 @@ const Gameplay = {
           createWebSocket(url);
           first = true;
         }
+      }
+      if(window.ws.readyState === WebSocket.OPEN){
+        gameStartButton.style.display = "none";
+        window.ws.send(JSON.stringify({ game_signal: "start" }));
       }
     });
 
