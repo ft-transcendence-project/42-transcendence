@@ -122,10 +122,6 @@ const Gameplay = {
           const responseData = await response.json();
           // 404が帰ってきた時のエラーを書く
           console.log("settingdata GET successfully:", responseData);
-          if (window.ws) {
-            window.ws.close();
-            console.log("WebSocket closed");
-          }
           url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${settingId}/`;
           createWebSocket(url);
         }
