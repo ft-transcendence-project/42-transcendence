@@ -73,24 +73,68 @@ const Gameplay = {
     let animationFrameId = null;
     let url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${settingId}/`;
     // Websocket
-    function createWebSocket(url) {
-      if (window.ws) {
-        window.ws.close();
-        console.log("Old WebSocket closed");
+    // function setupNewWebSocket(url) {
+    //   if (window.ws && url === window.ws.url) {
+    //     window.ws.close();
+    //     window.ws.onclose = () => {
+    //       console.log("WebSocket closed",settingId);
+    //       window.ws = null;
+    //     };
+    //   }
+    //   window.ws = new WebSocket(url);
+    //   console.log(url + " WebSocket created");
+    //   window.ws.onopen = () => {
+    //     console.log("WebSocket opened",settingId);
+    //     if (!window.location.hash.includes(`#/gameplay.${settingId}/`)) {
+    //       window.location.hash = `#/gameplay.${settingId}/`;
+    //     }
+    //     if (animationFrameId) {
+    //       cancelAnimationFrame(animationFrameId);
+    //     }
+    //     animationFrameId = requestAnimationFrame(update);
+    //   };
+    // }
+
+    // setupNewWebSocket(url);
+
+    // 既存の接続が閉じられる前に新しい接続を確立するのを防ぐ
+    async function setupNewWebSocket(url) {
+      if (window.ws && window.ws.readyState === WebSocket.OPEN && url !== window.ws.url) {
+        console.log("Closing existing WebSocket before opening new one", settingId);
+        // 確実に閉じた後に処理を実行
+        await new Promise((resolve) => {
+          window.ws.onclose = () => {
+            console.log("WebSocket closed", settingId);
+            window.ws = null;
+            resolve();
+          };
+          window.ws.close();
+        });
+        initializeNewWebSocket(url);
+      } else {
+        initializeNewWebSocket(url);
       }
-      window.ws = new WebSocket(url);
-      console.log(url + " WebSocket created");
+    }
+    
+    function initializeNewWebSocket(url) {
+      if (!window.ws) {
+        window.ws = new WebSocket(url);
+        console.log(url + " WebSocket created");
+      }
       window.ws.onopen = () => {
-        console.log("WebSocket opened");
-        window.location.hash = `#/gameplay.${settingId}/`;
+        console.log("WebSocket opened", settingId);
+        if (!window.location.hash.includes(`#/gameplay.${settingId}/`)) {
+          window.location.hash = `#/gameplay.${settingId}/`;
+        }
         if (animationFrameId) {
           cancelAnimationFrame(animationFrameId);
         }
         animationFrameId = requestAnimationFrame(update);
-      }
-    };
-    createWebSocket(url);
+      };
+      console.log("hello");
+    }
 
+    setupNewWebSocket(url);
     window.ws.onerror = (error) => {
       console.error("WebSocket error:", error);
     };
@@ -147,7 +191,6 @@ const Gameplay = {
       console.log("リモート設定ボタンが押されました");
         console.log("left",isRemoteLeft);
         console.log("right",isRemoteRight);
-        if (settingId != gameIdInput.value) {
           sessionStorage.setItem("settingId", gameIdInput.value);
           settingId = sessionStorage.getItem("settingId");
           const response = await fetchWithHandling(
@@ -160,8 +203,7 @@ const Gameplay = {
           // 404が帰ってきた時のエラーを書く
           console.log("settingdata GET successfully:", responseData);
           url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${settingId}/`;
-          createWebSocket(url);
-      }
+          setupNewWebSocket(url);
     });
 
     async function gameOver(data) {
@@ -352,8 +394,7 @@ const Gameplay = {
       window.keydownListenerAdded = true;
     }
 
-    window.ws.onclose = () => console.log("Disconnected");
-
+    
     // 描画関数
     function draw() {
       ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
@@ -408,7 +449,7 @@ const Gameplay = {
       window.keydownListenerAdded = false;
       window.ws.close();
       window.ws = null;
-      console.log("WebSocket closed");
+      console.log("WebSocket closed",sessionStorage.getItem("settingId"));
     }
 
     if (

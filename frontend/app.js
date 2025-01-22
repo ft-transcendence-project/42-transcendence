@@ -54,7 +54,8 @@ const router = async () => {
     location = "/gameplay"; // locationを'/gameplay'に変更して遷移させる
   }
 
-  if (window.currentPage && window.currentPage.cleanup) {
+  if (window.currentPage && window.currentPage.cleanup && window.currentPage !== routes[location]) {
+    console.log("Cleanup previous page");
     window.currentPage.cleanup();
   }
 
