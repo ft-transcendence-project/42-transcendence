@@ -125,6 +125,9 @@ const Gameplay = {
         console.log("WebSocket opened", settingId);
         if (!window.location.hash.includes(`#/gameplay.${settingId}/`)) {
           window.location.hash = `#/gameplay.${settingId}/`;
+            console.log("remote send");
+            gameStartButton.style.display = "none";
+            window.ws.send(JSON.stringify({ remote: "ON" }));
         }
         if (animationFrameId) {
           cancelAnimationFrame(animationFrameId);
@@ -189,21 +192,21 @@ const Gameplay = {
 
     remoteSetButton.addEventListener("click", async function () {
       console.log("リモート設定ボタンが押されました");
-        console.log("left",isRemoteLeft);
-        console.log("right",isRemoteRight);
-          sessionStorage.setItem("settingId", gameIdInput.value);
-          settingId = sessionStorage.getItem("settingId");
-          const response = await fetchWithHandling(
-            `${window.env.GAMEPLAY_HOST}/gamesetting/${window.sessionStorage.getItem("settingId")}/`,
-            {
-              method: "GET",
-            },
-          );
-          const responseData = await response.json();
-          // 404が帰ってきた時のエラーを書く
-          console.log("settingdata GET successfully:", responseData);
-          url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${settingId}/`;
-          setupNewWebSocket(url);
+      console.log("left",isRemoteLeft);
+      console.log("right",isRemoteRight);
+      sessionStorage.setItem("settingId", gameIdInput.value);
+      settingId = sessionStorage.getItem("settingId");
+      const response = await fetchWithHandling(
+        `${window.env.GAMEPLAY_HOST}/gamesetting/${window.sessionStorage.getItem("settingId")}/`,
+        {
+          method: "GET",
+        },
+      );
+      const responseData = await response.json();
+      // 404が帰ってきた時のエラーを書く
+      console.log("settingdata GET successfully:", responseData);
+      url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${settingId}/`;
+      setupNewWebSocket(url);
     });
 
     async function gameOver(data) {

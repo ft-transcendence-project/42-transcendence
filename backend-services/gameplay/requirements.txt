@@ -6,3 +6,4 @@ daphne
 djangorestframework
 django-cors-headers
 python-logstash
+django-redis

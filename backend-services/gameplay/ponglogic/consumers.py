@@ -10,6 +10,10 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from .objects.pong_info import PongInfo
 from .utils import Utils
 
+from django.core.cache import cache
+from channels.layers import get_channel_layer
+from channels.exceptions import ChannelFull
+
 logger = logging.getLogger("ponglogic")
 
 SCORE_TO_WIN = 15
@@ -101,11 +105,13 @@ class PongLogic(AsyncWebsocketConsumer):
                     await self.send_game_over_message("right")
 
     async def connect(self):
+        print("consumer connect")
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
         logger.info(f"setting_id: {setting_id}")
         group_name = f"game_{setting_id}"
         self.group_name = group_name
         await self.accept()
+        print("accept")
         await self.channel_layer.group_add(group_name, self.channel_name)
         if setting_id not in self.pong_info_map:
             self.pong_info_map[setting_id] = self.pong_info = PongInfo(
@@ -117,10 +123,16 @@ class PongLogic(AsyncWebsocketConsumer):
                 logger.error(f"Error creating game_loop task: {e}")
 
     async def disconnect(self, close_code):
+        print("consumer disconnect")
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
         if setting_id in self.pong_info_map:
-            if self.pong_info_map[setting_id].channel_name == self.channel_name:
+            pong_info = self.pong_info_map[setting_id]
+            if pong_info.channel_cnt > 0:
+                cache.set(self.group_name, pong_info.channel_cnt - 1)
+                pong_info.channel_cnt = cache.get(self.group_name, 0)
+                print(f"{setting_id}-> channel_cnt: {pong_info.channel_cnt}")
+            if pong_info.channel_name == self.channel_name:
                 self.pong_info.task["game_loop"].cancel()
                 del self.pong_info_map[self.pong_info.setting_id]
 
@@ -131,6 +143,10 @@ class PongLogic(AsyncWebsocketConsumer):
             pong_info = self.pong_info_map[setting_id]
             if pong_data.get("game_signal", None) == "start":
                 pong_info.is_game_started = True
+            elif pong_data.get("remote", None) == "ON":
+                cache.set(self.group_name, pong_info.channel_cnt + 1)
+                pong_info.channel_cnt = cache.get(self.group_name, 0)
+                print(f"{setting_id}-> channel_cnt: {pong_info.channel_cnt}")
             else:
                 pong_info.paddle.set_instruction(pong_data)
         except KeyError:

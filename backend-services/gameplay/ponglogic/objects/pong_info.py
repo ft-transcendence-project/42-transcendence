@@ -20,3 +20,4 @@ class PongInfo:
         self.obstacle1 = Obstacle(1)
         self.obstacle2 = Obstacle(2)
         self.blind = Blind()
+        self.channel_cnt = 0
