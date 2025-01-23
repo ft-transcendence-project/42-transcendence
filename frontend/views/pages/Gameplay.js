@@ -73,31 +73,7 @@ const Gameplay = {
     let animationFrameId = null;
     let url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${settingId}/`;
     // Websocket
-    // function setupNewWebSocket(url) {
-    //   if (window.ws && url === window.ws.url) {
-    //     window.ws.close();
-    //     window.ws.onclose = () => {
-    //       console.log("WebSocket closed",settingId);
-    //       window.ws = null;
-    //     };
-    //   }
-    //   window.ws = new WebSocket(url);
-    //   console.log(url + " WebSocket created");
-    //   window.ws.onopen = () => {
-    //     console.log("WebSocket opened",settingId);
-    //     if (!window.location.hash.includes(`#/gameplay.${settingId}/`)) {
-    //       window.location.hash = `#/gameplay.${settingId}/`;
-    //     }
-    //     if (animationFrameId) {
-    //       cancelAnimationFrame(animationFrameId);
-    //     }
-    //     animationFrameId = requestAnimationFrame(update);
-    //   };
-    // }
 
-    // setupNewWebSocket(url);
-
-    // 既存の接続が閉じられる前に新しい接続を確立するのを防ぐ
     async function setupNewWebSocket(url) {
       if (window.ws && window.ws.readyState === WebSocket.OPEN && url !== window.ws.url) {
         console.log("Closing existing WebSocket before opening new one", settingId);
@@ -125,19 +101,25 @@ const Gameplay = {
         console.log("WebSocket opened", settingId);
         if (!window.location.hash.includes(`#/gameplay.${settingId}/`)) {
           window.location.hash = `#/gameplay.${settingId}/`;
-            console.log("remote send");
-            gameStartButton.style.display = "none";
-            window.ws.send(JSON.stringify({ remote: "ON" }));
+          console.log("remote send");
+          let message = {};
+          if (isRemoteRight) {
+            message = { remote: "ON", remote_player_pos: "right" };
+          }
+          else {
+            message = { remote: "ON", remote_player_pos: "left" };
+          }
+          sendMessage(message);
         }
         if (animationFrameId) {
           cancelAnimationFrame(animationFrameId);
         }
         animationFrameId = requestAnimationFrame(update);
       };
-      console.log("hello");
     }
 
     setupNewWebSocket(url);
+
     window.ws.onerror = (error) => {
       console.error("WebSocket error:", error);
     };
@@ -154,9 +136,10 @@ const Gameplay = {
     let isRemoteLeft = false;
     let isRemote = false;
     // ボタンにクリックイベントを追加
-    gameStartButton.addEventListener("click", async function (){
-      console.log("Game Startボタンが押されました"); 
-      if (window.ws.readyState === WebSocket.OPEN &&  (!isRemote || (isRemoteRight && isRemoteLeft))) {
+    gameStartButton.addEventListener("click", function (){
+      console.log("Game Startボタンが押されました");
+      if (window.ws.readyState === WebSocket.OPEN && ((!isRemote && !isRemoteLeft && !isRemoteRight) || isRemote)) {
+        console.log("Game Startボタンが押されました2");
         gameStartButton.style.display = "none";
         window.ws.send(JSON.stringify({ game_signal: "start" }));
       }
@@ -167,12 +150,10 @@ const Gameplay = {
       if (remoteButton.textContent === "Remote OFF") {
         remoteButton.textContent = "Remote ON";
         remoteOptions.style.display = "block";
-        isRemote = true;
       }
       else if (remoteButton.textContent === "Remote ON"){
         remoteButton.textContent = "Remote OFF";
         remoteOptions.style.display = "none";
-        isRemote = false;
       }
     });
 
@@ -270,6 +251,16 @@ const Gameplay = {
         gameOver(data);
         return;
       }
+      if (data.remote === "OK"){
+        console.log("remote OK");
+        isRemote = true;
+        return;
+      }
+      if (data.remote === "NG"){
+        console.log("remote NG");
+        isRemote = false;
+        return;
+      }
       score.left = data.left_score;
       score.right = data.right_score;
       paddle.left_y = data.left_paddle_y;
@@ -301,25 +292,25 @@ const Gameplay = {
 
     Gameplay.keydownListener = (event) => {
       let paddle_instruction = null;
-      if (!isRemote || (isRemote && isRemoteLeft) && (event.key === "D" || event.key === "d")) {
+      if ((!isRemote || (isRemote && isRemoteLeft)) && (event.key === "D" || event.key === "d")) {
         paddle_instruction = {
           move_direction: "down",
           action: "start",
           side: "left",
         };
-      } else if (!isRemote || (isRemote && isRemoteLeft) && (event.key === "E" || event.key === "e")) {
+      } else if ((!isRemote || (isRemote && isRemoteLeft)) && (event.key === "E" || event.key === "e")) {
         paddle_instruction = {
           move_direction: "up",
           action: "start",
           side: "left",
         };
-      } else if (!isRemote || (isRemote && isRemoteRight) && (event.key === "I" || event.key === "i")) {
+      } else if ((!isRemote || (isRemote && isRemoteRight)) && (event.key === "I" || event.key === "i")) {
         paddle_instruction = {
           move_direction: "up",
           action: "start",
           side: "right",
         };
-      } else if (!isRemote || (isRemote && isRemoteRight) && (event.key === "K" || event.key === "k")) {
+      } else if ((!isRemote || (isRemote && isRemoteRight)) && (event.key === "K" || event.key === "k")) {
         paddle_instruction = {
           move_direction: "down",
           action: "start",
