@@ -2,6 +2,7 @@ const http = require("http");
 const fs = require("fs").promises;
 const path = require("path");
 
+const HOST_IP = process.env.HOST_IP;
 const PORT = 3000;
 
 let headerContent = "";
@@ -124,6 +125,6 @@ const renderPage = async (url) => {
 
 loadTemplates().then(() => {
   server.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server is running on http://${HOST_IP}:${PORT}`);
   });
 });
