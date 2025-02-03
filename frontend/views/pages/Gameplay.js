@@ -86,13 +86,13 @@ const Gameplay = {
           };
           window.ws.close();
         });
-        initializeNewWebSocket(url);
+        await initializeNewWebSocket(url);
       } else {
-        initializeNewWebSocket(url);
+        await initializeNewWebSocket(url);
       }
     }
     
-    function initializeNewWebSocket(url) {
+    async function initializeNewWebSocket(url) {
       if (!window.ws) {
         window.ws = new WebSocket(url);
         console.log(url + " WebSocket created");
@@ -175,19 +175,28 @@ const Gameplay = {
       console.log("リモート設定ボタンが押されました");
       console.log("left",isRemoteLeft);
       console.log("right",isRemoteRight);
-      sessionStorage.setItem("settingId", gameIdInput.value);
-      settingId = sessionStorage.getItem("settingId");
-      const response = await fetchWithHandling(
-        `${window.env.GAMEPLAY_HOST}/gamesetting/${window.sessionStorage.getItem("settingId")}/`,
-        {
-          method: "GET",
-        },
-      );
-      const responseData = await response.json();
-      // 404が帰ってきた時のエラーを書く
-      console.log("settingdata GET successfully:", responseData);
-      url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${settingId}/`;
-      setupNewWebSocket(url);
+      try {
+        if (gameIdInput.value) {
+          sessionStorage.setItem("settingId", gameIdInput.value);
+          settingId = sessionStorage.getItem("settingId");
+          const response = await fetchWithHandling(
+            `${window.env.GAMEPLAY_HOST}/gamesetting/${window.sessionStorage.getItem("settingId")}/`,
+            {
+              method: "GET",
+            },
+          );
+          if (!response.ok) {
+            throw new Error("Game ID not found");
+          }
+          const responseData = await response.json();
+          console.log("settingdata GET successfully:", responseData);
+          url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${settingId}/`;
+          setupNewWebSocket(url);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Invalid Game ID. Please try again.");
+      }
     });
 
     async function gameOver(data) {
