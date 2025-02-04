@@ -21,7 +21,11 @@
   <button type="button" id = "game-start" class="btn btn-success mt-3" data-i18n="gameplay:game_start">Game Start</button>
   <button type="button" id = "remote-mode" class="btn btn-warning mt-3" data-i18n="Remote OFF">Remote OFF</button>
   <div id="remote-options" class="display-none">
-    <input type="text" id="game-id" class="mt-3" placeholder="Enter Game ID"><br>
+    <div class="d-flex align-items-center">
+      <input type="text" id="game-id" class="mt-3 id-text-size" placeholder="Enter Game ID">
+      <button type="button" id="id-set-button" class="btn btn-danger ms-2 mt-auto id-set-button-size" data-i18n="ID Set">ID Set</button>
+    </div>
+    
     <button type="button" id = "remote-right" class="btn btn-warning mt-3" data-i18n="Right">Right</button>
     <button type="button" id = "remote-left" class="btn btn-warning mt-3" data-i18n="Left">Left</button>
     <button type="button" id = "remote-set" class="btn btn-danger mt-3" data-i18n="Set">Set</button>

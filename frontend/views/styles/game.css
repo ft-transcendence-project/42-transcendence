@@ -20,3 +20,16 @@
   width: 200px;
   height: 45px;
 }
+
+.id-text-size {
+  width: 200px;
+  height: 30px;
+}
+
+.id-set-button-size {
+  /* width: 0px; */
+  height: 30px;
+  display: flex; /* フレックスボックスを適用 */
+  align-items: center; /* 垂直方向の中央揃え */
+  justify-content: center; /* 水平方向の中央揃え */
+}
