@@ -127,10 +127,11 @@ const Gameplay = {
     const gameStartButton = document.getElementById("game-start");
     const remoteButton = document.getElementById("remote-mode");
     const remoteOptions = document.getElementById("remote-options");
-    const gameIdInput = document.getElementById("game-id");
+    const gameIdInput = document.getElementById("game-id-text");
+    const gameIdSetButton = document.getElementById("game-id-set-button");
     const rightButton = document.getElementById("remote-right");
     const leftButton = document.getElementById("remote-left");
-    const remoteSetButton = document.getElementById("remote-set");
+    const remoteSetButton = document.getElementById("remote-set-button");
 
     let isRemoteRight = false;
     let isRemoteLeft = false;
@@ -157,24 +158,8 @@ const Gameplay = {
       }
     });
 
-    rightButton.addEventListener("click", function () {
-      console.log("右側リモートボタンが押されました");
-      isRemoteRight = true;
-      rightButton.style.backgroundColor = "orange";
-      leftButton.style.backgroundColor = "white";
-    });
-    
-    leftButton.addEventListener("click", function () {
-      console.log("左側リモートボタンが押されました");
-      isRemoteLeft = true;
-      leftButton.style.backgroundColor = "orange";
-      rightButton.style.backgroundColor = "white"; 
-    });
-
-    remoteSetButton.addEventListener("click", async function () {
-      console.log("リモート設定ボタンが押されました");
-      console.log("left",isRemoteLeft);
-      console.log("right",isRemoteRight);
+    gameIdSetButton.addEventListener("click", async function () {
+      console.log("Game ID Setボタンが押されました");
       try {
         if (gameIdInput.value) {
           sessionStorage.setItem("settingId", gameIdInput.value);
@@ -197,6 +182,26 @@ const Gameplay = {
         console.error("Error:", error);
         alert("Invalid Game ID. Please try again.");
       }
+    });
+
+    rightButton.addEventListener("click", function () {
+      console.log("右側リモートボタンが押されました");
+      isRemoteRight = true;
+      rightButton.style.backgroundColor = "orange";
+      leftButton.style.backgroundColor = "white";
+    });
+    
+    leftButton.addEventListener("click", function () {
+      console.log("左側リモートボタンが押されました");
+      isRemoteLeft = true;
+      leftButton.style.backgroundColor = "orange";
+      rightButton.style.backgroundColor = "white"; 
+    });
+
+    remoteSetButton.addEventListener("click", async function () {
+      console.log("リモート設定ボタンが押されました");
+      console.log("left",isRemoteLeft);
+      console.log("right",isRemoteRight);
     });
 
     async function gameOver(data) {
