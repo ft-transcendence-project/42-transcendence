@@ -2,6 +2,7 @@ import { fetchWithHandling } from "../../utils/fetchWithHandling.js";
 import { fetchHtml } from "../../utils/fetchHtml.js";
 
 const Gameplay = {
+
   render: async () => {
     return await fetchHtml("/views/templates/Gameplay.html");
   },
@@ -12,7 +13,12 @@ const Gameplay = {
   },
   keydownListener: null,
   keyupListener: null,
-
+  remote: {
+    right: false,
+    left: false,
+    remoteMode: false,
+    ready: false,
+  },
   after_render: async () => {
     let settingId = sessionStorage.getItem("settingId");
     console.log("SettingId in Gameplay:", settingId);
@@ -124,14 +130,11 @@ const Gameplay = {
     const leftButton = document.getElementById("remote-left");
     const remoteSetButton = document.getElementById("remote-set-button");
 
-    let isRemoteRight = false;
-    let isRemoteLeft = false;
-    let isRemote = false;
-    let isRemoteReady = false;
     // ボタンにクリックイベントを追加
     gameStartButton.addEventListener("click", function (){
       console.log("Game Startボタンが押されました");
-      if (!isRemote || (isRemote && isRemoteReady)) {
+      if (!Gameplay.remote.remoteMode || (Gameplay.remote.remoteMode && Gameplay.remote.ready)) {
+        console.log("left2", Gameplay.remote.left, " right2", Gameplay.remote.right, " remoteMode2", Gameplay.remote.remoteMode);
         gameStartButton.style.display = "none";
         remoteButton.style.display = "none";
         remoteOptions.style.display = "none";
@@ -145,12 +148,12 @@ const Gameplay = {
       if (remoteButton.textContent === "Remote OFF") {
         remoteButton.textContent = "Remote ON";
         remoteOptions.style.display = "block";
-        isRemote = true;
+        Gameplay.remote.remoteMode= true;
       }
       else if (remoteButton.textContent === "Remote ON"){
         remoteButton.textContent = "Remote OFF";
         remoteOptions.style.display = "none";
-        isRemote = false;
+        Gameplay.remote.remoteMode= false;
       }
     });
 
@@ -180,30 +183,30 @@ const Gameplay = {
     });
 
     rightButton.addEventListener("click", function () {
-      isRemoteRight = true;
+      Gameplay.remote.right = true;
       rightButton.style.backgroundColor = "orange";
       leftButton.style.backgroundColor = "white";
     });
     
     leftButton.addEventListener("click", function () {
-      isRemoteLeft = true;
+      Gameplay.remote.left = true;
       leftButton.style.backgroundColor = "orange";
       rightButton.style.backgroundColor = "white"; 
     });
 
     remoteSetButton.addEventListener("click", function () {
       let message = {};
-      if (isRemoteRight) {
+      if (Gameplay.remote.right) {
           message = { type: "remote_ON", remote_player_pos: "right" };
         }
-      else if (isRemoteLeft) {
+      else if (Gameplay.remote.left) {
           message = { type: "remote_ON", remote_player_pos: "left" };
         }
       else {
         alert("Please select the side of the remote player.");
         return;
       }
-      console.log("right", isRemoteRight, " left", isRemoteLeft," isRemote", isRemote);
+      console.log("right", Gameplay.remote.right, " left", Gameplay.remote.left," remoteMode", Gameplay.remote.remoteMode);
       sendMessage(message);
     });
 
@@ -271,10 +274,10 @@ const Gameplay = {
         return;
       }
       if (data.type === "remote_OK"){
-        isRemote = true;
-        isRemoteReady = true;
+        Gameplay.remote.remoteMode= true;
+        Gameplay.remote.ready = true;
         console.log("Remote OK");
-        console.log("right", isRemoteRight, " left", isRemoteLeft, " isRemote", isRemote);
+        console.log("right", Gameplay.remote.right, " left", Gameplay.remote.left, " remoteMode", Gameplay.remote.remoteMode);
         return;
       }
       score.left = data.left_score;
@@ -308,25 +311,27 @@ const Gameplay = {
 
     Gameplay.keydownListener = (event) => {
       let paddle_instruction = null;
-      if ((!isRemote || (isRemote && isRemoteLeft)) && (event.key === "D" || event.key === "d")) {
+      console.log("keydownListener", event.key);
+      console.log("remoteMode", Gameplay.remote.remoteMode, "RemoteLeft", Gameplay.remote.left, "RemoteRight", Gameplay.remote.right);
+      if ((!Gameplay.remote.remoteMode|| (Gameplay.remote.remoteMode&& Gameplay.remote.left)) && (event.key === "D" || event.key === "d")) {
         paddle_instruction = {
           move_direction: "down",
           action: "start",
           side: "left",
         };
-      } else if ((!isRemote || (isRemote && isRemoteLeft)) && (event.key === "E" || event.key === "e")) {
+      } else if ((!Gameplay.remote.remoteMode|| (Gameplay.remote.remoteMode&& Gameplay.remote.left)) && (event.key === "E" || event.key === "e")) {
         paddle_instruction = {
           move_direction: "up",
           action: "start",
           side: "left",
         };
-      } else if ((!isRemote || (isRemote && isRemoteRight)) && (event.key === "I" || event.key === "i")) {
+      } else if ((!Gameplay.remote.remoteMode|| (Gameplay.remote.remoteMode&& Gameplay.remote.right)) && (event.key === "I" || event.key === "i")) {
         paddle_instruction = {
           move_direction: "up",
           action: "start",
           side: "right",
         };
-      } else if ((!isRemote || (isRemote && isRemoteRight)) && (event.key === "K" || event.key === "k")) {
+      } else if ((!Gameplay.remote.remoteMode|| (Gameplay.remote.remoteMode&& Gameplay.remote.right)) && (event.key === "K" || event.key === "k")) {
         paddle_instruction = {
           move_direction: "down",
           action: "start",
