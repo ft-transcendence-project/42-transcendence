@@ -25,5 +25,4 @@ else
     echo "HOST_IP=$HOST_IP" >> .env
 fi
 
-docker-compose up
-echo "${HOST_IP}:3000 にアクセスしてください"
+docker-compose up --build
