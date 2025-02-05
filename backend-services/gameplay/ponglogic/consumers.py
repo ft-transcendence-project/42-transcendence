@@ -143,21 +143,26 @@ class PongLogic(AsyncWebsocketConsumer):
             pong_info = self.pong_info_map[setting_id]
             if pong_data.get("game_signal", None) == "start":
                 pong_info.is_game_started = True
-            elif pong_data.get("remote", None) == "ON":
+            elif pong_data.get("type", None) == "remote_ON":
                 if pong_data.get("remote_player_pos",None) == "right":
                     pong_info.remote_right = True
-                else:
+                elif pong_data.get("remote_player_pos",None) == "left":
                     pong_info.remote_left = True
+                if pong_info.remote_left == True and pong_info.remote_right == True:
+                    setting_id = self.scope["url_route"]["kwargs"]["settingid"]
+                    pong_info = self.pong_info_map[setting_id]
+                    await self.channel_layer.group_send(
+                        pong_info.group_name,
+                        {
+                            "type": "send_message",
+                            "content": {
+                                "type": "remote_OK",
+                            },
+                        },
+                        )
                 cache.set(self.group_name, pong_info.channel_cnt + 1)
                 pong_info.channel_cnt = cache.get(self.group_name, 0)
                 print(f"{setting_id}-> channel_cnt: {pong_info.channel_cnt}")
-                if pong_info.remote_left and pong_info.remote_right:
-                    await self.channel_layer.group_send(
-                    pong_info.group_name,
-                    {
-                        "type": "send_message",
-                        "content": ["remote","OK"],
-                    },)
             else:
                 pong_info.paddle.set_instruction(pong_data)
         except KeyError:

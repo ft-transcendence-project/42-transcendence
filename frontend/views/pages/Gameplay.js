@@ -77,7 +77,7 @@ const Gameplay = {
     async function setupNewWebSocket(url) {
       if (window.ws && window.ws.readyState === WebSocket.OPEN && url !== window.ws.url) {
         console.log("Closing existing WebSocket before opening new one", settingId);
-        // 確実に閉じた後に処理を実行
+        // 確実に閉じた後にinitializeNewWebSocketを実行
         await new Promise((resolve) => {
           window.ws.onclose = () => {
             console.log("WebSocket closed", settingId);
@@ -101,15 +101,6 @@ const Gameplay = {
         console.log("WebSocket opened", settingId);
         if (!window.location.hash.includes(`#/gameplay.${settingId}/`)) {
           window.location.hash = `#/gameplay.${settingId}/`;
-          console.log("remote send");
-          let message = {};
-          if (isRemoteRight) {
-            message = { remote: "ON", remote_player_pos: "right" };
-          }
-          else {
-            message = { remote: "ON", remote_player_pos: "left" };
-          }
-          sendMessage(message);
         }
         if (animationFrameId) {
           cancelAnimationFrame(animationFrameId);
@@ -136,14 +127,18 @@ const Gameplay = {
     let isRemoteRight = false;
     let isRemoteLeft = false;
     let isRemote = false;
+    let isRemoteReady = false;
     // ボタンにクリックイベントを追加
     gameStartButton.addEventListener("click", function (){
       console.log("Game Startボタンが押されました");
-      if (window.ws.readyState === WebSocket.OPEN && ((!isRemote && !isRemoteLeft && !isRemoteRight) || isRemote)) {
-        console.log("Game Startボタンが押されました2");
+      if (!isRemote || (isRemote && isRemoteReady)) {
         gameStartButton.style.display = "none";
+        remoteButton.style.display = "none";
+        remoteOptions.style.display = "none";
         window.ws.send(JSON.stringify({ game_signal: "start" }));
       }
+      else
+        alert("ゲームが開始できません");
     });
 
     remoteButton.addEventListener("click", function () {
@@ -151,10 +146,12 @@ const Gameplay = {
       if (remoteButton.textContent === "Remote OFF") {
         remoteButton.textContent = "Remote ON";
         remoteOptions.style.display = "block";
+        isRemote = true;
       }
       else if (remoteButton.textContent === "Remote ON"){
         remoteButton.textContent = "Remote OFF";
         remoteOptions.style.display = "none";
+        isRemote = false;
       }
     });
 
@@ -198,10 +195,22 @@ const Gameplay = {
       rightButton.style.backgroundColor = "white"; 
     });
 
-    remoteSetButton.addEventListener("click", async function () {
+    remoteSetButton.addEventListener("click", function () {
       console.log("リモート設定ボタンが押されました");
       console.log("left",isRemoteLeft);
       console.log("right",isRemoteRight);
+      let message = {};
+      if (isRemoteRight) {
+          message = { type: "remote_ON", remote_player_pos: "right" };
+        }
+      else if (isRemoteLeft) {
+          message = { type: "remote_ON", remote_player_pos: "left" };
+        }
+      else {
+        alert("Please select the side of the remote player.");
+        return;
+      }
+      sendMessage(message);
     });
 
     async function gameOver(data) {
@@ -259,20 +268,19 @@ const Gameplay = {
       if (window.ws === null || window.ws.readyState !== WebSocket.OPEN) return;
       if (!first) {
         gameStartButton.style.display = "none";
+        remoteButton.style.display = "none";
+        remoteOptions.style.display = "none";
       }
       const data = JSON.parse(e.data);
       if (data.type === "game_over") {
         gameOver(data);
         return;
       }
-      if (data.remote === "OK"){
-        console.log("remote OK");
+      if (data.type === "remote_OK"){
         isRemote = true;
-        return;
-      }
-      if (data.remote === "NG"){
-        console.log("remote NG");
-        isRemote = false;
+        isRemoteReady = true;
+        console.log("リモートモードが有効になりました");
+        console.log("right",isRemoteRight," left",isRemoteLeft," remote",isRemote);
         return;
       }
       score.left = data.left_score;
