@@ -184,12 +184,14 @@ const Gameplay = {
 
     rightButton.addEventListener("click", function () {
       Gameplay.remote.right = true;
+      Gameplay.remote.left = false; 
       rightButton.style.backgroundColor = "orange";
       leftButton.style.backgroundColor = "white";
     });
     
     leftButton.addEventListener("click", function () {
       Gameplay.remote.left = true;
+      Gameplay.remote.right = false;
       leftButton.style.backgroundColor = "orange";
       rightButton.style.backgroundColor = "white"; 
     });
