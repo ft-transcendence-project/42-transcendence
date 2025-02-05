@@ -21,5 +21,6 @@ class PongInfo:
         self.obstacle2 = Obstacle(2)
         self.blind = Blind()
         self.channel_cnt = 0
+        self.is_remote = False
         self.remote_right = False
         self.remote_left = False

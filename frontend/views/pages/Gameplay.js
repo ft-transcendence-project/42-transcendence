@@ -32,6 +32,24 @@ const Gameplay = {
     if (player2) {
       document.getElementById("player2").textContent = player2;
     }
+    let isRemote = sessionStorage.getItem("isRemote");
+    if (isRemote === "true") {
+      Gameplay.remote.remoteMode = true;
+    }
+    else
+      Gameplay.remote.remoteMode = false;
+    let isRight = sessionStorage.getItem("isRight");
+    if (isRight === "true") {
+      Gameplay.remote.right = true;
+    }
+    else
+      Gameplay.remote.right = false;
+    let isLeft = sessionStorage.getItem("isLeft");
+    if (isLeft === "true") {
+      Gameplay.remote.left = true;
+    }
+    else
+      Gameplay.remote.left = false;
 
     const gameCanvas = document.getElementById("gameCanvas");
     const ctx = gameCanvas.getContext("2d");
@@ -81,6 +99,8 @@ const Gameplay = {
     // Websocket
 
     async function setupNewWebSocket(url) {
+      Gameplay.remote.remoteMode= false;
+      sessionStorage.setItem("isRemote", "false");
       if (window.ws && window.ws.readyState === WebSocket.OPEN && url !== window.ws.url) {
         console.log("Closing existing WebSocket before opening new one", settingId);
         // 確実に閉じた後にinitializeNewWebSocketを実行
@@ -92,10 +112,8 @@ const Gameplay = {
           };
           window.ws.close();
         });
-        await initializeNewWebSocket(url);
-      } else {
-        await initializeNewWebSocket(url);
       }
+      await initializeNewWebSocket(url);
     }
     
     async function initializeNewWebSocket(url) {
@@ -149,11 +167,13 @@ const Gameplay = {
         remoteButton.textContent = "Remote ON";
         remoteOptions.style.display = "block";
         Gameplay.remote.remoteMode= true;
+        sessionStorage.setItem("isRemote", "true");
       }
       else if (remoteButton.textContent === "Remote ON"){
         remoteButton.textContent = "Remote OFF";
         remoteOptions.style.display = "none";
         Gameplay.remote.remoteMode= false;
+        sessionStorage.setItem("isRemote", "false");
       }
     });
 
@@ -187,13 +207,17 @@ const Gameplay = {
       Gameplay.remote.left = false; 
       rightButton.style.backgroundColor = "orange";
       leftButton.style.backgroundColor = "white";
+      sessionStorage.setItem("isRight", "true");
+      sessionStorage.setItem("isLeft", "false");
     });
     
     leftButton.addEventListener("click", function () {
       Gameplay.remote.left = true;
       Gameplay.remote.right = false;
       leftButton.style.backgroundColor = "orange";
-      rightButton.style.backgroundColor = "white"; 
+      rightButton.style.backgroundColor = "white";
+      sessionStorage.setItem("isLeft", "true");
+      sessionStorage.setItem("isRight", "false");
     });
 
     remoteSetButton.addEventListener("click", function () {
@@ -289,6 +313,7 @@ const Gameplay = {
       ball.x = data.ball_x;
       ball.y = data.ball_y;
       if (first) {
+        console.log("firstだよ");
         ball.radius = data.ball_radius;
         obstacle1.x = data.obstacle1_x;
         obstacle1.y = data.obstacle1_y;

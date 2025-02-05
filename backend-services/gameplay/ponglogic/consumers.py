@@ -143,17 +143,21 @@ class PongLogic(AsyncWebsocketConsumer):
             if pong_data.get("game_signal", None) == "start":
                 pong_info.is_game_started = True
             elif pong_data.get("type", None) == "remote_ON":
-                if pong_data.get("remote_player_pos",None) == "right":
-                    pong_info.remote_right = True
-                elif pong_data.get("remote_player_pos",None) == "left":
-                    pong_info.remote_left = True
-                if pong_info.remote_left == True and pong_info.remote_right == True:
-                    await self.send_group_message("remote_OK")
-                cache.set(self.group_name, pong_info.channel_cnt + 1)
-                pong_info.channel_cnt = cache.get(self.group_name, 0)
-                print(f"{pong_info.setting_id}-> channel_cnt: {pong_info.channel_cnt}")
+                await self.set_remote_mode(pong_data, pong_info)
             else:
                 pong_info.paddle.set_instruction(pong_data)
+
+    async def set_remote_mode(self,pong_data, pong_info):
+        if pong_data.get("remote_player_pos",None) == "right":
+            pong_info.remote_right = True
+        elif pong_data.get("remote_player_pos",None) == "left":
+            pong_info.remote_left = True
+        cache.set(self.group_name, pong_info.channel_cnt + 1)
+        pong_info.channel_cnt = cache.get(self.group_name, 0)
+        print(f"{pong_info.setting_id}-> channel_cnt: {pong_info.channel_cnt}")
+        if pong_info.remote_left == True and pong_info.remote_right == True:
+            await self.send_group_message("remote_OK")
+            self.is_remote = True
 
     async def get_pong_info(self):
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
