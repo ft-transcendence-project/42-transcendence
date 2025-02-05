@@ -138,9 +138,8 @@ class PongLogic(AsyncWebsocketConsumer):
 
     async def receive(self, text_data=None):
         pong_data = json.loads(text_data)
-        setting_id = self.scope["url_route"]["kwargs"]["settingid"]
-        try:
-            pong_info = self.pong_info_map[setting_id]
+        pong_info = await self.get_pong_info()
+        if pong_info != None:
             if pong_data.get("game_signal", None) == "start":
                 pong_info.is_game_started = True
             elif pong_data.get("type", None) == "remote_ON":
@@ -149,58 +148,58 @@ class PongLogic(AsyncWebsocketConsumer):
                 elif pong_data.get("remote_player_pos",None) == "left":
                     pong_info.remote_left = True
                 if pong_info.remote_left == True and pong_info.remote_right == True:
-                    setting_id = self.scope["url_route"]["kwargs"]["settingid"]
-                    pong_info = self.pong_info_map[setting_id]
-                    await self.channel_layer.group_send(
-                        pong_info.group_name,
-                        {
-                            "type": "send_message",
-                            "content": {
-                                "type": "remote_OK",
-                            },
-                        },
-                        )
+                    await self.send_group_message("remote_OK")
                 cache.set(self.group_name, pong_info.channel_cnt + 1)
                 pong_info.channel_cnt = cache.get(self.group_name, 0)
-                print(f"{setting_id}-> channel_cnt: {pong_info.channel_cnt}")
+                print(f"{pong_info.setting_id}-> channel_cnt: {pong_info.channel_cnt}")
             else:
                 pong_info.paddle.set_instruction(pong_data)
+
+    async def get_pong_info(self):
+        setting_id = self.scope["url_route"]["kwargs"]["settingid"]
+        try:
+            pong_info = self.pong_info_map[setting_id]
+            return pong_info
         except KeyError:
             logger.error(
                 f"Error: setting_id '{setting_id}' is not found in pong_info_map."
             )
+            return None
+    
+    async def send_group_message(self,message):
+        pong_info = await self.get_pong_info()
+        if pong_info != None:
+            await self.channel_layer.group_send(
+                pong_info.group_name,
+                {
+                    "type": "send_message",
+                    "content": {
+                        "type": message,
+                    },
+                },
+            )
 
     async def send_pong_data(self, first=False):
-        setting_id = self.scope["url_route"]["kwargs"]["settingid"]
-        try:
-            pong_info = self.pong_info_map[setting_id]
+        pong_info = await self.get_pong_info()
+        if pong_info != None:
             await self.channel_layer.group_send(
                 pong_info.group_name,
                 {
                     "type": "send_message",
                     "content": Utils.generate_pong_data(pong_info, first),
                 },
-            )
-        except KeyError:
-            logger.error(
-                f"Error: setting_id '{setting_id}' is not found in pong_info_map."
-            )
+        )
 
     async def send_game_over_message(self, winner):
-        setting_id = self.scope["url_route"]["kwargs"]["settingid"]
-        try:
-            pong_info = self.pong_info_map[setting_id]
+        pong_info = await self.get_pong_info()
+        if pong_info != None:
             await self.channel_layer.group_send(
                 pong_info.group_name,
                 {
                     "type": "send_message",
                     "content": Utils.generate_game_over_message(pong_info, winner),
                 },
-            )
-        except KeyError:
-            logger.error(
-                f"Error: setting_id '{setting_id}' is not found in pong_info_map."
-            )
+        )
 
     async def send_message(self, event):
         pong_data = event["content"]

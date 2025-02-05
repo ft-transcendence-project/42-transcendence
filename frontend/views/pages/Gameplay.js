@@ -142,7 +142,6 @@ const Gameplay = {
     });
 
     remoteButton.addEventListener("click", function () {
-      console.log("リモートボタンが押されました");
       if (remoteButton.textContent === "Remote OFF") {
         remoteButton.textContent = "Remote ON";
         remoteOptions.style.display = "block";
@@ -156,7 +155,6 @@ const Gameplay = {
     });
 
     gameIdSetButton.addEventListener("click", async function () {
-      console.log("Game ID Setボタンが押されました");
       try {
         if (gameIdInput.value) {
           sessionStorage.setItem("settingId", gameIdInput.value);
@@ -182,23 +180,18 @@ const Gameplay = {
     });
 
     rightButton.addEventListener("click", function () {
-      console.log("右側リモートボタンが押されました");
       isRemoteRight = true;
       rightButton.style.backgroundColor = "orange";
       leftButton.style.backgroundColor = "white";
     });
     
     leftButton.addEventListener("click", function () {
-      console.log("左側リモートボタンが押されました");
       isRemoteLeft = true;
       leftButton.style.backgroundColor = "orange";
       rightButton.style.backgroundColor = "white"; 
     });
 
     remoteSetButton.addEventListener("click", function () {
-      console.log("リモート設定ボタンが押されました");
-      console.log("left",isRemoteLeft);
-      console.log("right",isRemoteRight);
       let message = {};
       if (isRemoteRight) {
           message = { type: "remote_ON", remote_player_pos: "right" };
@@ -210,6 +203,7 @@ const Gameplay = {
         alert("Please select the side of the remote player.");
         return;
       }
+      console.log("right", isRemoteRight, " left", isRemoteLeft," isRemote", isRemote);
       sendMessage(message);
     });
 
@@ -279,8 +273,8 @@ const Gameplay = {
       if (data.type === "remote_OK"){
         isRemote = true;
         isRemoteReady = true;
-        console.log("リモートモードが有効になりました");
-        console.log("right",isRemoteRight," left",isRemoteLeft," remote",isRemote);
+        console.log("Remote OK");
+        console.log("right", isRemoteRight, " left", isRemoteLeft, " isRemote", isRemote);
         return;
       }
       score.left = data.left_score;
