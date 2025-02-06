@@ -146,7 +146,6 @@ const Gameplay = {
     remoteButton.addEventListener("click", function () {
       if (remoteButton.textContent === i18next.t("gameplay:Remote_OFF")) {
         remoteButton.textContent = i18next.t("gameplay:Remote_ON");
-        gameIdInput.setAttribute('placeholder', i18next.t("gameplay:enter_id"));
         remoteOptions.style.display = "block";
         Gameplay.remote.remoteMode= true;
       }
@@ -266,8 +265,6 @@ const Gameplay = {
       if (window.ws === null || window.ws.readyState !== WebSocket.OPEN) return;
       if (!first) {
         // gameStartButton.style.display = "none";
-        // remoteButton.style.display = "none";
-        // remoteOptions.style.display = "none";
       }
       const data = JSON.parse(e.data);
       if (data.type === "game_over") {
