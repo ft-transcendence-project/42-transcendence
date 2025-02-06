@@ -43,7 +43,7 @@ class PongLogic(AsyncWebsocketConsumer):
             await asyncio.sleep(1 / UPDATE_RATE_HZ)
         turn_count = 0
         while (
-            self.pong_info.score.left < SCORE_TO_WIN
+            self.pong_info.state != "end" and self.pong_info.score.left < SCORE_TO_WIN
             and self.pong_info.score.right < SCORE_TO_WIN
         ):
             async with self.pong_info.lock:
@@ -148,7 +148,7 @@ class PongLogic(AsyncWebsocketConsumer):
             elif pong_data.get("type", None) == "remote_ON":
                 await self.set_remote_mode(pong_data, pong_info)
             elif pong_data.get("type", None) == "interruption":
-                await self.handleUnexpectedDisconnection(pong_data, pong_info)
+                await self.handleUnexpectedDisconnection(pong_data)
             else:
                 pong_info.paddle.set_instruction(pong_data)
 
@@ -164,14 +164,15 @@ class PongLogic(AsyncWebsocketConsumer):
             await self.send_group_message("remote_OK")
             pong_info.is_remote = True
 
-    async def handleUnexpectedDisconnection(self,pong_data,pong_info):
+    async def handleUnexpectedDisconnection(self,pong_data):
+        print("handleUnexpectedDisconnection!!!")
         if pong_data.get("remote_player_pos",None) == "right":
             winner = "right"
-            pong_info.score.right = SCORE_TO_WIN
+            # self.pong_info.score.right = SCORE_TO_WIN
         elif pong_data.get("remote_player_pos",None) == "left":
             winner = "left"
-            pong_info.score.left = SCORE_TO_WIN
-        pong_info.state = "stop"
+            # self.pong_info.score.left = SCORE_TO_WIN
+        self.pong_info.state = "end"
         await self.send_game_over_message(winner)
 
     async def get_pong_info(self):
