@@ -19,6 +19,7 @@ const Gameplay = {
     remoteMode: false,
     ready: false,
   },
+
   after_render: async () => {
     let settingId = sessionStorage.getItem("settingId");
     console.log("SettingId in Gameplay:", settingId);
@@ -32,25 +33,7 @@ const Gameplay = {
     if (player2) {
       document.getElementById("player2").textContent = player2;
     }
-    let isRemote = sessionStorage.getItem("isRemote");
-    if (isRemote === "true") {
-      Gameplay.remote.remoteMode = true;
-    }
-    else
-      Gameplay.remote.remoteMode = false;
-    let isRight = sessionStorage.getItem("isRight");
-    if (isRight === "true") {
-      Gameplay.remote.right = true;
-    }
-    else
-      Gameplay.remote.right = false;
-    let isLeft = sessionStorage.getItem("isLeft");
-    if (isLeft === "true") {
-      Gameplay.remote.left = true;
-    }
-    else
-      Gameplay.remote.left = false;
-
+  
     const gameCanvas = document.getElementById("gameCanvas");
     const ctx = gameCanvas.getContext("2d");
     gameCanvas.width = 1000;
@@ -97,7 +80,7 @@ const Gameplay = {
     let animationFrameId = null;
     let url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${settingId}/`;
     // Websocket
-
+    
     async function setupNewWebSocket(url) {
       Gameplay.remote.remoteMode= false;
       sessionStorage.setItem("isRemote", "false");
@@ -167,13 +150,11 @@ const Gameplay = {
         remoteButton.textContent = "Remote ON";
         remoteOptions.style.display = "block";
         Gameplay.remote.remoteMode= true;
-        sessionStorage.setItem("isRemote", "true");
       }
       else if (remoteButton.textContent === "Remote ON"){
         remoteButton.textContent = "Remote OFF";
         remoteOptions.style.display = "none";
         Gameplay.remote.remoteMode= false;
-        sessionStorage.setItem("isRemote", "false");
       }
     });
 
@@ -207,8 +188,6 @@ const Gameplay = {
       Gameplay.remote.left = false; 
       rightButton.style.backgroundColor = "orange";
       leftButton.style.backgroundColor = "white";
-      sessionStorage.setItem("isRight", "true");
-      sessionStorage.setItem("isLeft", "false");
     });
     
     leftButton.addEventListener("click", function () {
@@ -216,8 +195,6 @@ const Gameplay = {
       Gameplay.remote.right = false;
       leftButton.style.backgroundColor = "orange";
       rightButton.style.backgroundColor = "white";
-      sessionStorage.setItem("isLeft", "true");
-      sessionStorage.setItem("isRight", "false");
     });
 
     remoteSetButton.addEventListener("click", function () {
@@ -290,9 +267,9 @@ const Gameplay = {
     window.ws.onmessage = (e) => {
       if (window.ws === null || window.ws.readyState !== WebSocket.OPEN) return;
       if (!first) {
-        gameStartButton.style.display = "none";
-        remoteButton.style.display = "none";
-        remoteOptions.style.display = "none";
+        // gameStartButton.style.display = "none";
+        // remoteButton.style.display = "none";
+        // remoteOptions.style.display = "none";
       }
       const data = JSON.parse(e.data);
       if (data.type === "game_over") {
@@ -304,6 +281,23 @@ const Gameplay = {
         Gameplay.remote.ready = true;
         console.log("Remote OK");
         console.log("right", Gameplay.remote.right, " left", Gameplay.remote.left, " remoteMode", Gameplay.remote.remoteMode);
+        remoteButton.style.display = "none";
+        remoteOptions.style.display = "none";
+        return;
+      }
+      if (data.type === "start_OK"){
+        console.log("Start OK");
+        gameStartButton.style.display = "none";
+        return;
+      }
+      if (data.type === "interruption"){
+        alert("interruption!!");
+        if (Gameplay.remote.right) {
+          sendMessage({ type:"interruption", remote_player_pos: "right" });
+        }
+        else if (Gameplay.remote.left) {
+          sendMessage({ type:"interruption", remote_player_pos: "left" });
+        }
         return;
       }
       score.left = data.left_score;
@@ -313,7 +307,6 @@ const Gameplay = {
       ball.x = data.ball_x;
       ball.y = data.ball_y;
       if (first) {
-        console.log("firstだよ");
         ball.radius = data.ball_radius;
         obstacle1.x = data.obstacle1_x;
         obstacle1.y = data.obstacle1_y;
