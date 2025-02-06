@@ -6,5 +6,10 @@
     "game_over": "游戏结束！获胜者：",
     "left": "左方",
     "right": "右方"
-  }
+  },
+  "Remote_OFF": "遥控关闭",
+  "Remote_ON": "遥控开启",
+  "enter_id": "输入您的游戏 ID",
+  "set_id": "设置 ID",
+  "set": "设置"
 }

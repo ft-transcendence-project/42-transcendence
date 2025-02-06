@@ -85,7 +85,6 @@ const Gameplay = {
       Gameplay.remote.remoteMode= false;
       sessionStorage.setItem("isRemote", "false");
       if (window.ws && window.ws.readyState === WebSocket.OPEN && url !== window.ws.url) {
-        console.log("Closing existing WebSocket before opening new one", settingId);
         // 確実に閉じた後にinitializeNewWebSocketを実行
         await new Promise((resolve) => {
           window.ws.onclose = () => {
@@ -135,7 +134,6 @@ const Gameplay = {
     gameStartButton.addEventListener("click", function (){
       console.log("Game Startボタンが押されました");
       if (!Gameplay.remote.remoteMode || (Gameplay.remote.remoteMode && Gameplay.remote.ready)) {
-        console.log("left2", Gameplay.remote.left, " right2", Gameplay.remote.right, " remoteMode2", Gameplay.remote.remoteMode);
         gameStartButton.style.display = "none";
         remoteButton.style.display = "none";
         remoteOptions.style.display = "none";
@@ -146,13 +144,14 @@ const Gameplay = {
     });
 
     remoteButton.addEventListener("click", function () {
-      if (remoteButton.textContent === "Remote OFF") {
-        remoteButton.textContent = "Remote ON";
+      if (remoteButton.textContent === i18next.t("gameplay:Remote_OFF")) {
+        remoteButton.textContent = i18next.t("gameplay:Remote_ON");
+        gameIdInput.setAttribute('placeholder', i18next.t("gameplay:enter_id"));
         remoteOptions.style.display = "block";
         Gameplay.remote.remoteMode= true;
       }
-      else if (remoteButton.textContent === "Remote ON"){
-        remoteButton.textContent = "Remote OFF";
+      else if (remoteButton.textContent === i18next.t("gameplay:Remote_ON")){
+        remoteButton.textContent = i18next.t("gameplay:Remote_OFF");
         remoteOptions.style.display = "none";
         Gameplay.remote.remoteMode= false;
       }
@@ -209,7 +208,6 @@ const Gameplay = {
         alert("Please select the side of the remote player.");
         return;
       }
-      console.log("right", Gameplay.remote.right, " left", Gameplay.remote.left," remoteMode", Gameplay.remote.remoteMode);
       sendMessage(message);
     });
 
@@ -280,7 +278,6 @@ const Gameplay = {
         Gameplay.remote.remoteMode= true;
         Gameplay.remote.ready = true;
         console.log("Remote OK");
-        console.log("right", Gameplay.remote.right, " left", Gameplay.remote.left, " remoteMode", Gameplay.remote.remoteMode);
         remoteButton.style.display = "none";
         remoteOptions.style.display = "none";
         return;
@@ -331,8 +328,6 @@ const Gameplay = {
 
     Gameplay.keydownListener = (event) => {
       let paddle_instruction = null;
-      console.log("keydownListener", event.key);
-      console.log("remoteMode", Gameplay.remote.remoteMode, "RemoteLeft", Gameplay.remote.left, "RemoteRight", Gameplay.remote.right);
       if ((!Gameplay.remote.remoteMode|| (Gameplay.remote.remoteMode&& Gameplay.remote.left)) && (event.key === "D" || event.key === "d")) {
         paddle_instruction = {
           move_direction: "down",

@@ -6,5 +6,10 @@
     "game_over": "Game Over! winner:",
     "left": "left",
     "right": "right"
-  }
+  },
+  "Remote_OFF": "Remote OFF",
+  "Remote_ON": "Remote ON",
+  "enter_id": "Enter Game ID",
+  "set_id": "Set ID",
+  "set": "Set"
 }

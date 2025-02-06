@@ -6,5 +6,10 @@
     "game_over": "ゲーム終了！勝者：",
     "left": "左側",
     "right": "右側"
-  }
+  },
+  "Remote_OFF": "リモートオフ",
+  "Remote_ON": "リモートオン",
+  "enter_id": "ゲームIDを入力",
+  "set_id": "IDを設定",
+  "set": "設定"
 }
