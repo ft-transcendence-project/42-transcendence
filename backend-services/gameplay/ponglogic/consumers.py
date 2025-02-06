@@ -168,10 +168,8 @@ class PongLogic(AsyncWebsocketConsumer):
         print("handleUnexpectedDisconnection!!!")
         if pong_data.get("remote_player_pos",None) == "right":
             winner = "right"
-            # self.pong_info.score.right = SCORE_TO_WIN
         elif pong_data.get("remote_player_pos",None) == "left":
             winner = "left"
-            # self.pong_info.score.left = SCORE_TO_WIN
         self.pong_info.state = "end"
         await self.send_game_over_message(winner)
 
