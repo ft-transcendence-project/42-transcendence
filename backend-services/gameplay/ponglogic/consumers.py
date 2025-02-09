@@ -121,6 +121,8 @@ class PongLogic(AsyncWebsocketConsumer):
                 self.pong_info.task["game_loop"] = asyncio.create_task(self.game_loop())
             except Exception as e:
                 logger.error(f"Error creating game_loop task: {e}")
+        elif self.pong_info_map[setting_id].is_remote == True:
+            await self.send_group_message("reloaded")
 
     async def disconnect(self, close_code):
         print("consumer disconnect")
@@ -132,12 +134,12 @@ class PongLogic(AsyncWebsocketConsumer):
                 cache.set(self.group_name, pong_info.channel_cnt - 1)
                 pong_info.channel_cnt = cache.get(self.group_name, 0)
                 print(f"{setting_id}-> channel_cnt: {pong_info.channel_cnt}")
-            if pong_info.channel_name == self.channel_name:
+            if pong_info.is_remote == False and pong_info.channel_name == self.channel_name:
                 self.pong_info.task["game_loop"].cancel()
                 del self.pong_info_map[self.pong_info.setting_id]
-            if pong_info.is_remote == True:
-                    pong_info.is_end = True
-                    await self.send_group_message("interruption")
+            if pong_info.is_remote == True and pong_info.is_end == False:
+                pong_info.is_end = True
+                await self.send_group_message("interruption")
 
     async def receive(self, text_data=None):
         pong_data = json.loads(text_data)
@@ -167,12 +169,11 @@ class PongLogic(AsyncWebsocketConsumer):
 
     async def handleUnexpectedDisconnection(self,pong_data):
         print("handleUnexpectedDisconnection!!!")
-        async with self.pong_info.lock:
-            if pong_data.get("remote_player_pos",None) == "right":
-                winner = "right"
-            elif pong_data.get("remote_player_pos",None) == "left":
-                winner = "left"
-            await self.send_game_over_message(winner)
+        if pong_data.get("remote_player_pos",None) == "right":
+            winner = "right"
+        elif pong_data.get("remote_player_pos",None) == "left":
+            winner = "left"
+        await self.send_game_over_message(winner)
 
     async def get_pong_info(self):
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]

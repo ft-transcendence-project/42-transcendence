@@ -20,6 +20,7 @@ const Gameplay = {
     ready: false,
   },
 
+
   after_render: async () => {
     let settingId = sessionStorage.getItem("settingId");
     console.log("SettingId in Gameplay:", settingId);
@@ -292,6 +293,11 @@ const Gameplay = {
         else if (Gameplay.remote.left) {
           sendMessage({ type:"interruption", remote_player_pos: "left" });
         }
+        return;
+      }
+      if (data.type === "reloaded"){
+        remoteButton.style.display = "none";
+        gameStartButton.style.display = "none"; 
         return;
       }
       score.left = data.left_score;
