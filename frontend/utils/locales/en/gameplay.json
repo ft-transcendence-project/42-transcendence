@@ -11,5 +11,11 @@
   "Remote_ON": "Remote ON",
   "enter_id": "Enter Game ID",
   "set_id": "Set ID",
-  "set": "Set"
+  "set": "Set",
+  "error": {
+    "start": "Failed to start game",
+    "game_id": "Invalid Game ID",
+    "remote_player": "Please select the remote player",
+    "interrupted": "The other party has disconnected"
+  }
 }

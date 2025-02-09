@@ -141,7 +141,7 @@ const Gameplay = {
         window.ws.send(JSON.stringify({ game_signal: "start" }));
       }
       else
-        alert("ゲームが開始できません");
+        alert(i18next.t("gameplay:error.start"));
     });
 
     remoteButton.addEventListener("click", function () {
@@ -178,7 +178,7 @@ const Gameplay = {
         }
       } catch (error) {
         console.error("Error:", error);
-        alert("Invalid Game ID. Please try again.");
+        alert(i18next.t("gameplay:error.game_id"));
       }
     });
 
@@ -205,7 +205,7 @@ const Gameplay = {
           message = { type: "remote_ON", remote_player_pos: "left" };
         }
       else {
-        alert("Please select the side of the remote player.");
+        alert(i18next.t("gameplay:error.remote_player"));
         return;
       }
       sendMessage(message);
@@ -273,9 +273,9 @@ const Gameplay = {
         return;
       }
       if (data.type === "remote_OK"){
+        console.log("Remote OK");
         Gameplay.remote.remoteMode= true;
         Gameplay.remote.ready = true;
-        console.log("Remote OK");
         remoteButton.style.display = "none";
         remoteOptions.style.display = "none";
         return;
@@ -285,13 +285,13 @@ const Gameplay = {
         gameStartButton.style.display = "none";
         return;
       }
-      if (data.type === "interruption"){
-        alert("interruption!!");
+      if (data.type === "interrupted"){
+        alert(i18next.t("gameplay:error.interrupted"));
         if (Gameplay.remote.right) {
-          sendMessage({ type:"interruption", remote_player_pos: "right" });
+          sendMessage({ type:"interrupted", remote_player_pos: "right" });
         }
         else if (Gameplay.remote.left) {
-          sendMessage({ type:"interruption", remote_player_pos: "left" });
+          sendMessage({ type:"interrupted", remote_player_pos: "left" });
         }
         return;
       }

@@ -139,7 +139,7 @@ class PongLogic(AsyncWebsocketConsumer):
                 del self.pong_info_map[self.pong_info.setting_id]
             if pong_info.is_remote == True and pong_info.is_end == False:
                 pong_info.is_end = True
-                await self.send_group_message("interruption")
+                await self.send_group_message("interrupted")
 
     async def receive(self, text_data=None):
         pong_data = json.loads(text_data)
@@ -150,7 +150,7 @@ class PongLogic(AsyncWebsocketConsumer):
                 await self.send_group_message("start_OK") 
             elif pong_data.get("type", None) == "remote_ON":
                 await self.set_remote_mode(pong_data, pong_info)
-            elif pong_data.get("type", None) == "interruption":
+            elif pong_data.get("type", None) == "interrupted":
                 await self.handleUnexpectedDisconnection(pong_data)
             else:
                 pong_info.paddle.set_instruction(pong_data)

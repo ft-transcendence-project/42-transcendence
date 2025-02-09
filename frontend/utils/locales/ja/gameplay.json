@@ -11,5 +11,11 @@
   "Remote_ON": "リモートオン",
   "enter_id": "ゲームIDを入力",
   "set_id": "IDを設定",
-  "set": "設定"
+  "set": "設定",
+  "error": {
+    "start": "ゲームの開始に失敗しました",
+    "game_id": "無効なゲームID",
+    "remote_player": "リモートプレイヤーを選択してください",
+    "interrupted": "相手が切断しました"
+  }
 }

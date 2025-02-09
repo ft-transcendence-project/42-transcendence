@@ -11,5 +11,11 @@
   "Remote_ON": "遥控开启",
   "enter_id": "输入您的游戏 ID",
   "set_id": "设置 ID",
-  "set": "设置"
+  "set": "设置",
+  "error": {
+    "start": "游戏启动失败",
+    "game_id": "无效的游戏 ID",
+    "remote_player": "请选择遥控玩家",
+    "interrupted": "对方已断开连接"
+  }
 }
