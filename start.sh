@@ -10,7 +10,7 @@ else
     HOST_IP=$(ifconfig | grep 'inet ' | grep -v '127.0.0.1' | awk '{ print $2 }')
 fi
 
-# HOST_IPが存在しない場合にエラーメッセージを表示し、.envファイルに書き込む
+# HOST_IPが存在しない場合にエラーメッセージを表示し終了
 if [ -z "$HOST_IP" ]; then
     echo "Failed to get host IP address"
     exit 1

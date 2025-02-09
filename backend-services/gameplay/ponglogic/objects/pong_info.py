@@ -24,3 +24,4 @@ class PongInfo:
         self.is_remote = False
         self.remote_right = False
         self.remote_left = False
+        self.is_end = False
