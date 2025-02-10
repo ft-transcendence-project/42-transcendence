@@ -166,6 +166,7 @@ class PongLogic(AsyncWebsocketConsumer):
         if pong_info.remote_left == True and pong_info.remote_right == True:
             await self.send_group_message("remote_OK")
             pong_info.is_remote = True
+            await self.send_pong_data(True)
 
     async def handleUnexpectedDisconnection(self,pong_data):
         print("handleUnexpectedDisconnection!!!")
