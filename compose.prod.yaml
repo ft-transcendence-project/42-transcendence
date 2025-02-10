@@ -42,10 +42,10 @@ services:
   frontend:
     volumes: !reset []
     environment: !override
-      - ACCOUNT_HOST=https://localhost:8443/42pong.api/account
-      - GAMEPLAY_HOST=https://localhost:8443/42pong.api/gameplay
-      - GAMEPLAY_WS_HOST=wss://localhost:8443/gameplay.ws
-      - TOURNAMENT_HOST=https://localhost:8443/42pong.api/tournament
+      - ACCOUNT_HOST=https://${HOST_IP}:8443/42pong.api/account
+      - GAMEPLAY_HOST=https://${HOST_IP}:8443/42pong.api/gameplay
+      - GAMEPLAY_WS_HOST=wss://${HOST_IP}:8443/gameplay.ws
+      - TOURNAMENT_HOST=https://${HOST_IP}:8443/42pong.api/tournament
     ports: !reset []
     restart: unless-stopped
 

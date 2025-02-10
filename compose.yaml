@@ -8,6 +8,7 @@ services:
     env_file: .env
     environment:
       - ENVIRONMENT=development
+      - ALLOWED_HOSTS=localhost,127.0.0.1,${HOST_IP},"backend","web","frontend"
     ports:
       - "8000:8000"
     depends_on:
@@ -18,7 +19,7 @@ services:
         - action: rebuild
           path: ./backend-services/account/requirements.txt
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://${HOST_IP}:8000/health/"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
       interval: 30s
       timeout: 30s
       retries: 5
@@ -33,6 +34,7 @@ services:
     env_file: .env
     environment:
       - ENVIRONMENT=development
+      - ALLOWED_HOSTS=localhost,127.0.0.1,${HOST_IP},"backend","web","frontend"
     ports:
       - "8001:8001"
     depends_on:
@@ -45,7 +47,7 @@ services:
         - action: rebuild
           path: ./backend-services/gameplay/requirements.txt
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://${HOST_IP}:8001/health/"]
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health/"]
       interval: 30s
       timeout: 30s
       retries: 5
@@ -61,6 +63,7 @@ services:
     env_file: .env
     environment:
       - ENVIRONMENT=development
+      - ALLOWED_HOSTS=localhost,127.0.0.1,${HOST_IP},"backend","web","frontend"
     ports:
       - "8002:8002"
     depends_on:
@@ -71,7 +74,7 @@ services:
         - action: rebuild
           path: ./backend-services/tournament/requirements.txt
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://${HOST_IP}:8002/health/"]
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health/"]
       interval: 30s
       timeout: 30s
       retries: 5
@@ -120,7 +123,7 @@ services:
       tournament:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://${HOST_IP}:3000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 30s
       timeout: 30s
       retries: 5
