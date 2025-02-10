@@ -29,11 +29,19 @@ get_host_ip() {
 
 up() {
     get_host_ip
+    docker stop $(docker ps -aq)
+    docker rm $(docker ps -aq)
+    docker rmi $(docker images -q)
+    docker volume rm $(docker volume ls -q)
     docker compose -f compose.yaml up --build
 }
 
 prod_up() {
     get_host_ip
+    docker stop $(docker ps -aq)
+    docker rm $(docker ps -aq)
+    docker rmi $(docker images -q)
+    docker volume rm $(docker volume ls -q)
     docker compose -f compose.yaml -f compose.prod.yaml up --build
 }
 
