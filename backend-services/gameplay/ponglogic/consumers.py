@@ -97,15 +97,16 @@ class PongLogic(AsyncWebsocketConsumer):
                 self.pong_info.score.left += 1
                 self.pong_info.state = "stop"
                 if self.pong_info.score.left >= SCORE_TO_WIN:
+                    self.pong_info.is_end = True
                     await self.send_game_over_message("left")
             elif self.pong_info.ball.x + self.pong_info.ball.radius < 0:
                 self.pong_info.score.right += 1
                 self.pong_info.state = "stop"
                 if self.pong_info.score.right >= SCORE_TO_WIN:
+                    self.pong_info.is_end = True
                     await self.send_game_over_message("right")
 
     async def connect(self):
-        print("consumer connect")
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
         logger.info(f"setting_id: {setting_id}")
         group_name = f"game_{setting_id}"
@@ -121,22 +122,32 @@ class PongLogic(AsyncWebsocketConsumer):
                 self.pong_info.task["game_loop"] = asyncio.create_task(self.game_loop())
             except Exception as e:
                 logger.error(f"Error creating game_loop task: {e}")
-        elif self.pong_info_map[setting_id].is_remote == True:
-            await self.send_group_message("reloaded")
+        # try:
+        #     await self.channel_layer.group_add(group_name, self.channel_name)
+        #     await self.accept()
+        #     print("accept")
+        #     if setting_id not in self.pong_info_map:
+        #         self.pong_info_map[setting_id] = self.pong_info = PongInfo(
+        #             setting_id, group_name, self.channel_name
+        #         )
+        #         self.pong_info.task["game_loop"] = asyncio.create_task(self.game_loop())
+        # except Exception as e:
+        #     logger.error(f"Error connect: {e}")
 
     async def disconnect(self, close_code):
-        print("consumer disconnect")
         setting_id = self.scope["url_route"]["kwargs"]["settingid"]
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
         if setting_id in self.pong_info_map:
             pong_info = self.pong_info_map[setting_id]
-            if pong_info.channel_cnt > 0:
-                cache.set(self.group_name, pong_info.channel_cnt - 1)
-                pong_info.channel_cnt = cache.get(self.group_name, 0)
-                print(f"{setting_id}-> channel_cnt: {pong_info.channel_cnt}")
+            logger.info(f"setting_id: {setting_id}")
             if pong_info.is_remote == False and pong_info.channel_name == self.channel_name:
-                self.pong_info.task["game_loop"].cancel()
-                del self.pong_info_map[self.pong_info.setting_id]
+                pong_info.task["game_loop"].cancel()
+                del self.pong_info_map[pong_info.setting_id]
+                return
+            # if self.pong_info.channel_cnt > 0:
+            #     cache.set(self.group_name, pong_info.channel_cnt - 1)
+            #     pong_info.channel_cnt = cache.get(self.group_name, 0)
+            #     print(f"{setting_id}-> channel_cnt: {pong_info.channel_cnt}")
             if pong_info.is_remote == True and pong_info.is_end == False:
                 pong_info.is_end = True
                 await self.send_group_message("interrupted")
@@ -152,10 +163,15 @@ class PongLogic(AsyncWebsocketConsumer):
                 await self.set_remote_mode(pong_data, pong_info)
             elif pong_data.get("type", None) == "interrupted":
                 await self.handleUnexpectedDisconnection(pong_data)
+            elif pong_data.get("type", None) == "tournament":
+                pong_info.is_tournament = True
+            elif pong_data.get("type", None) == "game_over":
+                pong_info.task["game_loop"].cancel()
+                del self.pong_info_map[pong_info.setting_id] 
             else:
                 pong_info.paddle.set_instruction(pong_data)
 
-    async def set_remote_mode(self,pong_data, pong_info):
+    async def set_remote_mode(self,pong_data,pong_info):
         if pong_data.get("remote_player_pos",None) == "right":
             pong_info.remote_right = True
         elif pong_data.get("remote_player_pos",None) == "left":
@@ -167,6 +183,7 @@ class PongLogic(AsyncWebsocketConsumer):
             await self.send_group_message("remote_OK")
             pong_info.is_remote = True
             await self.send_pong_data(True)
+            print("remote_OKだよ")
 
     async def handleUnexpectedDisconnection(self,pong_data):
         print("handleUnexpectedDisconnection!!!")

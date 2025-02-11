@@ -34,7 +34,7 @@ const Gameplay = {
     if (player2) {
       document.getElementById("player2").textContent = player2;
     }
-  
+    let isTournament = sessionStorage.getItem("isTournament");
     const gameCanvas = document.getElementById("gameCanvas");
     const ctx = gameCanvas.getContext("2d");
     gameCanvas.width = 1000;
@@ -84,7 +84,6 @@ const Gameplay = {
     
     async function setupNewWebSocket(url) {
       Gameplay.remote.remoteMode= false;
-      sessionStorage.setItem("isRemote", "false");
       if (window.ws && window.ws.readyState === WebSocket.OPEN && url !== window.ws.url) {
         // 確実に閉じた後にinitializeNewWebSocketを実行
         await new Promise((resolve) => {
@@ -109,10 +108,15 @@ const Gameplay = {
         if (!window.location.hash.includes(`#/gameplay.${settingId}/`)) {
           window.location.hash = `#/gameplay.${settingId}/`;
         }
-        if (animationFrameId) {
-          cancelAnimationFrame(animationFrameId);
+        if (window.ws && window.ws.readyState === WebSocket.OPEN) {
+          if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+          }
+          animationFrameId = requestAnimationFrame(update);
+          if (isTournament === "true") {
+            sendMessage({ type: "tournament" });
+          }
         }
-        animationFrameId = requestAnimationFrame(update);
       };
     }
 
@@ -260,6 +264,7 @@ const Gameplay = {
         alert(`${i18next.t("gameplay:popup.game_over")} ${winner}`);
         document.getElementById("gameOverButton").style.display = "block";
       }
+      sendMessage({ type: "game_over" });
     }
 
     window.ws.onmessage = (e) => {
@@ -293,11 +298,6 @@ const Gameplay = {
         else if (Gameplay.remote.left) {
           sendMessage({ type:"interrupted", remote_player_pos: "left" });
         }
-        return;
-      }
-      if (data.type === "reloaded"){
-        remoteButton.style.display = "none";
-        gameStartButton.style.display = "none"; 
         return;
       }
       score.left = data.left_score;
