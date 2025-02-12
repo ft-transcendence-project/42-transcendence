@@ -277,6 +277,15 @@ const Gameplay = {
         gameOver(data);
         return;
       }
+      if (data.type === "reload") {
+        console.log("Reload!!!!!");
+        alert(i18next.t("gameplay:error.reload"));
+        gameStartButton.style.display = "none";
+        remoteButton.style.display = "none";
+        remoteOptions.style.display = "none";
+        gameOver(data);
+        return;
+      }
       if (data.type === "remote_OK"){
         console.log("Remote OK");
         Gameplay.remote.remoteMode= true;
@@ -290,13 +299,13 @@ const Gameplay = {
         gameStartButton.style.display = "none";
         return;
       }
-      if (data.type === "interrupted"){
+      if (data.type === "receive interrupted"){
         alert(i18next.t("gameplay:error.interrupted"));
         if (Gameplay.remote.right) {
-          sendMessage({ type:"interrupted", remote_player_pos: "right" });
+          sendMessage({ type:"receive interrupted", winner: "right" });
         }
         else if (Gameplay.remote.left) {
-          sendMessage({ type:"interrupted", remote_player_pos: "left" });
+          sendMessage({ type:"receive interrupted", winner: "left" });
         }
         return;
       }
