@@ -16,6 +16,7 @@
     "start": "Failed to start game",
     "game_id": "Invalid Game ID",
     "remote_player": "Please select the remote player",
-    "interrupted": "The other party has disconnected. You're the winner!!"
+    "interrupted": "The other party has disconnected. You're the winner!!",
+    "reload" : "Disconnected"
   }
 }

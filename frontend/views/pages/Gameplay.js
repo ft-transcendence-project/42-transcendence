@@ -278,12 +278,10 @@ const Gameplay = {
         return;
       }
       if (data.type === "reload") {
-        console.log("Reload!!!!!");
         alert(i18next.t("gameplay:error.reload"));
         gameStartButton.style.display = "none";
         remoteButton.style.display = "none";
         remoteOptions.style.display = "none";
-        gameOver(data);
         return;
       }
       if (data.type === "remote_OK"){
@@ -299,7 +297,7 @@ const Gameplay = {
         gameStartButton.style.display = "none";
         return;
       }
-      if (data.type === "receive interrupted"){
+      if (data.type === "interrupted"){
         alert(i18next.t("gameplay:error.interrupted"));
         if (Gameplay.remote.right) {
           sendMessage({ type:"receive interrupted", winner: "right" });
