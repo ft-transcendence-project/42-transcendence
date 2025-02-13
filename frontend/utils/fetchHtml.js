@@ -18,7 +18,7 @@ export async function fetchHtml(url) {
     }
 
     console.log("API Success:", response);
-    return response.text();
+    return await response.text();
   } catch (error) {
     console.error("Fetch Error:", error);
     return `<h1 data-i18n="common:page_not_found">Page not found.</h1>`;
