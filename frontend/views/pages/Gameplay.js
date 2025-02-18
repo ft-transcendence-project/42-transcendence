@@ -1,8 +1,9 @@
 import { fetchWithHandling } from "../../utils/fetchWithHandling.js";
 import { fetchHtml } from "../../utils/fetchHtml.js";
+import { setUpGameCanvas } from "../../utils/game/gameCanvasConfig.js";
+import { getGameOptions } from "../../utils/game/gameCanvasConfig.js";
 
 const Gameplay = {
-
   render: async () => {
     return await fetchHtml("/views/templates/Gameplay.html");
   },
@@ -20,7 +21,6 @@ const Gameplay = {
     ready: false,
   },
 
-
   after_render: async () => {
     let settingId = sessionStorage.getItem("settingId");
     console.log("SettingId in Gameplay:", settingId);
@@ -35,13 +35,10 @@ const Gameplay = {
       document.getElementById("player2").textContent = player2;
     }
     let isTournament = sessionStorage.getItem("isTournament");
-    const gameCanvas = document.getElementById("gameCanvas");
-    const ctx = gameCanvas.getContext("2d");
-    gameCanvas.width = 1000;
-    gameCanvas.height = 600;
+    
+    const { gameCanvas, ctx, center_x, center_y } = setUpGameCanvas();
+    const { obstacle1, obstacle2, blind } = getGameOptions(center_x, center_y);
     let first = true;
-    const center_x = gameCanvas.width / 2;
-    const center_y = gameCanvas.height / 2;
     let paddle_h = 120;
     let paddle_w = 15;
     let paddle = {
@@ -55,24 +52,6 @@ const Gameplay = {
       y: center_y,
       radius: 10,
     };
-    let obstacle1 = {
-      x: center_x,
-      y: center_y,
-      width: 0,
-      height: 0,
-    };
-    let obstacle2 = {
-      x: center_x,
-      y: center_y,
-      width: 0,
-      height: 0,
-    };
-    let blind = {
-      x: 0,
-      y: 0,
-      width: 0,
-      height: 0,
-    };
     let score = {
       left: 0,
       right: 0,
@@ -81,7 +60,6 @@ const Gameplay = {
     let animationFrameId = null;
     let url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${settingId}/`;
     // Websocket
-    
     async function setupNewWebSocket(url) {
       Gameplay.remote.remoteMode= false;
       if (window.ws && window.ws.readyState === WebSocket.OPEN && url !== window.ws.url) {
@@ -129,8 +107,6 @@ const Gameplay = {
     const gameStartButton = document.getElementById("game-start");
     const remoteButton = document.getElementById("remote-mode");
     const remoteOptions = document.getElementById("remote-options");
-    const gameIdInput = document.getElementById("game-id-text");
-    const gameIdSetButton = document.getElementById("game-id-set-button");
     const rightButton = document.getElementById("remote-right");
     const leftButton = document.getElementById("remote-left");
     const remoteSetButton = document.getElementById("remote-set-button");
@@ -161,10 +137,12 @@ const Gameplay = {
       }
     });
 
-    gameIdSetButton.addEventListener("click", async function () {
+    document.getElementById("game-id-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
       try {
-        if (gameIdInput.value) {
-          sessionStorage.setItem("settingId", gameIdInput.value);
+        const gameId = document.getElementById("game-id");
+        if (gameId.value) {
+          sessionStorage.setItem("settingId", gameId.value);
           settingId = sessionStorage.getItem("settingId");
           const response = await fetchWithHandling(
             `${window.env.GAMEPLAY_HOST}/gamesetting/${window.sessionStorage.getItem("settingId")}/`,

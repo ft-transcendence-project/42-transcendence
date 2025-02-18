@@ -9,8 +9,7 @@
   },
   "Remote_OFF": "Remote OFF",
   "Remote_ON": "Remote ON",
-  "enter_id": "Enter Game ID",
-  "set_id": "Set ID",
+  "enter_gameid": "Enter Game ID",
   "set": "Set",
   "error": {
     "start": "Failed to start game",
