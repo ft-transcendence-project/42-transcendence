@@ -10,7 +10,6 @@ class PongInfo:
         self.task = {}
         self.setting_id = setting_id
         self.group_name = group_name
-        self.channel_name = channel_name
         self.is_game_started = False
         self.game_window = GameWindow()
         self.ball = Ball()
@@ -20,8 +19,8 @@ class PongInfo:
         self.obstacle1 = Obstacle(1)
         self.obstacle2 = Obstacle(2)
         self.blind = Blind()
-        self.channel_cnt = 0
+        self.player_cnt = 0
         self.is_remote = False
-        self.remote_right = False
-        self.remote_left = False
+        self.remote_right = {"status": False, "channel_name": None}
+        self.remote_left = {"status": False, "channel_name": None}
         self.is_end = False

@@ -212,13 +212,13 @@ const Gameplay = {
         alert(i18next.t("gameplay:error.reload"));
         gameStartButton.style.display = "none";
         remote.classList.add("d-none");
+        document.getElementById("gameOverButton").style.display = "block";
         return;
       }
       if (data.type === "remote_OK"){
         console.log("Remote OK");
-        Gameplay.remote.isRemote= true;
+        Gameplay.remote.isRemote = true;
         Gameplay.remote.ready = true;
-        console.log("Remote:",remote);
         remote.classList.add("d-none");
         let remotePos = document.getElementById("remote-pos");
         if (data.player === "right")
@@ -242,6 +242,7 @@ const Gameplay = {
         remote.classList.add("d-none");
         alert(i18next.t("gameplay:error.interrupted_before_start"));
         document.getElementById("gameOverButton").style.display = "block";
+        return;
       }
       score.left = data.left_score;
       score.right = data.right_score;
