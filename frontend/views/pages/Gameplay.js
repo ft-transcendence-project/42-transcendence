@@ -17,25 +17,23 @@ const Gameplay = {
   remote: {
     right: false,
     left: false,
-    remoteMode: false,
+    isRemote : false,
     ready: false,
   },
 
   after_render: async () => {
-    let settingId = sessionStorage.getItem("settingId");
-    console.log("SettingId in Gameplay:", settingId);
-    document.getElementById("gameId").innerText =
-      `game id = ${sessionStorage.getItem("settingId")}`;
-    let player1 = sessionStorage.getItem("player1");
+    const settingId = sessionStorage.getItem("settingId");
+    const player1 = sessionStorage.getItem("player1");
     if (player1) {
       document.getElementById("player1").textContent = player1;
     }
-    let player2 = sessionStorage.getItem("player2");
+    const player2 = sessionStorage.getItem("player2");
     if (player2) {
       document.getElementById("player2").textContent = player2;
     }
-    let isTournament = sessionStorage.getItem("isTournament");
-    
+    console.log("SettingId in Gameplay:", settingId);
+    document.getElementById("gameId").innerText =
+      `game id = ${sessionStorage.getItem("settingId")}`;
     const { gameCanvas, ctx, center_x, center_y } = setUpGameCanvas();
     const { obstacle1, obstacle2, blind } = getGameOptions(center_x, center_y);
     let first = true;
@@ -58,109 +56,61 @@ const Gameplay = {
     };
 
     let animationFrameId = null;
-    let url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${settingId}/`;
     // Websocket
-    async function setupNewWebSocket(url) {
-      Gameplay.remote.remoteMode= false;
-      if (window.ws && window.ws.readyState === WebSocket.OPEN && url !== window.ws.url) {
-        // 確実に閉じた後にinitializeNewWebSocketを実行
-        await new Promise((resolve) => {
-          window.ws.onclose = () => {
-            console.log("WebSocket closed", settingId);
-            window.ws = null;
-            resolve();
-          };
-          window.ws.close();
-        });
-      }
-      await initializeNewWebSocket(url);
-    }
-    
-    async function initializeNewWebSocket(url) {
-      if (!window.ws) {
-        window.ws = new WebSocket(url);
-        console.log(url + " WebSocket created");
-      }
-      window.ws.onopen = () => {
-        console.log("WebSocket opened", settingId);
-        if (!window.location.hash.includes(`#/gameplay.${settingId}/`)) {
-          window.location.hash = `#/gameplay.${settingId}/`;
-        }
-        if (window.ws && window.ws.readyState === WebSocket.OPEN) {
-          if (animationFrameId) {
-            cancelAnimationFrame(animationFrameId);
-          }
-          animationFrameId = requestAnimationFrame(update);
-          if (isTournament === "true") {
-            sendMessage({ type: "tournament" });
-          }
-        }
-      };
-    }
+    const url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${settingId}/`;
+    window.ws = new WebSocket(url);
+    console.log(url + " WebSocket created");
 
-    setupNewWebSocket(url);
+    window.ws.onopen = () => {
+      console.log("WebSocket opened");
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+      animationFrameId = requestAnimationFrame(update);
+    };
 
     window.ws.onerror = (error) => {
       console.error("WebSocket error:", error);
     };
 
     const gameStartButton = document.getElementById("game-start");
-    const remoteButton = document.getElementById("remote-mode");
+    const remote = document.getElementById("remote");
+    const selectRemoteButton = document.getElementById("select-remote");
     const remoteOptions = document.getElementById("remote-options");
     const rightButton = document.getElementById("remote-right");
     const leftButton = document.getElementById("remote-left");
-    const remoteSetButton = document.getElementById("remote-set-button");
+    const setRemoteButton = document.getElementById("set-remote");
 
     // ボタンにクリックイベントを追加
     gameStartButton.addEventListener("click", function (){
       console.log("Game Startボタンが押されました");
-      if (!Gameplay.remote.remoteMode || (Gameplay.remote.remoteMode && Gameplay.remote.ready)) {
-        gameStartButton.style.display = "none";
-        remoteButton.style.display = "none";
-        remoteOptions.style.display = "none";
+      if (!Gameplay.remote.isRemote || (Gameplay.remote.isRemote && Gameplay.remote.ready)) {
         window.ws.send(JSON.stringify({ game_signal: "start" }));
       }
       else
         alert(i18next.t("gameplay:error.start"));
     });
 
-    remoteButton.addEventListener("click", function () {
-      if (remoteButton.textContent === i18next.t("gameplay:Remote_OFF")) {
-        remoteButton.textContent = i18next.t("gameplay:Remote_ON");
+    selectRemoteButton.addEventListener("click", function () {
+      if (selectRemoteButton.textContent === i18next.t("gameplay:Remote_OFF")) {
+        selectRemoteButton.textContent = i18next.t("gameplay:Remote_ON");
         remoteOptions.style.display = "block";
-        Gameplay.remote.remoteMode= true;
+        Gameplay.remote.isRemote= true;
       }
-      else if (remoteButton.textContent === i18next.t("gameplay:Remote_ON")){
-        remoteButton.textContent = i18next.t("gameplay:Remote_OFF");
+      else if (selectRemoteButton.textContent === i18next.t("gameplay:Remote_ON")){
+        selectRemoteButton.textContent = i18next.t("gameplay:Remote_OFF");
         remoteOptions.style.display = "none";
-        Gameplay.remote.remoteMode= false;
-      }
-    });
-
-    document.getElementById("game-id-form").addEventListener("submit", async (event) => {
-      event.preventDefault();
-      try {
-        const gameId = document.getElementById("game-id");
-        if (gameId.value) {
-          sessionStorage.setItem("settingId", gameId.value);
-          settingId = sessionStorage.getItem("settingId");
-          const response = await fetchWithHandling(
-            `${window.env.GAMEPLAY_HOST}/gamesetting/${window.sessionStorage.getItem("settingId")}/`,
-            {
-              method: "GET",
-            },
-          );
-          if (!response.ok) {
-            throw new Error("Game ID not found");
-          }
-          const responseData = await response.json();
-          console.log("settingdata GET successfully:", responseData);
-          url = `${window.env.GAMEPLAY_WS_HOST}/ponglogic/${settingId}/`;
-          setupNewWebSocket(url);
+        leftButton.style.backgroundColor = "white";
+        rightButton.style.backgroundColor = "white";
+        Gameplay.remote.isRemote= false;
+        if (Gameplay.remote.left) {
+          Gameplay.remote.left = false;
+          sendMessage({ type: "remote_OFF", remote_player_pos: "left" });
         }
-      } catch (error) {
-        console.error("Error:", error);
-        alert(i18next.t("gameplay:error.game_id"));
+        else if (Gameplay.remote.right) {
+          Gameplay.remote.right = false;
+          sendMessage({ type: "remote_OFF", remote_player_pos: "right" });
+        }
       }
     });
 
@@ -178,7 +128,7 @@ const Gameplay = {
       rightButton.style.backgroundColor = "white";
     });
 
-    remoteSetButton.addEventListener("click", function () {
+    setRemoteButton.addEventListener("click", function () {
       let message = {};
       if (Gameplay.remote.right) {
           message = { type: "remote_ON", remote_player_pos: "right" };
@@ -247,10 +197,13 @@ const Gameplay = {
 
     window.ws.onmessage = (e) => {
       if (window.ws === null || window.ws.readyState !== WebSocket.OPEN) return;
-      if (!first) {
-        // gameStartButton.style.display = "none";
-      }
       const data = JSON.parse(e.data);
+      if (data.type === "start_OK"){
+        console.log("Start OK");
+        gameStartButton.style.display = "none";
+        remote.classList.add("d-none");
+        return;
+      }
       if (data.type === "game_over") {
         gameOver(data);
         return;
@@ -258,32 +211,37 @@ const Gameplay = {
       if (data.type === "reload") {
         alert(i18next.t("gameplay:error.reload"));
         gameStartButton.style.display = "none";
-        remoteButton.style.display = "none";
-        remoteOptions.style.display = "none";
+        remote.classList.add("d-none");
         return;
       }
       if (data.type === "remote_OK"){
         console.log("Remote OK");
-        Gameplay.remote.remoteMode= true;
+        Gameplay.remote.isRemote= true;
         Gameplay.remote.ready = true;
-        remoteButton.style.display = "none";
-        remoteOptions.style.display = "none";
-        return;
-      }
-      if (data.type === "start_OK"){
-        console.log("Start OK");
-        gameStartButton.style.display = "none";
+        console.log("Remote:",remote);
+        remote.classList.add("d-none");
+        let remotePos = document.getElementById("remote-pos");
+        if (data.player === "right")
+          remotePos.textContent = i18next.t("gameplay:player_pos.right");
+        else if (data.player === "left")
+          remotePos.textContent = i18next.t("gameplay:player_pos.left");
         return;
       }
       if (data.type === "interrupted"){
         alert(i18next.t("gameplay:error.interrupted"));
         if (Gameplay.remote.right) {
-          sendMessage({ type:"receive interrupted", winner: "right" });
+          sendMessage({ type:"received interrupted", winner: "right" });
         }
         else if (Gameplay.remote.left) {
-          sendMessage({ type:"receive interrupted", winner: "left" });
+          sendMessage({ type:"received interrupted", winner: "left" });
         }
         return;
+      }
+      if (data.type === "interrupted before start"){
+        gameStartButton.style.display = "none";
+        remote.classList.add("d-none");
+        alert(i18next.t("gameplay:error.interrupted_before_start"));
+        document.getElementById("gameOverButton").style.display = "block";
       }
       score.left = data.left_score;
       score.right = data.right_score;
@@ -316,25 +274,25 @@ const Gameplay = {
 
     Gameplay.keydownListener = (event) => {
       let paddle_instruction = null;
-      if ((!Gameplay.remote.remoteMode|| (Gameplay.remote.remoteMode&& Gameplay.remote.left)) && (event.key === "D" || event.key === "d")) {
+      if ((!Gameplay.remote.isRemote|| (Gameplay.remote.isRemote&& Gameplay.remote.left)) && (event.key === "D" || event.key === "d")) {
         paddle_instruction = {
           move_direction: "down",
           action: "start",
           side: "left",
         };
-      } else if ((!Gameplay.remote.remoteMode|| (Gameplay.remote.remoteMode&& Gameplay.remote.left)) && (event.key === "E" || event.key === "e")) {
+      } else if ((!Gameplay.remote.isRemote|| (Gameplay.remote.isRemote&& Gameplay.remote.left)) && (event.key === "E" || event.key === "e")) {
         paddle_instruction = {
           move_direction: "up",
           action: "start",
           side: "left",
         };
-      } else if ((!Gameplay.remote.remoteMode|| (Gameplay.remote.remoteMode&& Gameplay.remote.right)) && (event.key === "I" || event.key === "i")) {
+      } else if ((!Gameplay.remote.isRemote|| (Gameplay.remote.isRemote&& Gameplay.remote.right)) && (event.key === "I" || event.key === "i")) {
         paddle_instruction = {
           move_direction: "up",
           action: "start",
           side: "right",
         };
-      } else if ((!Gameplay.remote.remoteMode|| (Gameplay.remote.remoteMode&& Gameplay.remote.right)) && (event.key === "K" || event.key === "k")) {
+      } else if ((!Gameplay.remote.isRemote|| (Gameplay.remote.isRemote&& Gameplay.remote.right)) && (event.key === "K" || event.key === "k")) {
         paddle_instruction = {
           move_direction: "down",
           action: "start",
