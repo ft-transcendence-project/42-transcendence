@@ -11,5 +11,6 @@
   "language": "语言",
   "english": "英语",
   "japanese": "日语",
-  "chinese": "中文"
+  "chinese": "中文",
+  "remote" : "远程"
 }

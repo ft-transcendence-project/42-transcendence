@@ -11,5 +11,6 @@
   "language": "Language",
   "english": "English",
   "japanese": "Japanese",
-  "chinese": "Chinese"
+  "chinese": "Chinese",
+  "remote" : "Remote"
 }

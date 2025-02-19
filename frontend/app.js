@@ -12,6 +12,7 @@ import GameSetting from "./views/pages/GameSetting.js";
 import Tournament from "./views/pages/Tournament.js";
 import Matches from "./views/pages/Matches.js";
 import WinnerPage from "./views/pages/Winner.js";
+import Remote from "./views/pages/Remote.js";
 
 import { updateContent } from "./utils/i18n.js";
 
@@ -27,6 +28,7 @@ const routes = {
   "/tournament": Tournament,
   "/matches": Matches,
   "/winner": WinnerPage,
+  "/remote": Remote,
 };
 
 const getCookie = (name) => {

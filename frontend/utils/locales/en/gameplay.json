@@ -17,5 +17,9 @@
     "remote_player": "Please select the remote player",
     "interrupted": "The other party has disconnected. You're the winner!!",
     "reload" : "Disconnected"
+  },
+  "player_pos" : {
+    "left": "Your Paddle : Left",
+    "right": "Your Paddle : Right"
   }
 }

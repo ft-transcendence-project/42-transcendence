@@ -17,5 +17,9 @@
     "remote_player": "请选择遥控玩家",
     "interrupted": "对方已断开连接。你是赢家！",
     "reload" : "已断开连接"
+  },
+  "player_pos" : {
+    "left": "您的球拍：左",
+    "right": "您的球拍：右"
   }
 }
