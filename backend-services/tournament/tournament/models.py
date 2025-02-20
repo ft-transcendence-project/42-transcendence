@@ -19,7 +19,7 @@ class Tournament(models.Model):
         blank=True,
         related_name="tournaments_won",
     )
-
+    game_id = models.PositiveIntegerField(null=True, blank=True)
     def __str__(self):
         return self.name
 

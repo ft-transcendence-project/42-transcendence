@@ -32,7 +32,7 @@ const GameSetting = {
 
         // POSTリクエストを送信
         console.log(`${window.env.GAMEPLAY_HOST}/gamesetting/`);
-        const response = await fetchWithHandling(
+        const gameSettingResponse = await fetchWithHandling(
           `${window.env.GAMEPLAY_HOST}/gamesetting/`,
           {
             method: "POST",
@@ -43,10 +43,10 @@ const GameSetting = {
           },
         );
 
-        if (response) {
+        if (gameSettingResponse) {
           // 成功時の処理
-          const responseData = await response.json();
-          const settingId = responseData.id;
+          const gameSettingResponseData = await gameSettingResponse.json();
+          const settingId = gameSettingResponseData.id;
           console.log("Settings updated successfully:", settings);
           sessionStorage.setItem("settingId", settingId);
           console.log(
@@ -54,8 +54,19 @@ const GameSetting = {
             sessionStorage.getItem("settingId"),
           );
           if (sessionStorage.getItem("isTournament") === "true") {
-            window.location.hash = `#/matches`; // Matches画面へ遷移
-            return;
+            const tournamentId = localStorage.getItem("tournamentId");
+            const tournamentResponse = await fetchWithHandling(`${window.env.TOURNAMENT_HOST}/tournament/register/${tournamentId}/`, 
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: { game_id: settingId },
+            });
+            if (tournamentResponse) {
+              window.location.hash = `#/matches`; // Matches画面へ遷移
+              return;
+            }
           }
           window.location.hash = `#/gameplay.${settingId}/`; // Gameplay画面へ遷移
           const tournamentButton = document.getElementById("navbar:tournament");
