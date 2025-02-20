@@ -192,7 +192,6 @@ const Gameplay = {
         alert(`${i18next.t("gameplay:popup.game_over")} ${winner}`);
         document.getElementById("gameOverButton").style.display = "block";
       }
-      sendMessage({ type: "game_over" });
     }
 
     window.ws.onmessage = (e) => {
@@ -206,6 +205,18 @@ const Gameplay = {
       }
       if (data.type === "game_over") {
         gameOver(data);
+        return;
+      }
+      if (data.type === "interrupted"){
+        alert(i18next.t("gameplay:error.interrupted"));
+        gameOver(data);
+        return;
+      }
+      if (data.type === "interrupted before start"){
+        gameStartButton.style.display = "none";
+        remote.classList.add("d-none");
+        alert(i18next.t("gameplay:error.interrupted"));
+        document.getElementById("gameOverButton").style.display = "block";
         return;
       }
       if (data.type === "reload") {
@@ -225,23 +236,6 @@ const Gameplay = {
           remotePos.textContent = i18next.t("gameplay:player_pos.right");
         else if (data.player === "left")
           remotePos.textContent = i18next.t("gameplay:player_pos.left");
-        return;
-      }
-      if (data.type === "interrupted"){
-        alert(i18next.t("gameplay:error.interrupted"));
-        if (Gameplay.remote.right) {
-          sendMessage({ type:"received interrupted", winner: "right" });
-        }
-        else if (Gameplay.remote.left) {
-          sendMessage({ type:"received interrupted", winner: "left" });
-        }
-        return;
-      }
-      if (data.type === "interrupted before start"){
-        gameStartButton.style.display = "none";
-        remote.classList.add("d-none");
-        alert(i18next.t("gameplay:error.interrupted_before_start"));
-        document.getElementById("gameOverButton").style.display = "block";
         return;
       }
       score.left = data.left_score;

@@ -26,6 +26,7 @@ class MatchDetailSerializer(serializers.ModelSerializer):
             "player1_score",
             "player2_score",
             "winner",
+            "is_finished",
         ]
 
 

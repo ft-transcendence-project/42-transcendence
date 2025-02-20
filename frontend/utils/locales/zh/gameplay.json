@@ -15,7 +15,7 @@
     "start": "游戏启动失败",
     "game_id": "无效的游戏 ID",
     "remote_player": "请选择遥控玩家",
-    "interrupted": "对方已断开连接",
+    "interrupted": "游戏已中断",
     "reload" : "已断开连接"
   },
   "player_pos" : {

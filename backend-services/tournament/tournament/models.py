@@ -39,7 +39,8 @@ class Match(models.Model):
     )
     player1_score = models.PositiveIntegerField(default=0)
     player2_score = models.PositiveIntegerField(default=0)
-
+    is_finished = models.BooleanField(default=False)
+    
     def __str__(self):
         return f"Match {self.match_number} in {self.tournament.name}"
 

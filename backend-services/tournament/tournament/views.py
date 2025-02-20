@@ -86,9 +86,7 @@ class GetTournamentByGameIdView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Tournament.DoesNotExist:
             logger.error(f"Tournament not found with game_id: {game_id}")
-            return Response(
-                {"error": "No tournament found"}, status=status.HTTP_404_NOT_FOUND
-            )
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
 class SaveDataView(APIView):
     def get(self, request, pk=None):
@@ -129,6 +127,7 @@ class SaveDataView(APIView):
                     else match_data["player2"]["id"]
                 )
             )
+            match.is_finished = True
             match.save()
 
             # ブロックチェーンに試合結果を記録
