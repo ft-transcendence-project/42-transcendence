@@ -184,14 +184,10 @@ const Gameplay = {
             const responseData = await response.json();
             console.log("Tournament data updated successfully:", responseData);
           }
-
-          alert(`${i18next.t("gameplay:popup.game_over")} ${winner}`);
-          document.getElementById("nextGameButton").style.display = "block";
         }
-      } else {
-        alert(`${i18next.t("gameplay:popup.game_over")} ${winner}`);
-        document.getElementById("gameOverButton").style.display = "block";
       }
+      alert(`${i18next.t("gameplay:popup.game_over")} ${winner}`);
+      document.getElementById("gameOverButton").style.display = "block";
     }
 
     window.ws.onmessage = async (e) => {
@@ -204,15 +200,7 @@ const Gameplay = {
             remote.classList.add("d-none");
             break;
           case "remote_OK":
-            console.log("Remote OK");
-            Gameplay.remote.isRemote = true;
-            Gameplay.remote.ready = true;
-            remote.classList.add("d-none");
-            let remotePos = document.getElementById("remote-pos");
-            if (data.player === "right")
-              remotePos.textContent = i18next.t("gameplay:player_pos.right");
-            else if (data.player === "left")
-              remotePos.textContent = i18next.t("gameplay:player_pos.left");
+            handleRemoteOK();
             break;
           case "game_over":
             await gameOver(data);
@@ -222,21 +210,46 @@ const Gameplay = {
           await gameOver(data);
           break;
         case "interrupted before start":
-          gameStartButton.style.display = "none";
+          await handleInterruptedBeforeStart();
+          break;
+        case "reload":
+          handleReload();
+          break;
+        default:
+          updateGameState(data);
+          break;
+        }
+
+      function handleRemoteOK(){
+        console.log("Remote OK");
+          Gameplay.remote.isRemote = true;
+          Gameplay.remote.ready = true;
+          remote.classList.add("d-none");
+          let remotePos = document.getElementById("remote-pos");
+          if (data.player === "right")
+            remotePos.textContent = i18next.t("gameplay:player_pos.right");
+          else if (data.player === "left")
+            remotePos.textContent = i18next.t("gameplay:player_pos.left");
+        }
+      
+      function handleInterruptedBeforeStart(){
+        gameStartButton.style.display = "none";
           remote.classList.add("d-none");
           alert(i18next.t("gameplay:error.interrupted"));
           document.getElementById("gameOverButton").style.display = "block";
-          break;
-        case "reload":
-          alert(i18next.t("gameplay:error.reload"));
+      }
+      
+      async function handleReload(){
+        alert(i18next.t("gameplay:error.reload"));
           const winner = await getWinner(data);
           alert(`${i18next.t("gameplay:popup.game_over")} ${winner}`);
           gameStartButton.style.display = "none";
           remote.classList.add("d-none");
           document.getElementById("gameOverButton").style.display = "block";
-          break;
-        default:
-          score.left = data.left_score;
+      }
+
+      function updateGameState(data) {
+        score.left = data.left_score;
           score.right = data.right_score;
           paddle.left_y = data.left_paddle_y;
           paddle.right_y = data.right_paddle_y;
@@ -258,8 +271,7 @@ const Gameplay = {
             blind.height = data.blind_height;
             first = false;
           }
-          break;
-        }
+      }
       } catch (error) {
         console.error("WebSocket message error:", error);
       }
