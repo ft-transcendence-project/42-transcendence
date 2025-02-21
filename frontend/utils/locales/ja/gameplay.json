@@ -6,5 +6,20 @@
     "game_over": "ゲーム終了！勝者：",
     "left": "左側",
     "right": "右側"
+  },
+  "Remote_OFF": "リモートオフ",
+  "Remote_ON": "リモートオン",
+  "enter_gameid": "ゲームIDを入力",
+  "set": "設定",
+  "error": {
+    "start": "ゲームの開始に失敗しました",
+    "game_id": "無効なゲームID",
+    "remote_player": "リモートプレイヤーを選択してください",
+    "interrupted": "ゲームが中断されました",
+    "reload" : "切断されました"
+  },
+  "player_pos" : {
+    "left": "あなたのパドル：左",
+    "right": "あなたのパドル：右"
   }
 }

@@ -18,7 +18,16 @@
       class="player-name text-truncate mx-2 player-width"
     ></h3>
   </div>
-  <button type="button" class="btn btn-success mt-3" data-i18n="gameplay:game_start">Game Start</button>
+  <button type="button" id = "game-start" class="btn btn-success mt-3" data-i18n="gameplay:game_start">Game Start</button>
+  <div id="remote" class="d-flex flex-column align-items-center">
+    <button type="button" id="select-remote" class="btn btn-warning mt-3" data-i18n="gameplay:Remote_OFF">Remote OFF</button>
+    <div id="remote-options" class="display-none">
+      <button type="button" id="remote-left" class="btn btn-outline-warning mt-3" data-i18n="gameplay:popup.left">Left</button>
+      <button type="button" id="remote-right" class="btn btn-outline-warning mt-3" data-i18n="gameplay:popup.right">Right</button>
+      <button type="button" id="set-remote" class="btn btn-outline-danger mt-3" data-i18n="gameplay:set">Set</button>
+    </div>
+  </div>
+  <div id="remote-pos"></div>
   <div id="nextGameButton" class="mt-3 display-none">
     <a
       href="#/matches"

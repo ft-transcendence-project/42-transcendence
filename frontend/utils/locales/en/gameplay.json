@@ -6,5 +6,20 @@
     "game_over": "Game Over! winner:",
     "left": "left",
     "right": "right"
+  },
+  "Remote_OFF": "Remote OFF",
+  "Remote_ON": "Remote ON",
+  "enter_gameid": "Enter Game ID",
+  "set": "Set",
+  "error": {
+    "start": "Failed to start game",
+    "game_id": "Invalid Game ID",
+    "remote_player": "Please select the remote player",
+    "interrupted": "The game has been interrupted",
+    "reload" : "Disconnected"
+  },
+  "player_pos" : {
+    "left": "Your Paddle : Left",
+    "right": "Your Paddle : Right"
   }
 }

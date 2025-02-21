@@ -67,6 +67,7 @@ services:
       es01:
         condition: service_healthy
     image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
+    # image: docker.elastic.co/kibana/kibana:8.7.1-arm64
     labels:
       co.elastic.logs/module: kibana
     volumes:

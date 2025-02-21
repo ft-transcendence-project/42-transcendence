@@ -428,10 +428,10 @@ class Utils:
         return pong_data
 
     @staticmethod
-    def generate_game_over_message(pong_info, winner):
+    def generate_game_over_message(pong_info, message):
         game_over_message = {
-            "type": "game_over",
-            "winner": winner,
+            "type": message,
+            "winner": pong_info.winner,
             "left_score": pong_info.score.left,
             "right_score": pong_info.score.right,
         }

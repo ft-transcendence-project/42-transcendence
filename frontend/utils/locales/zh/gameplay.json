@@ -6,5 +6,20 @@
     "game_over": "游戏结束！获胜者：",
     "left": "左方",
     "right": "右方"
+  },
+  "Remote_OFF": "遥控关闭",
+  "Remote_ON": "遥控开启",
+  "enter_gameid": "输入您的游戏 ID",
+  "set": "设置",
+  "error": {
+    "start": "游戏启动失败",
+    "game_id": "无效的游戏 ID",
+    "remote_player": "请选择遥控玩家",
+    "interrupted": "游戏已中断",
+    "reload" : "已断开连接"
+  },
+  "player_pos" : {
+    "left": "您的球拍：左",
+    "right": "您的球拍：右"
   }
 }

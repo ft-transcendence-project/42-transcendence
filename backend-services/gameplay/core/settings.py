@@ -102,6 +102,14 @@ DATABASES = {
     }
 }
 
+HOST_IP = os.environ.get("HOST_IP", "127.0.0.1")
+# 後でredisのUSER,PASSWORDを設定する
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": f"redis://redis:6379/1",  # 1はRedisのデータベース番号
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -224,6 +232,7 @@ if ENVIRONMENT == "production":
         "backend",
         "web",
         "frontend",
+        HOST_IP
     ]
     CORS_ALLOWED_ORIGINS = [
         "https://localhost:8443",

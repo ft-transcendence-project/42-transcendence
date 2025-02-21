@@ -193,7 +193,7 @@ LOGGING = {
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 
 SECRET_KEY = os.getenv("SECRET_KEY")
-
+HOST_IP = os.environ.get("HOST_IP", "127.0.0.1")
 if ENVIRONMENT == "production":
     DEBUG = False
     CSRF_COOKIE_SECURE = True
@@ -221,6 +221,7 @@ if ENVIRONMENT == "production":
         "backend",
         "web",
         "frontend",
+        HOST_IP
     ]
     CORS_ALLOWED_ORIGINS = [
         "https://localhost:8443",

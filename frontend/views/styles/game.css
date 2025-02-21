@@ -20,3 +20,27 @@
   width: 200px;
   height: 45px;
 }
+
+.game-id-text-size {
+  width: 200px;
+  height: 30px;
+}
+
+.game-id-set-button-size {
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#remote-left,#remote-right,#set-remote {
+  color: black;
+}
+
+#remote-pos {
+  font-weight: bold;
+}
+
+#remote-options {
+  display: none;
+}

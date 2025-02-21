@@ -55,6 +55,38 @@ class TournamentRegisterView(APIView):
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+    def put(self, request, pk=None): # game_idを更新する
+        logger.info(f"updating game id for tournament {pk}")
+        game_id = request.data.get("game_id")
+        if not game_id:
+            logger.error("No game id provided in request")
+            return Response(
+                {"error": "No game id provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            tournament = Tournament.objects.get(id=pk)
+            tournament.game_id = game_id
+            tournament.save()
+            serializer = TournamentDetailSerializer(tournament)
+            logger.info(f"Successfully updated game id for tournament {pk}")
+            return Response( serializer.data ,status=status.HTTP_200_OK)
+        except Tournament.DoesNotExist:
+            logger.error(f"Tournament not found with id: {pk}")
+            return Response(
+                {"error": "No tournament found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+class GetTournamentByGameIdView(APIView):
+    def get(self,request,game_id):
+        logger.info(f"Retrieving tournament data for game_id: {game_id}")
+        try:
+            tournament = Tournament.objects.get(game_id=game_id)
+            serializer = TournamentDetailSerializer(tournament)
+            logger.info(f"Successfully retrieved tournament {game_id}")
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Tournament.DoesNotExist:
+            logger.error(f"Tournament not found with game_id: {game_id}")
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
 class SaveDataView(APIView):
     def get(self, request, pk=None):
@@ -95,6 +127,7 @@ class SaveDataView(APIView):
                     else match_data["player2"]["id"]
                 )
             )
+            match.is_finished = True
             match.save()
 
             # ブロックチェーンに試合結果を記録

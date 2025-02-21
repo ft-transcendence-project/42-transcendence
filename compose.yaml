@@ -18,7 +18,7 @@ services:
         - action: rebuild
           path: ./backend-services/account/requirements.txt
     healthcheck:
-      test: ["CMD", "curl", "-f", "localhost:8000/health/"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
       interval: 30s
       timeout: 30s
       retries: 5
@@ -45,7 +45,7 @@ services:
         - action: rebuild
           path: ./backend-services/gameplay/requirements.txt
     healthcheck:
-      test: ["CMD", "curl", "-f", "localhost:8001/health/"]
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health/"]
       interval: 30s
       timeout: 30s
       retries: 5
@@ -71,7 +71,7 @@ services:
         - action: rebuild
           path: ./backend-services/tournament/requirements.txt
     healthcheck:
-      test: ["CMD", "curl", "-f", "localhost:8002/health/"]
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health/"]
       interval: 30s
       timeout: 30s
       retries: 5
@@ -100,15 +100,16 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: frontend
+    env_file: .env
     working_dir: /usr/src/frontend
     command: /bin/sh -c "npm run server"
     volumes:
       - ./frontend:/usr/src/frontend
     environment:
-      - ACCOUNT_HOST=http://localhost:8000
-      - GAMEPLAY_HOST=http://localhost:8001
-      - GAMEPLAY_WS_HOST=ws://localhost:8001/gameplay.ws
-      - TOURNAMENT_HOST=http://localhost:8002
+      - ACCOUNT_HOST=http://${HOST_IP}:8000
+      - GAMEPLAY_HOST=http://${HOST_IP}:8001
+      - GAMEPLAY_WS_HOST=ws://${HOST_IP}:8001/gameplay.ws
+      - TOURNAMENT_HOST=http://${HOST_IP}:8002
     ports:
       - "3000:3000"
     depends_on:
