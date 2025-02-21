@@ -23,4 +23,5 @@ class PongInfo:
         self.is_remote = False
         self.remote_right = {"status": False, "channel_name": None}
         self.remote_left = {"status": False, "channel_name": None}
+        self.winner = None
         self.is_end = False
