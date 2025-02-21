@@ -22,19 +22,7 @@ const Gameplay = {
   },
 
   after_render: async () => {
-    const settingId = sessionStorage.getItem("settingId");
-    const player1 = sessionStorage.getItem("player1");
-    if (player1) {
-      document.getElementById("player1").textContent = player1;
-    }
-    const player2 = sessionStorage.getItem("player2");
-    if (player2) {
-      document.getElementById("player2").textContent = player2;
-    }
-    console.log("SettingId in Gameplay:", settingId);
-    document.getElementById("gameId").innerText =
-      `game id = ${sessionStorage.getItem("settingId")}`;
-    const { gameCanvas, ctx, center_x, center_y } = setUpGameCanvas();
+    const { gameCanvas, ctx, center_x, center_y , settingId} = setUpGameCanvas();
     const { obstacle1, obstacle2, blind } = getGameOptions(center_x, center_y);
     let first = true;
     let paddle_h = 120;
@@ -92,12 +80,18 @@ const Gameplay = {
     });
 
     selectRemoteButton.addEventListener("click", function () {
-      if (selectRemoteButton.textContent === i18next.t("gameplay:Remote_OFF")) {
+      if (selectRemoteButton.textContent === i18next.t("gameplay:Remote_OFF"))
+        enableRemoteMode();
+      else if (selectRemoteButton.textContent === i18next.t("gameplay:Remote_ON"))
+        disableRemoteMode();
+
+      function enableRemoteMode() {
         selectRemoteButton.textContent = i18next.t("gameplay:Remote_ON");
         remoteOptions.style.display = "block";
         Gameplay.remote.isRemote= true;
       }
-      else if (selectRemoteButton.textContent === i18next.t("gameplay:Remote_ON")){
+
+      function  disableRemoteMode() {
         selectRemoteButton.textContent = i18next.t("gameplay:Remote_OFF");
         remoteOptions.style.display = "none";
         leftButton.style.backgroundColor = "white";
@@ -143,7 +137,8 @@ const Gameplay = {
       sendMessage(message);
     });
 
-    async function gameOver(data) {
+    async function getWinner(data)
+    {
       let winner = data.winner;
       if (winner === "left") {
         winner = sessionStorage.getItem("player1")
@@ -154,7 +149,12 @@ const Gameplay = {
           ? sessionStorage.getItem("player2")
           : i18next.t("gameplay:popup.right");
       }
+      console.log("Winner:", winner);
+      return winner; 
+    }
 
+    async function gameOver(data) {
+      const winner = await getWinner(data);
       if (sessionStorage.getItem("isTournament") === "true") {
         const tournamentResponse = await fetchWithHandling(
           `${window.env.TOURNAMENT_HOST}/tournament/save-data/${localStorage.getItem("tournamentId")}/`,
@@ -194,71 +194,74 @@ const Gameplay = {
       }
     }
 
-    window.ws.onmessage = (e) => {
-      if (window.ws === null || window.ws.readyState !== WebSocket.OPEN) return;
-      const data = JSON.parse(e.data);
-      if (data.type === "start_OK"){
-        console.log("Start OK");
-        gameStartButton.style.display = "none";
-        remote.classList.add("d-none");
-        return;
-      }
-      if (data.type === "game_over") {
-        gameOver(data);
-        return;
-      }
-      if (data.type === "interrupted"){
-        alert(i18next.t("gameplay:error.interrupted"));
-        gameOver(data);
-        return;
-      }
-      if (data.type === "interrupted before start"){
-        gameStartButton.style.display = "none";
-        remote.classList.add("d-none");
-        alert(i18next.t("gameplay:error.interrupted"));
-        document.getElementById("gameOverButton").style.display = "block";
-        return;
-      }
-      if (data.type === "reload") {
-        alert(i18next.t("gameplay:error.reload"));
-        gameStartButton.style.display = "none";
-        remote.classList.add("d-none");
-        document.getElementById("gameOverButton").style.display = "block";
-        return;
-      }
-      if (data.type === "remote_OK"){
-        console.log("Remote OK");
-        Gameplay.remote.isRemote = true;
-        Gameplay.remote.ready = true;
-        remote.classList.add("d-none");
-        let remotePos = document.getElementById("remote-pos");
-        if (data.player === "right")
-          remotePos.textContent = i18next.t("gameplay:player_pos.right");
-        else if (data.player === "left")
-          remotePos.textContent = i18next.t("gameplay:player_pos.left");
-        return;
-      }
-      score.left = data.left_score;
-      score.right = data.right_score;
-      paddle.left_y = data.left_paddle_y;
-      paddle.right_y = data.right_paddle_y;
-      ball.x = data.ball_x;
-      ball.y = data.ball_y;
-      if (first) {
-        ball.radius = data.ball_radius;
-        obstacle1.x = data.obstacle1_x;
-        obstacle1.y = data.obstacle1_y;
-        obstacle1.width = data.obstacle1_width;
-        obstacle1.height = data.obstacle1_height;
-        obstacle2.x = data.obstacle2_x;
-        obstacle2.y = data.obstacle2_y;
-        obstacle2.width = data.obstacle2_width;
-        obstacle2.height = data.obstacle2_height;
-        blind.x = data.blind_x;
-        blind.y = data.blind_y;
-        blind.width = data.blind_width;
-        blind.height = data.blind_height;
-        first = false;
+    window.ws.onmessage = async (e) => {
+      try {
+        if (window.ws === null || window.ws.readyState !== WebSocket.OPEN) return;
+        const data = JSON.parse(e.data);
+        switch (data.type) {
+          case "start_OK":
+            gameStartButton.style.display = "none";
+            remote.classList.add("d-none");
+            break;
+          case "remote_OK":
+            console.log("Remote OK");
+            Gameplay.remote.isRemote = true;
+            Gameplay.remote.ready = true;
+            remote.classList.add("d-none");
+            let remotePos = document.getElementById("remote-pos");
+            if (data.player === "right")
+              remotePos.textContent = i18next.t("gameplay:player_pos.right");
+            else if (data.player === "left")
+              remotePos.textContent = i18next.t("gameplay:player_pos.left");
+            break;
+          case "game_over":
+            await gameOver(data);
+            break;
+        case "interrupted":
+          alert(i18next.t("gameplay:error.interrupted"));
+          await gameOver(data);
+          break;
+        case "interrupted before start":
+          gameStartButton.style.display = "none";
+          remote.classList.add("d-none");
+          alert(i18next.t("gameplay:error.interrupted"));
+          document.getElementById("gameOverButton").style.display = "block";
+          break;
+        case "reload":
+          alert(i18next.t("gameplay:error.reload"));
+          const winner = await getWinner(data);
+          alert(`${i18next.t("gameplay:popup.game_over")} ${winner}`);
+          gameStartButton.style.display = "none";
+          remote.classList.add("d-none");
+          document.getElementById("gameOverButton").style.display = "block";
+          break;
+        default:
+          score.left = data.left_score;
+          score.right = data.right_score;
+          paddle.left_y = data.left_paddle_y;
+          paddle.right_y = data.right_paddle_y;
+          ball.x = data.ball_x;
+          ball.y = data.ball_y;
+          if (first) {
+            ball.radius = data.ball_radius;
+            obstacle1.x = data.obstacle1_x;
+            obstacle1.y = data.obstacle1_y;
+            obstacle1.width = data.obstacle1_width;
+            obstacle1.height = data.obstacle1_height;
+            obstacle2.x = data.obstacle2_x;
+            obstacle2.y = data.obstacle2_y;
+            obstacle2.width = data.obstacle2_width;
+            obstacle2.height = data.obstacle2_height;
+            blind.x = data.blind_x;
+            blind.y = data.blind_y;
+            blind.width = data.blind_width;
+            blind.height = data.blind_height;
+            first = false;
+          }
+          break;
+        }
+      } catch (error) {
+        console.error("WebSocket message error:", error);
       }
     };
 
