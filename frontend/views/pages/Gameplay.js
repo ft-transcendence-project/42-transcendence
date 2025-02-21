@@ -256,34 +256,21 @@ const Gameplay = {
       window.ws.send(JSON.stringify(message));
     }
 
+    const keyDownMappings = {
+      "D": { move_direction: "down", action: "start", side: "left" },
+      "E": { move_direction: "up", action: "start", side: "left" },
+      "I": { move_direction: "up", action: "start", side: "right" },
+      "K": { move_direction: "down", action: "start", side: "right" },
+    };
+
     Gameplay.keydownListener = (event) => {
       let paddle_instruction = null;
-      if ((!Gameplay.remote.isRemote|| (Gameplay.remote.isRemote&& Gameplay.remote.left)) && (event.key === "D" || event.key === "d")) {
-        paddle_instruction = {
-          move_direction: "down",
-          action: "start",
-          side: "left",
-        };
-      } else if ((!Gameplay.remote.isRemote|| (Gameplay.remote.isRemote&& Gameplay.remote.left)) && (event.key === "E" || event.key === "e")) {
-        paddle_instruction = {
-          move_direction: "up",
-          action: "start",
-          side: "left",
-        };
-      } else if ((!Gameplay.remote.isRemote|| (Gameplay.remote.isRemote&& Gameplay.remote.right)) && (event.key === "I" || event.key === "i")) {
-        paddle_instruction = {
-          move_direction: "up",
-          action: "start",
-          side: "right",
-        };
-      } else if ((!Gameplay.remote.isRemote|| (Gameplay.remote.isRemote&& Gameplay.remote.right)) && (event.key === "K" || event.key === "k")) {
-        paddle_instruction = {
-          move_direction: "down",
-          action: "start",
-          side: "right",
-        };
+      const key = event.key.toUpperCase(); // 大文字に変換
+      if ((!Gameplay.remote.isRemote || (Gameplay.remote.isRemote && Gameplay.remote.left)) && keyDownMappings[key] && keyDownMappings[key].side === "left") {
+        paddle_instruction = keyDownMappings[key];
+      } else if ((!Gameplay.remote.isRemote || (Gameplay.remote.isRemote && Gameplay.remote.right)) && keyDownMappings[key] && keyDownMappings[key].side === "right") {
+        paddle_instruction = keyDownMappings[key];
       }
-
       if (
         paddle_instruction &&
         paddle_instruction.side === "left" &&
@@ -302,34 +289,19 @@ const Gameplay = {
       }
     };
 
+    const keyUpMappings = {
+      "D": { move_direction: "down", action: "stop", side: "left" },
+      "E": { move_direction: "up", action: "stop", side: "left" },
+      "I": { move_direction: "up", action: "stop", side: "right" },
+      "K": { move_direction: "down", action: "stop", side: "right" },
+    };
+
     Gameplay.keyupListener = (event) => {
       let paddle_instruction = null;
-      if (event.key === "D" || event.key === "d") {
-        paddle_instruction = {
-          move_direction: "down",
-          action: "stop",
-          side: "left",
-        };
-      } else if (event.key === "E" || event.key === "e") {
-        paddle_instruction = {
-          move_direction: "up",
-          action: "stop",
-          side: "left",
-        };
-      } else if (event.key === "I" || event.key === "i") {
-        paddle_instruction = {
-          move_direction: "up",
-          action: "stop",
-          side: "right",
-        };
-      } else if (event.key === "K" || event.key === "k") {
-        paddle_instruction = {
-          move_direction: "down",
-          action: "stop",
-          side: "right",
-        };
+      const key = event.key.toUpperCase(); // 大文字に変換
+      if (keyUpMappings[key]){
+        paddle_instruction = keyUpMappings[key];
       }
-
       if (
         paddle_instruction &&
         paddle_instruction.side === "left" &&
@@ -360,12 +332,14 @@ const Gameplay = {
       paddle.drawPaddle(game);
       ball.drawBall(game);
       score.drawScore(game);
+      let color = "yellow";
       if (obstacle1)
-        obstacle1.drawObstacle(game,"yellow");
+        obstacle1.drawObstacle(game,color);
       if (obstacle2)
-        obstacle2.drawObstacle(game,"yellow");
+        obstacle2.drawObstacle(game,color);
       if (blind)
-        blind.drawObstacle(game,"red");
+        color = "red";
+        blind.drawObstacle(game,color);
     }
 
     let lastUpdateTime = 0;
